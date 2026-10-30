@@ -3,6 +3,7 @@
 from app.models.admin import Announcement, FeatureFlag, Sponsor
 from app.models.audit import AuditLog
 from app.models.base import BaseModel
+from app.models.email import Broadcast, EmailMessage
 from app.models.event import Company, Event, Invitation, InviteLink, JoinRequest, Membership
 from app.models.exhibition import Comment, CommentReport, Introduction, Promotion, Visit
 from app.models.identity import ApiKey, Session, User
@@ -20,7 +21,9 @@ __all__ = [
     "AuditLog",
     "BaseModel",
     "Company",
+    "Broadcast",
     "Comment",
+    "EmailMessage",
     "FeatureFlag",
     "Invitation",
     "Introduction",

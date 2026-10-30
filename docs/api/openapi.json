@@ -5826,7 +5826,7 @@
               "application/json": {
                 "schema": {
                   "items": {
-                    "$ref": "#/components/schemas/MessageOut"
+                    "$ref": "#/components/schemas/app__schemas__pitch__MessageOut"
                   },
                   "type": "array",
                   "title": "Response Get Messages Api V1 Pitch Messages Get"
@@ -5858,7 +5858,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MessageOut"
+                  "$ref": "#/components/schemas/app__schemas__pitch__MessageOut"
                 }
               }
             }
@@ -8187,48 +8187,21 @@
     "/api/v1/admin/email/broadcasts": {
       "get": {
         "tags": [
-          "admin",
           "admin"
         ],
-        "summary": "广播列表（最新在前）",
-        "operationId": "_handler_api_v1_admin_email_broadcasts_get",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "广播列表（最新在前）",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/broadcasts",
-              "title": " Path"
-            }
-          }
-        ],
+        "summary": "广播列表",
+        "operationId": "list_broadcasts_api_v1_admin_email_broadcasts_get",
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "items": {
+                    "$ref": "#/components/schemas/BroadcastOut"
+                  },
+                  "type": "array",
+                  "title": "Response List Broadcasts Api V1 Admin Email Broadcasts Get"
                 }
               }
             }
@@ -8237,39 +8210,28 @@
       },
       "post": {
         "tags": [
-          "admin",
           "admin"
         ],
         "summary": "保存广播草稿",
-        "operationId": "_handler_api_v1_admin_email_broadcasts_post",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "保存广播草稿",
-              "title": " Summary"
+        "operationId": "create_broadcast_api_v1_admin_email_broadcasts_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BroadcastIn"
+              }
             }
           },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/broadcasts",
-              "title": " Path"
-            }
-          }
-        ],
+          "required": true
+        },
         "responses": {
-          "200": {
+          "201": {
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/BroadcastOut"
+                }
               }
             }
           },
@@ -8289,39 +8251,39 @@
     "/api/v1/admin/email/broadcasts/{broadcast_id}": {
       "patch": {
         "tags": [
-          "admin",
           "admin"
         ],
         "summary": "编辑草稿或已排期广播",
-        "operationId": "_handler_api_v1_admin_email_broadcasts__broadcast_id__patch",
+        "operationId": "patch_broadcast_api_v1_admin_email_broadcasts__broadcast_id__patch",
         "parameters": [
           {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
+            "name": "broadcast_id",
+            "in": "path",
+            "required": true,
             "schema": {
               "type": "string",
-              "default": "编辑草稿或已排期广播",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/broadcasts/{broadcast_id}",
-              "title": " Path"
+              "title": "Broadcast Id"
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BroadcastPatchIn"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/BroadcastOut"
+                }
               }
             }
           },
@@ -8339,30 +8301,18 @@
       },
       "delete": {
         "tags": [
-          "admin",
           "admin"
         ],
         "summary": "删除草稿或已取消的广播",
-        "operationId": "_handler_api_v1_admin_email_broadcasts__broadcast_id__delete",
+        "operationId": "delete_broadcast_api_v1_admin_email_broadcasts__broadcast_id__delete",
         "parameters": [
           {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
+            "name": "broadcast_id",
+            "in": "path",
+            "required": true,
             "schema": {
               "type": "string",
-              "default": "删除草稿或已取消的广播",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/broadcasts/{broadcast_id}",
-              "title": " Path"
+              "title": "Broadcast Id"
             }
           }
         ],
@@ -8371,7 +8321,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/OkOut"
+                }
               }
             }
           },
@@ -8391,30 +8343,18 @@
     "/api/v1/admin/email/broadcasts/{broadcast_id}/cancellations": {
       "post": {
         "tags": [
-          "admin",
           "admin"
         ],
-        "summary": "取消草稿或已排期广播",
-        "operationId": "_handler_api_v1_admin_email_broadcasts__broadcast_id__cancellations_post",
+        "summary": "取消广播",
+        "operationId": "cancel_broadcast_api_v1_admin_email_broadcasts__broadcast_id__cancellations_post",
         "parameters": [
           {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
+            "name": "broadcast_id",
+            "in": "path",
+            "required": true,
             "schema": {
               "type": "string",
-              "default": "取消草稿或已排期广播",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/broadcasts/{broadcast_id}/cancellations",
-              "title": " Path"
+              "title": "Broadcast Id"
             }
           }
         ],
@@ -8423,7 +8363,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/OkOut"
+                }
               }
             }
           },
@@ -8443,39 +8385,39 @@
     "/api/v1/admin/email/broadcasts/{broadcast_id}/schedules": {
       "post": {
         "tags": [
-          "admin",
           "admin"
         ],
         "summary": "立即发送或定时发送",
-        "operationId": "_handler_api_v1_admin_email_broadcasts__broadcast_id__schedules_post",
+        "operationId": "schedule_broadcast_api_v1_admin_email_broadcasts__broadcast_id__schedules_post",
         "parameters": [
           {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
+            "name": "broadcast_id",
+            "in": "path",
+            "required": true,
             "schema": {
               "type": "string",
-              "default": "立即发送或定时发送",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/broadcasts/{broadcast_id}/schedules",
-              "title": " Path"
+              "title": "Broadcast Id"
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/app__schemas__admin_email__ScheduleIn"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/BroadcastOut"
+                }
               }
             }
           },
@@ -8495,30 +8437,18 @@
     "/api/v1/admin/email/broadcasts/{broadcast_id}/tests": {
       "post": {
         "tags": [
-          "admin",
           "admin"
         ],
-        "summary": "发一封给自己的测试邮件",
-        "operationId": "_handler_api_v1_admin_email_broadcasts__broadcast_id__tests_post",
+        "summary": "发一封给自己的测试",
+        "operationId": "test_broadcast_api_v1_admin_email_broadcasts__broadcast_id__tests_post",
         "parameters": [
           {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
+            "name": "broadcast_id",
+            "in": "path",
+            "required": true,
             "schema": {
               "type": "string",
-              "default": "发一封给自己的测试邮件",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/broadcasts/{broadcast_id}/tests",
-              "title": " Path"
+              "title": "Broadcast Id"
             }
           }
         ],
@@ -8527,7 +8457,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/OkOut"
+                }
               }
             }
           },
@@ -8547,39 +8479,28 @@
     "/api/v1/admin/email/broadcasts/previews": {
       "post": {
         "tags": [
-          "admin",
           "admin"
         ],
-        "summary": "按收件人视角渲染广播内容",
-        "operationId": "_handler_api_v1_admin_email_broadcasts_previews_post",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "按收件人视角渲染广播内容",
-              "title": " Summary"
+        "summary": "按收件人视角渲染广播",
+        "operationId": "preview_broadcast_api_v1_admin_email_broadcasts_previews_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PreviewIn"
+              }
             }
           },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/broadcasts/previews",
-              "title": " Path"
-            }
-          }
-        ],
+          "required": true
+        },
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/PreviewOut"
+                }
               }
             }
           },
@@ -8599,39 +8520,28 @@
     "/api/v1/admin/email/audience-estimates": {
       "post": {
         "tags": [
-          "admin",
           "admin"
         ],
-        "summary": "按语言估算受众规模（受每日上限约束）",
-        "operationId": "_handler_api_v1_admin_email_audience_estimates_post",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "按语言估算受众规模（受每日上限约束）",
-              "title": " Summary"
+        "summary": "受众规模估算",
+        "operationId": "estimate_audience_api_v1_admin_email_audience_estimates_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EstimateIn"
+              }
             }
           },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/audience-estimates",
-              "title": " Path"
-            }
-          }
-        ],
+          "required": true
+        },
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/EstimateOut"
+                }
               }
             }
           },
@@ -8651,30 +8561,21 @@
     "/api/v1/admin/email/messages": {
       "get": {
         "tags": [
-          "admin",
           "admin"
         ],
-        "summary": "邮件日志（最新在前，按状态计数）",
-        "operationId": "_handler_api_v1_admin_email_messages_get",
+        "summary": "邮件日志（最新在前）",
+        "operationId": "list_messages_api_v1_admin_email_messages_get",
         "parameters": [
           {
-            "name": "_summary",
+            "name": "limit",
             "in": "query",
             "required": false,
             "schema": {
-              "type": "string",
-              "default": "邮件日志（最新在前，按状态计数）",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/messages",
-              "title": " Path"
+              "type": "integer",
+              "maximum": 500,
+              "minimum": 1,
+              "default": 100,
+              "title": "Limit"
             }
           }
         ],
@@ -8683,7 +8584,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/MessagesOut"
+                }
               }
             }
           },
@@ -8703,30 +8606,18 @@
     "/api/v1/admin/email/messages/{message_id}/resends": {
       "post": {
         "tags": [
-          "admin",
           "admin"
         ],
-        "summary": "重新排队发送失败的邮件",
-        "operationId": "_handler_api_v1_admin_email_messages__message_id__resends_post",
+        "summary": "重新发送失败的邮件",
+        "operationId": "resend_message_api_v1_admin_email_messages__message_id__resends_post",
         "parameters": [
           {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
+            "name": "message_id",
+            "in": "path",
+            "required": true,
             "schema": {
               "type": "string",
-              "default": "重新排队发送失败的邮件",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/messages/{message_id}/resends",
-              "title": " Path"
+              "title": "Message Id"
             }
           }
         ],
@@ -8735,7 +8626,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/OkOut"
+                }
               }
             }
           },
@@ -8755,48 +8648,21 @@
     "/api/v1/admin/email/templates": {
       "get": {
         "tags": [
-          "admin",
           "admin"
         ],
         "summary": "全部邮件模板",
-        "operationId": "_handler_api_v1_admin_email_templates_get",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "全部邮件模板",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/templates",
-              "title": " Path"
-            }
-          }
-        ],
+        "operationId": "list_templates_api_v1_admin_email_templates_get",
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "items": {
+                    "$ref": "#/components/schemas/TemplateOut"
+                  },
+                  "type": "array",
+                  "title": "Response List Templates Api V1 Admin Email Templates Get"
                 }
               }
             }
@@ -8807,39 +8673,28 @@
     "/api/v1/admin/email/template-previews": {
       "post": {
         "tags": [
-          "admin",
           "admin"
         ],
-        "summary": "用示例数据渲染模板（中英文）",
-        "operationId": "_handler_api_v1_admin_email_template_previews_post",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "用示例数据渲染模板（中英文）",
-              "title": " Summary"
+        "summary": "渲染模板预览",
+        "operationId": "preview_template_api_v1_admin_email_template_previews_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TemplatePreviewIn"
+              }
             }
           },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/template-previews",
-              "title": " Path"
-            }
-          }
-        ],
+          "required": true
+        },
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/PreviewOut"
+                }
               }
             }
           },
@@ -8859,48 +8714,17 @@
     "/api/v1/admin/email/setup": {
       "get": {
         "tags": [
-          "admin",
           "admin"
         ],
-        "summary": "邮件驱动与每日配额",
-        "operationId": "_handler_api_v1_admin_email_setup_get",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "邮件驱动与每日配额",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/setup",
-              "title": " Path"
-            }
-          }
-        ],
+        "summary": "邮件驱动与配额",
+        "operationId": "setup_api_v1_admin_email_setup_get",
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/SetupOut"
                 }
               }
             }
@@ -8911,48 +8735,19 @@
     "/api/v1/admin/email/quota": {
       "get": {
         "tags": [
-          "admin",
           "admin"
         ],
         "summary": "邮件服务商配额",
-        "operationId": "_handler_api_v1_admin_email_quota_get",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "邮件服务商配额",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/quota",
-              "title": " Path"
-            }
-          }
-        ],
+        "operationId": "quota_api_v1_admin_email_quota_get",
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Quota Api V1 Admin Email Quota Get"
                 }
               }
             }
@@ -9888,7 +9683,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ScheduleIn"
+                "$ref": "#/components/schemas/app__schemas__admin__ScheduleIn"
               }
             }
           },
@@ -11108,7 +10903,7 @@
               "application/json": {
                 "schema": {
                   "items": {
-                    "$ref": "#/components/schemas/MessageOut"
+                    "$ref": "#/components/schemas/app__schemas__pitch__MessageOut"
                   },
                   "type": "array",
                   "title": "Response List Messages Api V1 Admin Pitch Messages Get"
@@ -13124,6 +12919,156 @@
         ],
         "title": "BotChallengeOut"
       },
+      "BroadcastIn": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Title"
+          },
+          "body": {
+            "type": "string",
+            "maxLength": 16000,
+            "minLength": 1,
+            "title": "Body"
+          },
+          "audience": {
+            "type": "string",
+            "pattern": "^(all|participants|members|staff)$",
+            "title": "Audience",
+            "default": "all"
+          },
+          "locale": {
+            "type": "string",
+            "pattern": "^(all|zh|en)$",
+            "title": "Locale",
+            "default": "all"
+          }
+        },
+        "type": "object",
+        "required": [
+          "title",
+          "body"
+        ],
+        "title": "BroadcastIn"
+      },
+      "BroadcastOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "body": {
+            "type": "string",
+            "title": "Body"
+          },
+          "audience": {
+            "type": "string",
+            "title": "Audience"
+          },
+          "locale": {
+            "type": "string",
+            "title": "Locale"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "scheduled_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scheduled At"
+          },
+          "sent_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sent At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "body",
+          "audience",
+          "locale",
+          "status"
+        ],
+        "title": "BroadcastOut"
+      },
+      "BroadcastPatchIn": {
+        "properties": {
+          "title": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 160
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "body": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 16000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Body"
+          },
+          "audience": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(all|participants|members|staff)$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Audience"
+          },
+          "locale": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(all|zh|en)$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Locale"
+          }
+        },
+        "type": "object",
+        "title": "BroadcastPatchIn"
+      },
       "BudgetIn": {
         "properties": {
           "budget_micro": {
@@ -13642,6 +13587,45 @@
           "expires_at"
         ],
         "title": "EditSessionOut"
+      },
+      "EstimateIn": {
+        "properties": {
+          "audience": {
+            "type": "string",
+            "pattern": "^(all|participants|members|staff)$",
+            "title": "Audience",
+            "default": "all"
+          },
+          "locale": {
+            "type": "string",
+            "pattern": "^(all|zh|en)$",
+            "title": "Locale",
+            "default": "all"
+          }
+        },
+        "type": "object",
+        "title": "EstimateIn"
+      },
+      "EstimateOut": {
+        "properties": {
+          "recipients": {
+            "type": "integer",
+            "title": "Recipients"
+          },
+          "by_locale": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "By Locale"
+          }
+        },
+        "type": "object",
+        "required": [
+          "recipients",
+          "by_locale"
+        ],
+        "title": "EstimateOut"
       },
       "EventOut": {
         "properties": {
@@ -14330,39 +14314,29 @@
         ],
         "title": "MessageIn"
       },
-      "MessageOut": {
+      "MessagesOut": {
         "properties": {
-          "id": {
-            "type": "string",
-            "title": "Id"
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/app__schemas__admin_email__MessageOut"
+            },
+            "type": "array",
+            "title": "Items"
           },
-          "author_id": {
-            "type": "string",
-            "title": "Author Id"
-          },
-          "author_name": {
-            "type": "string",
-            "title": "Author Name"
-          },
-          "body": {
-            "type": "string",
-            "title": "Body"
-          },
-          "created_at": {
-            "type": "string",
-            "format": "date-time",
-            "title": "Created At"
+          "counts": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Counts"
           }
         },
         "type": "object",
         "required": [
-          "id",
-          "author_id",
-          "author_name",
-          "body",
-          "created_at"
+          "items",
+          "counts"
         ],
-        "title": "MessageOut"
+        "title": "MessagesOut"
       },
       "ModeIn": {
         "properties": {
@@ -14766,7 +14740,7 @@
           },
           "messages": {
             "items": {
-              "$ref": "#/components/schemas/MessageOut"
+              "$ref": "#/components/schemas/app__schemas__pitch__MessageOut"
             },
             "type": "array",
             "title": "Messages"
@@ -14780,6 +14754,47 @@
           "messages"
         ],
         "title": "PitchStateOut"
+      },
+      "PreviewIn": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "body": {
+            "type": "string",
+            "title": "Body"
+          },
+          "locale": {
+            "type": "string",
+            "title": "Locale",
+            "default": "zh"
+          }
+        },
+        "type": "object",
+        "required": [
+          "title",
+          "body"
+        ],
+        "title": "PreviewIn"
+      },
+      "PreviewOut": {
+        "properties": {
+          "subject": {
+            "type": "string",
+            "title": "Subject"
+          },
+          "body": {
+            "type": "string",
+            "title": "Body"
+          }
+        },
+        "type": "object",
+        "required": [
+          "subject",
+          "body"
+        ],
+        "title": "PreviewOut"
       },
       "ProfileUpdateIn": {
         "properties": {
@@ -15286,48 +15301,6 @@
         ],
         "title": "RsvpOut"
       },
-      "ScheduleIn": {
-        "properties": {
-          "starts_at": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "date-time"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Starts At"
-          },
-          "ends_at": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "date-time"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Ends At"
-          },
-          "stage": {
-            "anyOf": [
-              {
-                "type": "string",
-                "maxLength": 32
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Stage"
-          }
-        },
-        "type": "object",
-        "title": "ScheduleIn"
-      },
       "ScoreIn": {
         "properties": {
           "creativity": {
@@ -15766,6 +15739,35 @@
         ],
         "title": "SessionWithMineOut"
       },
+      "SetupOut": {
+        "properties": {
+          "driver": {
+            "type": "string",
+            "title": "Driver"
+          },
+          "daily_quota": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Daily Quota"
+          },
+          "sent_today": {
+            "type": "integer",
+            "title": "Sent Today",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "required": [
+          "driver"
+        ],
+        "title": "SetupOut"
+      },
       "ShortlistOut": {
         "properties": {
           "project_id": {
@@ -16099,6 +16101,55 @@
         },
         "type": "object",
         "title": "SwitchesIn"
+      },
+      "TemplateOut": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "title": "Key"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          }
+        },
+        "type": "object",
+        "required": [
+          "key",
+          "name",
+          "description"
+        ],
+        "title": "TemplateOut"
+      },
+      "TemplatePreviewIn": {
+        "properties": {
+          "template": {
+            "type": "string",
+            "title": "Template"
+          },
+          "locale": {
+            "type": "string",
+            "title": "Locale",
+            "default": "zh"
+          },
+          "props": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Props",
+            "default": {}
+          }
+        },
+        "type": "object",
+        "required": [
+          "template"
+        ],
+        "title": "TemplatePreviewIn"
       },
       "TransferIn": {
         "properties": {
@@ -16723,6 +16774,123 @@
         ],
         "title": "WalletOut"
       },
+      "app__schemas__admin__ScheduleIn": {
+        "properties": {
+          "starts_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Starts At"
+          },
+          "ends_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ends At"
+          },
+          "stage": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 32
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stage"
+          }
+        },
+        "type": "object",
+        "title": "ScheduleIn"
+      },
+      "app__schemas__admin_email__MessageOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "to_email": {
+            "type": "string",
+            "title": "To Email"
+          },
+          "subject": {
+            "type": "string",
+            "title": "Subject"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          },
+          "sent_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sent At"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "to_email",
+          "subject",
+          "status",
+          "created_at"
+        ],
+        "title": "MessageOut"
+      },
+      "app__schemas__admin_email__ScheduleIn": {
+        "properties": {
+          "scheduled_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scheduled At"
+          }
+        },
+        "type": "object",
+        "title": "ScheduleIn"
+      },
       "app__schemas__company__MoveIn": {
         "properties": {
           "user_id": {
@@ -16751,6 +16919,40 @@
           "from_company_id"
         ],
         "title": "MoveIn"
+      },
+      "app__schemas__pitch__MessageOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "author_id": {
+            "type": "string",
+            "title": "Author Id"
+          },
+          "author_name": {
+            "type": "string",
+            "title": "Author Name"
+          },
+          "body": {
+            "type": "string",
+            "title": "Body"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "author_id",
+          "author_name",
+          "body",
+          "created_at"
+        ],
+        "title": "MessageOut"
       },
       "app__schemas__pitch__MoveIn": {
         "properties": {
