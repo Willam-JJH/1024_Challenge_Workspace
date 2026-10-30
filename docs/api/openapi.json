@@ -12112,48 +12112,19 @@
     "/v1/models": {
       "get": {
         "tags": [
-          "llm",
           "llm"
         ],
         "summary": "可用模型列表（OpenAI 兼容）",
-        "operationId": "_handler_v1_models_get",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "可用模型列表（OpenAI 兼容）",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/models",
-              "title": " Path"
-            }
-          }
-        ],
+        "operationId": "list_models_v1_models_get",
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response List Models V1 Models Get"
                 }
               }
             }
@@ -12164,143 +12135,32 @@
     "/v1/chat/completions": {
       "post": {
         "tags": [
-          "llm",
           "llm"
         ],
-        "summary": "对话补全（支持流式）",
-        "operationId": "_handler_v1_chat_completions_post",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "对话补全（支持流式）",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/chat/completions",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
+        "summary": "对话补全（转发到上游并计费）",
+        "operationId": "chat_completions_v1_chat_completions_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": true,
+                "type": "object",
+                "title": "Payload"
               }
             }
           },
-          "422": {
-            "description": "Validation Error",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Chat Completions V1 Chat Completions Post"
                 }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/embeddings": {
-      "post": {
-        "tags": [
-          "llm",
-          "llm"
-        ],
-        "summary": "向量化",
-        "operationId": "_handler_v1_embeddings_post",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "向量化",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/embeddings",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/responses": {
-      "post": {
-        "tags": [
-          "llm",
-          "llm"
-        ],
-        "summary": "Responses API",
-        "operationId": "_handler_v1_responses_post",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "Responses API",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/responses",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
               }
             }
           },
@@ -12320,33 +12180,10 @@
     "/v1/search": {
       "post": {
         "tags": [
-          "llm",
           "llm"
         ],
-        "summary": "联网检索",
-        "operationId": "_handler_v1_search_post",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "联网检索",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/search",
-              "title": " Path"
-            }
-          }
-        ],
+        "summary": "联网检索（预留）",
+        "operationId": "not_implemented_v1_search_post",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -12355,14 +12192,42 @@
                 "schema": {}
               }
             }
-          },
-          "422": {
-            "description": "Validation Error",
+          }
+        }
+      }
+    },
+    "/v1/responses": {
+      "post": {
+        "tags": [
+          "llm"
+        ],
+        "summary": "Responses API（预留）",
+        "operationId": "not_implemented_v1_responses_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/embeddings": {
+      "post": {
+        "tags": [
+          "llm"
+        ],
+        "summary": "向量化（预留）",
+        "operationId": "not_implemented_v1_embeddings_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
               }
             }
           }
