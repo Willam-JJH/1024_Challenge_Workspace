@@ -44,6 +44,8 @@ class Company(BaseModel):
         ForeignKey("users.id", ondelete="SET NULL"), nullable=True
     )
     roster_locked: Mapped[bool] = mapped_column(default=False)
+    # 奖项日是否到场
+    present: Mapped[bool] = mapped_column(default=False)
 
     event: Mapped[Event] = relationship(back_populates="companies")
     memberships: Mapped[list["Membership"]] = relationship(back_populates="company")

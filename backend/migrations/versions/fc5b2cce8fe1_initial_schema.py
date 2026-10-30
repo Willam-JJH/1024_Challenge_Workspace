@@ -1,8 +1,8 @@
 """initial schema
 
-Revision ID: 46fd5afb1c1e
+Revision ID: fc5b2cce8fe1
 Revises: 
-Create Date: 2026-10-30 17:07:49.022000
+Create Date: 2026-10-30 17:14:05.946666
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '46fd5afb1c1e'
+revision: str = 'fc5b2cce8fe1'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -177,6 +177,7 @@ def upgrade() -> None:
     sa.Column('blurb', sa.Text(), nullable=True),
     sa.Column('captain_id', sa.String(length=32), nullable=True),
     sa.Column('roster_locked', sa.Boolean(), nullable=False),
+    sa.Column('present', sa.Boolean(), nullable=False),
     sa.Column('id', sa.String(length=32), nullable=False),
     sa.Column('created_at', app.models.types.UTCDateTime(), nullable=False),
     sa.Column('updated_at', app.models.types.UTCDateTime(), nullable=False),
@@ -321,6 +322,26 @@ def upgrade() -> None:
     with op.batch_alter_table('sponsors', schema=None) as batch_op:
         batch_op.create_index(batch_op.f('ix_sponsors_event_id'), ['event_id'], unique=False)
 
+    op.create_table('collaborations',
+    sa.Column('event_id', sa.String(length=32), nullable=False),
+    sa.Column('from_company_id', sa.String(length=32), nullable=False),
+    sa.Column('to_company_id', sa.String(length=32), nullable=False),
+    sa.Column('kind', sa.String(length=16), nullable=False),
+    sa.Column('body', sa.Text(), nullable=False),
+    sa.Column('status', sa.String(length=16), nullable=False),
+    sa.Column('id', sa.String(length=32), nullable=False),
+    sa.Column('created_at', app.models.types.UTCDateTime(), nullable=False),
+    sa.Column('updated_at', app.models.types.UTCDateTime(), nullable=False),
+    sa.ForeignKeyConstraint(['event_id'], ['events.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['from_company_id'], ['companies.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['to_company_id'], ['companies.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id')
+    )
+    with op.batch_alter_table('collaborations', schema=None) as batch_op:
+        batch_op.create_index(batch_op.f('ix_collaborations_event_id'), ['event_id'], unique=False)
+        batch_op.create_index(batch_op.f('ix_collaborations_from_company_id'), ['from_company_id'], unique=False)
+        batch_op.create_index(batch_op.f('ix_collaborations_to_company_id'), ['to_company_id'], unique=False)
+
     op.create_table('email_messages',
     sa.Column('broadcast_id', sa.String(length=32), nullable=True),
     sa.Column('to_email', sa.String(length=320), nullable=False),
@@ -345,6 +366,7 @@ def upgrade() -> None:
     sa.Column('target_company_id', sa.String(length=32), nullable=False),
     sa.Column('text', sa.Text(), nullable=True),
     sa.Column('reply', sa.Text(), nullable=True),
+    sa.Column('reply_status', sa.String(length=16), nullable=False),
     sa.Column('status', sa.String(length=16), nullable=False),
     sa.Column('given_at', app.models.types.UTCDateTime(), nullable=True),
     sa.Column('id', sa.String(length=32), nullable=False),
@@ -744,6 +766,12 @@ def downgrade() -> None:
         batch_op.drop_index(batch_op.f('ix_email_messages_broadcast_id'))
 
     op.drop_table('email_messages')
+    with op.batch_alter_table('collaborations', schema=None) as batch_op:
+        batch_op.drop_index(batch_op.f('ix_collaborations_to_company_id'))
+        batch_op.drop_index(batch_op.f('ix_collaborations_from_company_id'))
+        batch_op.drop_index(batch_op.f('ix_collaborations_event_id'))
+
+    op.drop_table('collaborations')
     with op.batch_alter_table('sponsors', schema=None) as batch_op:
         batch_op.drop_index(batch_op.f('ix_sponsors_event_id'))
 

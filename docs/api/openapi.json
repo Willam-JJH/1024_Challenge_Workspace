@@ -9754,890 +9754,6 @@
         }
       }
     },
-    "/api/v1/admin/exhibition": {
-      "get": {
-        "tags": [
-          "admin",
-          "admin"
-        ],
-        "summary": "展览总览：护照、介绍、评论、成交、广告",
-        "operationId": "_handler_api_v1_admin_exhibition_get",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "展览总览：护照、介绍、评论、成交、广告",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/exhibition",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/admin/exhibition/assignments": {
-      "get": {
-        "tags": [
-          "admin",
-          "admin"
-        ],
-        "summary": "介绍任务：已发布、可分配、缺口、跳过",
-        "operationId": "_handler_api_v1_admin_exhibition_assignments_get",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "介绍任务：已发布、可分配、缺口、跳过",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/exhibition/assignments",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/admin/exhibition/assignments/{assignment_id}": {
-      "patch": {
-        "tags": [
-          "admin",
-          "admin"
-        ],
-        "summary": "调整草稿分配",
-        "operationId": "_handler_api_v1_admin_exhibition_assignments__assignment_id__patch",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "调整草稿分配",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/exhibition/assignments/{assignment_id}",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/admin/exhibition/assignments/{assignment_id}/cancellations": {
-      "post": {
-        "tags": [
-          "admin",
-          "admin"
-        ],
-        "summary": "取消分配",
-        "operationId": "_handler_api_v1_admin_exhibition_assignments__assignment_id__cancellations_post",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "取消分配",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/exhibition/assignments/{assignment_id}/cancellations",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/admin/exhibition/assignments/{assignment_id}/given": {
-      "post": {
-        "tags": [
-          "admin",
-          "admin"
-        ],
-        "summary": "标记介绍已完成或撤销",
-        "operationId": "_handler_api_v1_admin_exhibition_assignments__assignment_id__given_post",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "标记介绍已完成或撤销",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/exhibition/assignments/{assignment_id}/given",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/admin/exhibition/assignments/{assignment_id}/reassignments": {
-      "post": {
-        "tags": [
-          "admin",
-          "admin"
-        ],
-        "summary": "换一家公司介绍",
-        "operationId": "_handler_api_v1_admin_exhibition_assignments__assignment_id__reassignments_post",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "换一家公司介绍",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/exhibition/assignments/{assignment_id}/reassignments",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/admin/exhibition/assignments/remaining": {
-      "post": {
-        "tags": [
-          "admin",
-          "admin"
-        ],
-        "summary": "为后来加入的公司补分配",
-        "operationId": "_handler_api_v1_admin_exhibition_assignments_remaining_post",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "为后来加入的公司补分配",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/exhibition/assignments/remaining",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/admin/exhibition/assignments/generation": {
-      "post": {
-        "tags": [
-          "admin",
-          "admin"
-        ],
-        "summary": "随机错位抽取（草稿）",
-        "operationId": "_handler_api_v1_admin_exhibition_assignments_generation_post",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "随机错位抽取（草稿）",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/exhibition/assignments/generation",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/admin/exhibition/assignments/publications": {
-      "post": {
-        "tags": [
-          "admin",
-          "admin"
-        ],
-        "summary": "发布全部草稿并通知",
-        "operationId": "_handler_api_v1_admin_exhibition_assignments_publications_post",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "发布全部草稿并通知",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/exhibition/assignments/publications",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/admin/exhibition/assignments/reset": {
-      "post": {
-        "tags": [
-          "admin",
-          "admin"
-        ],
-        "summary": "取消整次抽取",
-        "operationId": "_handler_api_v1_admin_exhibition_assignments_reset_post",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "取消整次抽取",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/exhibition/assignments/reset",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/admin/exhibition/assignments/reveal-all": {
-      "post": {
-        "tags": [
-          "admin",
-          "admin"
-        ],
-        "summary": "一次性标记全部介绍已完成",
-        "operationId": "_handler_api_v1_admin_exhibition_assignments_reveal_all_post",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "一次性标记全部介绍已完成",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/exhibition/assignments/reveal-all",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/admin/exhibition/collaborations": {
-      "get": {
-        "tags": [
-          "admin",
-          "admin"
-        ],
-        "summary": "赛事全部合作（含隐藏）",
-        "operationId": "_handler_api_v1_admin_exhibition_collaborations_get",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "赛事全部合作（含隐藏）",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/exhibition/collaborations",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/admin/exhibition/comments": {
-      "get": {
-        "tags": [
-          "admin",
-          "admin"
-        ],
-        "summary": "待审核评论（被举报优先）",
-        "operationId": "_handler_api_v1_admin_exhibition_comments_get",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "待审核评论（被举报优先）",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/exhibition/comments",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/admin/exhibition/introductions/{introduction_id}/moderation": {
-      "post": {
-        "tags": [
-          "admin",
-          "admin"
-        ],
-        "summary": "隐藏或恢复介绍",
-        "operationId": "_handler_api_v1_admin_exhibition_introductions__introduction_id__moderation_post",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "隐藏或恢复介绍",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/exhibition/introductions/{introduction_id}/moderation",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/admin/exhibition/replies/{reply_id}/moderation": {
-      "post": {
-        "tags": [
-          "admin",
-          "admin"
-        ],
-        "summary": "隐藏或恢复回复",
-        "operationId": "_handler_api_v1_admin_exhibition_replies__reply_id__moderation_post",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "隐藏或恢复回复",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/exhibition/replies/{reply_id}/moderation",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/admin/exhibition/presence/{company_id}": {
-      "put": {
-        "tags": [
-          "admin",
-          "admin"
-        ],
-        "summary": "奖项日签到",
-        "operationId": "_handler_api_v1_admin_exhibition_presence__company_id__put",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "奖项日签到",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/exhibition/presence/{company_id}",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/admin/exhibition/promotions": {
-      "get": {
-        "tags": [
-          "admin",
-          "admin"
-        ],
-        "summary": "赛事全部广告",
-        "operationId": "_handler_api_v1_admin_exhibition_promotions_get",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "赛事全部广告",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/exhibition/promotions",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/v1/admin/pitch": {
       "patch": {
         "tags": [
@@ -12109,6 +11225,594 @@
         }
       }
     },
+    "/api/v1/admin/exhibition": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "展览总览",
+        "operationId": "overview_api_v1_admin_exhibition_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExhibitionOverviewOut"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/exhibition/assignments": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "介绍任务列表",
+        "operationId": "list_assignments_api_v1_admin_exhibition_assignments_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/AssignmentOut"
+                  },
+                  "type": "array",
+                  "title": "Response List Assignments Api V1 Admin Exhibition Assignments Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/exhibition/assignments/{assignment_id}": {
+      "patch": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "调整草稿分配",
+        "operationId": "patch_assignment_api_v1_admin_exhibition_assignments__assignment_id__patch",
+        "parameters": [
+          {
+            "name": "assignment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Assignment Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignTargetIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssignmentOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/exhibition/assignments/{assignment_id}/cancellations": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "取消分配",
+        "operationId": "cancel_assignment_api_v1_admin_exhibition_assignments__assignment_id__cancellations_post",
+        "parameters": [
+          {
+            "name": "assignment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Assignment Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/exhibition/assignments/{assignment_id}/given": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "标记介绍已完成或撤销",
+        "operationId": "mark_given_api_v1_admin_exhibition_assignments__assignment_id__given_post",
+        "parameters": [
+          {
+            "name": "assignment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Assignment Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GivenIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/exhibition/assignments/{assignment_id}/reassignments": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "换一家公司介绍",
+        "operationId": "reassign_api_v1_admin_exhibition_assignments__assignment_id__reassignments_post",
+        "parameters": [
+          {
+            "name": "assignment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Assignment Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignTargetIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssignmentOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/exhibition/assignments/remaining": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "为后来加入的公司补分配",
+        "operationId": "assign_remaining_api_v1_admin_exhibition_assignments_remaining_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/AssignmentOut"
+                  },
+                  "type": "array",
+                  "title": "Response Assign Remaining Api V1 Admin Exhibition Assignments Remaining Post"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/exhibition/assignments/generation": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "随机错位抽取（草稿）",
+        "operationId": "generate_api_v1_admin_exhibition_assignments_generation_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/AssignmentOut"
+                  },
+                  "type": "array",
+                  "title": "Response Generate Api V1 Admin Exhibition Assignments Generation Post"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/exhibition/assignments/publications": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "发布全部草稿",
+        "operationId": "publish_assignments_api_v1_admin_exhibition_assignments_publications_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkOut"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/exhibition/assignments/reset": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "取消整次抽取",
+        "operationId": "reset_assignments_api_v1_admin_exhibition_assignments_reset_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkOut"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/exhibition/assignments/reveal-all": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "一次性标记全部介绍已完成",
+        "operationId": "reveal_all_api_v1_admin_exhibition_assignments_reveal_all_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkOut"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/exhibition/collaborations": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "全部合作（含隐藏）",
+        "operationId": "list_collaborations_api_v1_admin_exhibition_collaborations_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/CollaborationOut"
+                  },
+                  "type": "array",
+                  "title": "Response List Collaborations Api V1 Admin Exhibition Collaborations Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/exhibition/comments": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "评论审核（被举报优先）",
+        "operationId": "list_comments_api_v1_admin_exhibition_comments_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/AdminCommentOut"
+                  },
+                  "type": "array",
+                  "title": "Response List Comments Api V1 Admin Exhibition Comments Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/exhibition/introductions/{introduction_id}/moderation": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "隐藏或恢复介绍",
+        "operationId": "moderate_introduction_api_v1_admin_exhibition_introductions__introduction_id__moderation_post",
+        "parameters": [
+          {
+            "name": "introduction_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Introduction Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ModerationFlagIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/exhibition/replies/{reply_id}/moderation": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "隐藏或恢复回复",
+        "operationId": "moderate_reply_api_v1_admin_exhibition_replies__reply_id__moderation_post",
+        "parameters": [
+          {
+            "name": "reply_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Reply Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ModerationFlagIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/exhibition/presence/{company_id}": {
+      "put": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "奖项日签到",
+        "operationId": "set_presence_api_v1_admin_exhibition_presence__company_id__put",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Company Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PresenceIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/exhibition/promotions": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "赛事全部广告",
+        "operationId": "list_promotions_api_v1_admin_exhibition_promotions_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PromotionOut"
+                  },
+                  "type": "array",
+                  "title": "Response List Promotions Api V1 Admin Exhibition Promotions Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/models": {
       "get": {
         "tags": [
@@ -12293,6 +11997,44 @@
           "event_name"
         ],
         "title": "ActivationPreviewOut"
+      },
+      "AdminCommentOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "project_id": {
+            "type": "string",
+            "title": "Project Id"
+          },
+          "author_name": {
+            "type": "string",
+            "title": "Author Name"
+          },
+          "body": {
+            "type": "string",
+            "title": "Body"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "reports": {
+            "type": "integer",
+            "title": "Reports"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "project_id",
+          "author_name",
+          "body",
+          "status",
+          "reports"
+        ],
+        "title": "AdminCommentOut"
       },
       "AdminRsvpOut": {
         "properties": {
@@ -12515,6 +12257,69 @@
           "created_at"
         ],
         "title": "ApiKeyOut"
+      },
+      "AssignTargetIn": {
+        "properties": {
+          "target_company_id": {
+            "type": "string",
+            "title": "Target Company Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "target_company_id"
+        ],
+        "title": "AssignTargetIn"
+      },
+      "AssignmentOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "introducer_company": {
+            "type": "string",
+            "title": "Introducer Company"
+          },
+          "target_company": {
+            "type": "string",
+            "title": "Target Company"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "given_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Given At"
+          },
+          "has_text": {
+            "type": "boolean",
+            "title": "Has Text",
+            "default": false
+          },
+          "has_reply": {
+            "type": "boolean",
+            "title": "Has Reply",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "introducer_company",
+          "target_company",
+          "status"
+        ],
+        "title": "AssignmentOut"
       },
       "AttendanceIn": {
         "properties": {
@@ -13067,6 +12872,44 @@
         ],
         "title": "CodeSentOut"
       },
+      "CollaborationOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "from_company": {
+            "type": "string",
+            "title": "From Company"
+          },
+          "to_company": {
+            "type": "string",
+            "title": "To Company"
+          },
+          "kind": {
+            "type": "string",
+            "title": "Kind"
+          },
+          "body": {
+            "type": "string",
+            "title": "Body"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "from_company",
+          "to_company",
+          "kind",
+          "body",
+          "status"
+        ],
+        "title": "CollaborationOut"
+      },
       "CommentIn": {
         "properties": {
           "body": {
@@ -13559,6 +13402,49 @@
         ],
         "title": "EventOut"
       },
+      "ExhibitionOverviewOut": {
+        "properties": {
+          "companies": {
+            "type": "integer",
+            "title": "Companies"
+          },
+          "published_introductions": {
+            "type": "integer",
+            "title": "Published Introductions"
+          },
+          "draft_introductions": {
+            "type": "integer",
+            "title": "Draft Introductions"
+          },
+          "comments": {
+            "type": "integer",
+            "title": "Comments"
+          },
+          "reported_comments": {
+            "type": "integer",
+            "title": "Reported Comments"
+          },
+          "visits": {
+            "type": "integer",
+            "title": "Visits"
+          },
+          "live_promotions": {
+            "type": "integer",
+            "title": "Live Promotions"
+          }
+        },
+        "type": "object",
+        "required": [
+          "companies",
+          "published_introductions",
+          "draft_introductions",
+          "comments",
+          "reported_comments",
+          "visits",
+          "live_promotions"
+        ],
+        "title": "ExhibitionOverviewOut"
+      },
       "FeatureFlagIn": {
         "properties": {
           "key": {
@@ -13694,6 +13580,17 @@
           "enabled"
         ],
         "title": "FlagIn"
+      },
+      "GivenIn": {
+        "properties": {
+          "given": {
+            "type": "boolean",
+            "title": "Given",
+            "default": true
+          }
+        },
+        "type": "object",
+        "title": "GivenIn"
       },
       "HTTPValidationError": {
         "properties": {
@@ -14357,6 +14254,19 @@
         "type": "object",
         "title": "ModelPatchIn"
       },
+      "ModerationFlagIn": {
+        "properties": {
+          "hidden": {
+            "type": "boolean",
+            "title": "Hidden"
+          }
+        },
+        "type": "object",
+        "required": [
+          "hidden"
+        ],
+        "title": "ModerationFlagIn"
+      },
       "ModerationIn": {
         "properties": {
           "hidden": {
@@ -14619,6 +14529,19 @@
           "messages"
         ],
         "title": "PitchStateOut"
+      },
+      "PresenceIn": {
+        "properties": {
+          "present": {
+            "type": "boolean",
+            "title": "Present"
+          }
+        },
+        "type": "object",
+        "required": [
+          "present"
+        ],
+        "title": "PresenceIn"
       },
       "PreviewIn": {
         "properties": {

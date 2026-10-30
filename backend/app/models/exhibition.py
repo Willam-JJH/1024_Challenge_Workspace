@@ -84,6 +84,27 @@ class Introduction(BaseModel):
     )
     text: Mapped[str | None] = mapped_column(Text, nullable=True)
     reply: Mapped[str | None] = mapped_column(Text, nullable=True)
+    # visible | hidden
+    reply_status: Mapped[str] = mapped_column(String(16), default="visible")
     # draft | published | cancelled
     status: Mapped[str] = mapped_column(String(16), default="draft")
     given_at: Mapped[datetime | None] = mapped_column(UTCDateTime(), nullable=True)
+
+
+class Collaboration(BaseModel):
+    """合作或假想收购：A 公司向 B 公司发起。"""
+
+    __tablename__ = "collaborations"
+
+    event_id: Mapped[str] = mapped_column(ForeignKey("events.id", ondelete="CASCADE"), index=True)
+    from_company_id: Mapped[str] = mapped_column(
+        ForeignKey("companies.id", ondelete="CASCADE"), index=True
+    )
+    to_company_id: Mapped[str] = mapped_column(
+        ForeignKey("companies.id", ondelete="CASCADE"), index=True
+    )
+    # collaboration | acquisition
+    kind: Mapped[str] = mapped_column(String(16), default="collaboration")
+    body: Mapped[str] = mapped_column(Text, default="")
+    # proposed | published | hidden
+    status: Mapped[str] = mapped_column(String(16), default="published")

@@ -5,7 +5,14 @@ from app.models.audit import AuditLog
 from app.models.base import BaseModel
 from app.models.email import Broadcast, EmailMessage
 from app.models.event import Company, Event, Invitation, InviteLink, JoinRequest, Membership
-from app.models.exhibition import Comment, CommentReport, Introduction, Promotion, Visit
+from app.models.exhibition import (
+    Collaboration,
+    Comment,
+    CommentReport,
+    Introduction,
+    Promotion,
+    Visit,
+)
 from app.models.identity import ApiKey, Session, User
 from app.models.judging import Award, Score, ShortlistEntry
 from app.models.llm import LlmModel, LlmRoute, LlmUpstream, LlmUsage
@@ -51,6 +58,7 @@ __all__ = [
     "User",
     "VerificationCode",
     "Visit",
+    "Collaboration",
     "CommentReport",
     "Vote",
 ]

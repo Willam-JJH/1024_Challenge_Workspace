@@ -81,3 +81,57 @@ class FeedItem(BaseModel):
     title: str
     company_name: str
     at: datetime
+
+
+class AssignmentOut(BaseModel):
+    id: str
+    introducer_company: str
+    target_company: str
+    status: str
+    given_at: datetime | None = None
+    has_text: bool = False
+    has_reply: bool = False
+
+
+class AssignTargetIn(BaseModel):
+    target_company_id: str
+
+
+class ModerationFlagIn(BaseModel):
+    hidden: bool
+
+
+class PresenceIn(BaseModel):
+    present: bool
+
+
+class CollaborationOut(BaseModel):
+    id: str
+    from_company: str
+    to_company: str
+    kind: str
+    body: str
+    status: str
+
+
+class AdminCommentOut(BaseModel):
+    id: str
+    project_id: str
+    author_name: str
+    body: str
+    status: str
+    reports: int
+
+
+class ExhibitionOverviewOut(BaseModel):
+    companies: int
+    published_introductions: int
+    draft_introductions: int
+    comments: int
+    reported_comments: int
+    visits: int
+    live_promotions: int
+
+
+class GivenIn(BaseModel):
+    given: bool = True
