@@ -2,7 +2,7 @@
 
 from datetime import datetime
 
-from sqlalchemy import ForeignKey, Integer, String, Text, UniqueConstraint
+from sqlalchemy import Boolean, ForeignKey, Integer, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import BaseModel
@@ -21,6 +21,9 @@ class Event(BaseModel):
     registration_open: Mapped[bool] = mapped_column(default=True)
     voting_open: Mapped[bool] = mapped_column(default=True)
     votes_visible: Mapped[bool] = mapped_column(default=True)
+    # LLM 网关
+    llm_budget_micro: Mapped[int] = mapped_column(Integer, default=0)
+    llm_kill_switch: Mapped[bool] = mapped_column(Boolean, default=False)
     # 直播页
     pitch_title: Mapped[str] = mapped_column(String(160), default="Pitching Day")
     pitch_on_air: Mapped[bool] = mapped_column(default=False)

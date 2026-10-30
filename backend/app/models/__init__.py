@@ -7,6 +7,7 @@ from app.models.event import Company, Event, Invitation, InviteLink, JoinRequest
 from app.models.exhibition import Comment, CommentReport, Introduction, Promotion, Visit
 from app.models.identity import ApiKey, Session, User
 from app.models.judging import Award, Score, ShortlistEntry
+from app.models.llm import LlmModel, LlmRoute, LlmUpstream, LlmUsage
 from app.models.offline import OfflineRsvp, OfflineSession
 from app.models.pitch import PitchMessage, PitchSource
 from app.models.project import Project, ProjectEditSession, ProjectVersion
@@ -29,6 +30,10 @@ __all__ = [
     "Membership",
     "Promotion",
     "Award",
+    "LlmModel",
+    "LlmRoute",
+    "LlmUpstream",
+    "LlmUsage",
     "OfflineRsvp",
     "OfflineSession",
     "PitchMessage",
