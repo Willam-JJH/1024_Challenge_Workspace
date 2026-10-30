@@ -20,6 +20,11 @@ router = APIRouter(prefix="/votes", tags=["votes"])
 
 def _board_out(db: DbSession, event) -> BoardOut:  # noqa: ANN001
     payload = vote_service.board_payload(db, event)
+    if not event.votes_visible:
+        for row in payload["items"]:
+            row["coins"] = 0
+            row["rank"] = 0
+        payload["total_coins"] = 0
     return BoardOut(
         items=[BoardRow(**row) for row in payload["items"]],
         total_coins=payload["total_coins"],

@@ -20,6 +20,7 @@ class Event(BaseModel):
     ends_at: Mapped[datetime | None] = mapped_column(UTCDateTime(), nullable=True)
     registration_open: Mapped[bool] = mapped_column(default=True)
     voting_open: Mapped[bool] = mapped_column(default=True)
+    votes_visible: Mapped[bool] = mapped_column(default=True)
     # 直播页
     pitch_title: Mapped[str] = mapped_column(String(160), default="Pitching Day")
     pitch_on_air: Mapped[bool] = mapped_column(default=False)

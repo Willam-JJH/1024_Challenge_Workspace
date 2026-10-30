@@ -37,3 +37,30 @@ class BoardOut(BaseModel):
     items: list[BoardRow]
     total_coins: int
     updated_at: datetime
+
+
+class BallotOut(BaseModel):
+    id: str
+    voter_id: str
+    voter_name: str
+    company_id: str
+    company_name: str
+    status: str
+    created_at: datetime
+
+
+class VoidIn(BaseModel):
+    voter_id: str | None = None
+    company_id: str | None = None
+
+
+class VisibilityIn(BaseModel):
+    visible: bool
+
+
+class VotingAdminOut(BaseModel):
+    open: bool
+    visible: bool
+    coins_total: int
+    ballots: int
+    board: list[BoardRow]

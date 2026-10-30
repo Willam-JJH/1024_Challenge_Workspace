@@ -152,11 +152,6 @@ def put_switches(
 register_stubs(
     router,
     [
-        ("GET", "/voting", "投票状态、可见性、选票统计与实时总数"),
-        ("GET", "/voting/ballots", "谁投给了谁（仅管理员，永不公开）"),
-        ("GET", "/voting/events", "每一次投币、撤回、归还与作废"),
-        ("PUT", "/voting/visibility", "对公众显示或隐藏实时总数"),
-        ("POST", "/voting/voids", "作废一枚硬币或一位投票人"),
         ("GET", "/exhibition", "展览总览：护照、介绍、评论、成交、广告"),
         ("GET", "/exhibition/assignments", "介绍任务：已发布、可分配、缺口、跳过"),
         ("PATCH", "/exhibition/assignments/{assignment_id}", "调整草稿分配"),

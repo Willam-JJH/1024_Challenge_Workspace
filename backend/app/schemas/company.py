@@ -90,3 +90,9 @@ class InvitationPreviewOut(BaseModel):
 
 class InvitationPreviewIn(BaseModel):
     token: str = Field(min_length=16)
+
+
+class MoveIn(BaseModel):
+    user_id: str
+    from_company_id: str
+    to_company_id: str | None = None
