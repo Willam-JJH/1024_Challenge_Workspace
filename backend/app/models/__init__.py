@@ -5,6 +5,7 @@ from app.models.base import BaseModel
 from app.models.event import Company, Event, Invitation, InviteLink, JoinRequest, Membership
 from app.models.exhibition import Comment, CommentReport, Introduction, Promotion, Visit
 from app.models.identity import ApiKey, Session, User
+from app.models.pitch import PitchMessage, PitchSource
 from app.models.project import Project, ProjectEditSession, ProjectVersion
 from app.models.verification import VerificationCode
 from app.models.vote import Vote
@@ -22,6 +23,8 @@ __all__ = [
     "Event",
     "Membership",
     "Promotion",
+    "PitchMessage",
+    "PitchSource",
     "Project",
     "ProjectEditSession",
     "ProjectVersion",

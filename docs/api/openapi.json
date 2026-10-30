@@ -5906,48 +5906,17 @@
     "/api/v1/pitch": {
       "get": {
         "tags": [
-          "pitch",
           "pitch"
         ],
-        "summary": "直播页：是否在播、流源、对战与在线人数",
-        "operationId": "_handler_api_v1_pitch_get",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "直播页：是否在播、流源、对战与在线人数",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "",
-              "title": " Path"
-            }
-          }
-        ],
+        "summary": "直播页：是否在播、流源与留言",
+        "operationId": "get_pitch_api_v1_pitch_get",
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/PitchStateOut"
                 }
               }
             }
@@ -5955,51 +5924,24 @@
         }
       }
     },
-    "/api/v1/pitch/stream": {
+    "/api/v1/pitch/sources": {
       "get": {
         "tags": [
-          "pitch",
           "pitch"
         ],
-        "summary": "直播页实时更新（SSE）",
-        "operationId": "_handler_api_v1_pitch_stream_get",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "直播页实时更新（SSE）",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/stream",
-              "title": " Path"
-            }
-          }
-        ],
+        "summary": "可用流源",
+        "operationId": "get_sources_api_v1_pitch_sources_get",
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "items": {
+                    "$ref": "#/components/schemas/SourceOut"
+                  },
+                  "type": "array",
+                  "title": "Response Get Sources Api V1 Pitch Sources Get"
                 }
               }
             }
@@ -6010,48 +5952,21 @@
     "/api/v1/pitch/messages": {
       "get": {
         "tags": [
-          "pitch",
           "pitch"
         ],
-        "summary": "直播页留言（最新在前）",
-        "operationId": "_handler_api_v1_pitch_messages_get",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "直播页留言（最新在前）",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/messages",
-              "title": " Path"
-            }
-          }
-        ],
+        "summary": "直播页留言",
+        "operationId": "get_messages_api_v1_pitch_messages_get",
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "items": {
+                    "$ref": "#/components/schemas/MessageOut"
+                  },
+                  "type": "array",
+                  "title": "Response Get Messages Api V1 Pitch Messages Get"
                 }
               }
             }
@@ -6060,39 +5975,28 @@
       },
       "post": {
         "tags": [
-          "pitch",
           "pitch"
         ],
         "summary": "在直播页留言",
-        "operationId": "_handler_api_v1_pitch_messages_post",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "在直播页留言",
-              "title": " Summary"
+        "operationId": "post_message_api_v1_pitch_messages_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MessageIn"
+              }
             }
           },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/messages",
-              "title": " Path"
-            }
-          }
-        ],
+          "required": true
+        },
         "responses": {
-          "200": {
+          "201": {
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/MessageOut"
+                }
               }
             }
           },
@@ -6112,30 +6016,18 @@
     "/api/v1/pitch/messages/{message_id}": {
       "delete": {
         "tags": [
-          "pitch",
           "pitch"
         ],
         "summary": "撤回我自己的留言",
-        "operationId": "_handler_api_v1_pitch_messages__message_id__delete",
+        "operationId": "delete_message_api_v1_pitch_messages__message_id__delete",
         "parameters": [
           {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
+            "name": "message_id",
+            "in": "path",
+            "required": true,
             "schema": {
               "type": "string",
-              "default": "撤回我自己的留言",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/messages/{message_id}",
-              "title": " Path"
+              "title": "Message Id"
             }
           }
         ],
@@ -6144,7 +6036,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/OkOut"
+                }
               }
             }
           },
@@ -6161,52 +6055,19 @@
         }
       }
     },
-    "/api/v1/pitch/sources": {
+    "/api/v1/pitch/stream": {
       "get": {
         "tags": [
-          "pitch",
           "pitch"
         ],
-        "summary": "全部流源（按区域与顺序）",
-        "operationId": "_handler_api_v1_pitch_sources_get",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "全部流源（按区域与顺序）",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/sources",
-              "title": " Path"
-            }
-          }
-        ],
+        "summary": "直播页 SSE 推送",
+        "operationId": "stream_pitch_api_v1_pitch_stream_get",
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
                 "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
               }
             }
           }
@@ -13140,143 +13001,30 @@
     "/api/v1/admin/pitch": {
       "patch": {
         "tags": [
-          "admin",
           "admin"
         ],
         "summary": "直播标题与开播开关",
-        "operationId": "_handler_api_v1_admin_pitch_patch",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "直播标题与开播开关",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/pitch",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
+        "operationId": "patch_pitch_api_v1_admin_pitch_patch",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PitchPatchIn"
               }
             }
           },
-          "422": {
-            "description": "Validation Error",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Patch Pitch Api V1 Admin Pitch Patch"
                 }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/admin/pitch/messages": {
-      "get": {
-        "tags": [
-          "admin",
-          "admin"
-        ],
-        "summary": "直播留言（含已隐藏）",
-        "operationId": "_handler_api_v1_admin_pitch_messages_get",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "直播留言（含已隐藏）",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/pitch/messages",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/admin/pitch/messages/{message_id}/moderation": {
-      "post": {
-        "tags": [
-          "admin",
-          "admin"
-        ],
-        "summary": "隐藏或恢复直播留言",
-        "operationId": "_handler_api_v1_admin_pitch_messages__message_id__moderation_post",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "隐藏或恢复直播留言",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/pitch/messages/{message_id}/moderation",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
               }
             }
           },
@@ -13296,48 +13044,21 @@
     "/api/v1/admin/pitch/sources": {
       "get": {
         "tags": [
-          "admin",
           "admin"
         ],
-        "summary": "赛事全部流源（按顺序）",
-        "operationId": "_handler_api_v1_admin_pitch_sources_get",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "赛事全部流源（按顺序）",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/pitch/sources",
-              "title": " Path"
-            }
-          }
-        ],
+        "summary": "全部流源",
+        "operationId": "list_sources_api_v1_admin_pitch_sources_get",
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "items": {
+                    "$ref": "#/components/schemas/SourceOut"
+                  },
+                  "type": "array",
+                  "title": "Response List Sources Api V1 Admin Pitch Sources Get"
                 }
               }
             }
@@ -13346,39 +13067,28 @@
       },
       "post": {
         "tags": [
-          "admin",
           "admin"
         ],
-        "summary": "新增流源（Bilibili／YouTube／Twitch）",
-        "operationId": "_handler_api_v1_admin_pitch_sources_post",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "新增流源（Bilibili／YouTube／Twitch）",
-              "title": " Summary"
+        "summary": "新增流源",
+        "operationId": "create_source_api_v1_admin_pitch_sources_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SourceIn"
+              }
             }
           },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/pitch/sources",
-              "title": " Path"
-            }
-          }
-        ],
+          "required": true
+        },
         "responses": {
-          "200": {
+          "201": {
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/SourceOut"
+                }
               }
             }
           },
@@ -13398,39 +13108,39 @@
     "/api/v1/admin/pitch/sources/{source_id}": {
       "patch": {
         "tags": [
-          "admin",
           "admin"
         ],
         "summary": "修改流源",
-        "operationId": "_handler_api_v1_admin_pitch_sources__source_id__patch",
+        "operationId": "patch_source_api_v1_admin_pitch_sources__source_id__patch",
         "parameters": [
           {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
+            "name": "source_id",
+            "in": "path",
+            "required": true,
             "schema": {
               "type": "string",
-              "default": "修改流源",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/pitch/sources/{source_id}",
-              "title": " Path"
+              "title": "Source Id"
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SourcePatchIn"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/SourceOut"
+                }
               }
             }
           },
@@ -13448,30 +13158,18 @@
       },
       "delete": {
         "tags": [
-          "admin",
           "admin"
         ],
         "summary": "删除流源",
-        "operationId": "_handler_api_v1_admin_pitch_sources__source_id__delete",
+        "operationId": "delete_source_api_v1_admin_pitch_sources__source_id__delete",
         "parameters": [
           {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
+            "name": "source_id",
+            "in": "path",
+            "required": true,
             "schema": {
               "type": "string",
-              "default": "删除流源",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/pitch/sources/{source_id}",
-              "title": " Path"
+              "title": "Source Id"
             }
           }
         ],
@@ -13480,7 +13178,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/OkOut"
+                }
               }
             }
           },
@@ -13500,39 +13200,116 @@
     "/api/v1/admin/pitch/sources/{source_id}/moves": {
       "post": {
         "tags": [
-          "admin",
           "admin"
         ],
-        "summary": "上移／下移一个位置",
-        "operationId": "_handler_api_v1_admin_pitch_sources__source_id__moves_post",
+        "summary": "上移／下移流源",
+        "operationId": "move_source_api_v1_admin_pitch_sources__source_id__moves_post",
         "parameters": [
           {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
+            "name": "source_id",
+            "in": "path",
+            "required": true,
             "schema": {
               "type": "string",
-              "default": "上移／下移一个位置",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/pitch/sources/{source_id}/moves",
-              "title": " Path"
+              "title": "Source Id"
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MoveIn"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/OkOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/pitch/messages": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "直播留言（含已隐藏）",
+        "operationId": "list_messages_api_v1_admin_pitch_messages_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/MessageOut"
+                  },
+                  "type": "array",
+                  "title": "Response List Messages Api V1 Admin Pitch Messages Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/pitch/messages/{message_id}/moderation": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "隐藏或恢复直播留言",
+        "operationId": "moderate_message_api_v1_admin_pitch_messages__message_id__moderation_post",
+        "parameters": [
+          {
+            "name": "message_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Message Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ModerationIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkOut"
+                }
               }
             }
           },
@@ -14856,6 +14633,82 @@
         ],
         "title": "MemberOut"
       },
+      "MessageIn": {
+        "properties": {
+          "body": {
+            "type": "string",
+            "maxLength": 280,
+            "minLength": 1,
+            "title": "Body"
+          }
+        },
+        "type": "object",
+        "required": [
+          "body"
+        ],
+        "title": "MessageIn"
+      },
+      "MessageOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "author_id": {
+            "type": "string",
+            "title": "Author Id"
+          },
+          "author_name": {
+            "type": "string",
+            "title": "Author Name"
+          },
+          "body": {
+            "type": "string",
+            "title": "Body"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "author_id",
+          "author_name",
+          "body",
+          "created_at"
+        ],
+        "title": "MessageOut"
+      },
+      "ModerationIn": {
+        "properties": {
+          "hidden": {
+            "type": "boolean",
+            "title": "Hidden"
+          }
+        },
+        "type": "object",
+        "required": [
+          "hidden"
+        ],
+        "title": "ModerationIn"
+      },
+      "MoveIn": {
+        "properties": {
+          "direction": {
+            "type": "string",
+            "pattern": "^(up|down)$",
+            "title": "Direction"
+          }
+        },
+        "type": "object",
+        "required": [
+          "direction"
+        ],
+        "title": "MoveIn"
+      },
       "OkOut": {
         "properties": {
           "ok": {
@@ -14999,6 +14852,69 @@
           "created_at"
         ],
         "title": "PickOut"
+      },
+      "PitchPatchIn": {
+        "properties": {
+          "title": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 160
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "on_air": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "On Air"
+          }
+        },
+        "type": "object",
+        "title": "PitchPatchIn"
+      },
+      "PitchStateOut": {
+        "properties": {
+          "on_air": {
+            "type": "boolean",
+            "title": "On Air"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "sources": {
+            "items": {
+              "$ref": "#/components/schemas/SourceOut"
+            },
+            "type": "array",
+            "title": "Sources"
+          },
+          "messages": {
+            "items": {
+              "$ref": "#/components/schemas/MessageOut"
+            },
+            "type": "array",
+            "title": "Messages"
+          }
+        },
+        "type": "object",
+        "required": [
+          "on_air",
+          "title",
+          "sources",
+          "messages"
+        ],
+        "title": "PitchStateOut"
       },
       "ProfileUpdateIn": {
         "properties": {
@@ -15414,6 +15330,141 @@
         ],
         "title": "SessionResponse",
         "description": "登录成功后返回；会话令牌同时写入 ``sid`` cookie。"
+      },
+      "SourceIn": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "pattern": "^(bilibili|youtube|twitch)$",
+            "title": "Kind"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "url": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 4,
+            "title": "Url"
+          },
+          "region": {
+            "type": "string",
+            "pattern": "^(cn|global)$",
+            "title": "Region",
+            "default": "cn"
+          },
+          "enabled": {
+            "type": "boolean",
+            "title": "Enabled",
+            "default": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "kind",
+          "name",
+          "url"
+        ],
+        "title": "SourceIn"
+      },
+      "SourceOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "kind": {
+            "type": "string",
+            "title": "Kind"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "url": {
+            "type": "string",
+            "title": "Url"
+          },
+          "region": {
+            "type": "string",
+            "title": "Region"
+          },
+          "enabled": {
+            "type": "boolean",
+            "title": "Enabled"
+          },
+          "position": {
+            "type": "integer",
+            "title": "Position"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "kind",
+          "name",
+          "url",
+          "region",
+          "enabled",
+          "position"
+        ],
+        "title": "SourceOut"
+      },
+      "SourcePatchIn": {
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 80
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url"
+          },
+          "region": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(cn|global)$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Region"
+          },
+          "enabled": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Enabled"
+          }
+        },
+        "type": "object",
+        "title": "SourcePatchIn"
       },
       "StampOut": {
         "properties": {

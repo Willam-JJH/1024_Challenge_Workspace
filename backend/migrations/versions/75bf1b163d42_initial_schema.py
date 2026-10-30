@@ -1,8 +1,8 @@
 """initial schema
 
-Revision ID: 3c08277f5f19
+Revision ID: 75bf1b163d42
 Revises: 
-Create Date: 2026-10-30 14:50:33.166428
+Create Date: 2026-10-30 14:54:25.455733
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '3c08277f5f19'
+revision: str = '75bf1b163d42'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -29,6 +29,8 @@ def upgrade() -> None:
     sa.Column('ends_at', app.models.types.UTCDateTime(), nullable=True),
     sa.Column('registration_open', sa.Boolean(), nullable=False),
     sa.Column('voting_open', sa.Boolean(), nullable=False),
+    sa.Column('pitch_title', sa.String(length=160), nullable=False),
+    sa.Column('pitch_on_air', sa.Boolean(), nullable=False),
     sa.Column('company_seats', sa.Integer(), nullable=False),
     sa.Column('id', sa.String(length=32), nullable=False),
     sa.Column('created_at', app.models.types.UTCDateTime(), nullable=False),
@@ -120,6 +122,39 @@ def upgrade() -> None:
     )
     with op.batch_alter_table('companies', schema=None) as batch_op:
         batch_op.create_index(batch_op.f('ix_companies_event_id'), ['event_id'], unique=False)
+
+    op.create_table('pitch_messages',
+    sa.Column('event_id', sa.String(length=32), nullable=False),
+    sa.Column('author_id', sa.String(length=32), nullable=False),
+    sa.Column('body', sa.String(length=280), nullable=False),
+    sa.Column('status', sa.String(length=16), nullable=False),
+    sa.Column('id', sa.String(length=32), nullable=False),
+    sa.Column('created_at', app.models.types.UTCDateTime(), nullable=False),
+    sa.Column('updated_at', app.models.types.UTCDateTime(), nullable=False),
+    sa.ForeignKeyConstraint(['author_id'], ['users.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['event_id'], ['events.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id')
+    )
+    with op.batch_alter_table('pitch_messages', schema=None) as batch_op:
+        batch_op.create_index(batch_op.f('ix_pitch_messages_author_id'), ['author_id'], unique=False)
+        batch_op.create_index(batch_op.f('ix_pitch_messages_event_id'), ['event_id'], unique=False)
+
+    op.create_table('pitch_sources',
+    sa.Column('event_id', sa.String(length=32), nullable=False),
+    sa.Column('kind', sa.String(length=16), nullable=False),
+    sa.Column('name', sa.String(length=80), nullable=False),
+    sa.Column('url', sa.Text(), nullable=False),
+    sa.Column('region', sa.String(length=16), nullable=False),
+    sa.Column('enabled', sa.Boolean(), nullable=False),
+    sa.Column('position', sa.Integer(), nullable=False),
+    sa.Column('id', sa.String(length=32), nullable=False),
+    sa.Column('created_at', app.models.types.UTCDateTime(), nullable=False),
+    sa.Column('updated_at', app.models.types.UTCDateTime(), nullable=False),
+    sa.ForeignKeyConstraint(['event_id'], ['events.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id')
+    )
+    with op.batch_alter_table('pitch_sources', schema=None) as batch_op:
+        batch_op.create_index(batch_op.f('ix_pitch_sources_event_id'), ['event_id'], unique=False)
 
     op.create_table('sessions',
     sa.Column('user_id', sa.String(length=32), nullable=False),
@@ -451,6 +486,15 @@ def downgrade() -> None:
         batch_op.drop_index(batch_op.f('ix_sessions_token_hash'))
 
     op.drop_table('sessions')
+    with op.batch_alter_table('pitch_sources', schema=None) as batch_op:
+        batch_op.drop_index(batch_op.f('ix_pitch_sources_event_id'))
+
+    op.drop_table('pitch_sources')
+    with op.batch_alter_table('pitch_messages', schema=None) as batch_op:
+        batch_op.drop_index(batch_op.f('ix_pitch_messages_event_id'))
+        batch_op.drop_index(batch_op.f('ix_pitch_messages_author_id'))
+
+    op.drop_table('pitch_messages')
     with op.batch_alter_table('companies', schema=None) as batch_op:
         batch_op.drop_index(batch_op.f('ix_companies_event_id'))
 
