@@ -1,8 +1,8 @@
 """initial schema
 
-Revision ID: 5c442083af46
+Revision ID: 3c08277f5f19
 Revises: 
-Create Date: 2026-10-30 14:41:45.351483
+Create Date: 2026-10-30 14:50:33.166428
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '5c442083af46'
+revision: str = '3c08277f5f19'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -138,6 +138,27 @@ def upgrade() -> None:
         batch_op.create_index(batch_op.f('ix_sessions_token_hash'), ['token_hash'], unique=True)
         batch_op.create_index(batch_op.f('ix_sessions_user_id'), ['user_id'], unique=False)
 
+    op.create_table('introductions',
+    sa.Column('event_id', sa.String(length=32), nullable=False),
+    sa.Column('introducer_company_id', sa.String(length=32), nullable=False),
+    sa.Column('target_company_id', sa.String(length=32), nullable=False),
+    sa.Column('text', sa.Text(), nullable=True),
+    sa.Column('reply', sa.Text(), nullable=True),
+    sa.Column('status', sa.String(length=16), nullable=False),
+    sa.Column('given_at', app.models.types.UTCDateTime(), nullable=True),
+    sa.Column('id', sa.String(length=32), nullable=False),
+    sa.Column('created_at', app.models.types.UTCDateTime(), nullable=False),
+    sa.Column('updated_at', app.models.types.UTCDateTime(), nullable=False),
+    sa.ForeignKeyConstraint(['event_id'], ['events.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['introducer_company_id'], ['companies.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['target_company_id'], ['companies.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id')
+    )
+    with op.batch_alter_table('introductions', schema=None) as batch_op:
+        batch_op.create_index(batch_op.f('ix_introductions_event_id'), ['event_id'], unique=False)
+        batch_op.create_index(batch_op.f('ix_introductions_introducer_company_id'), ['introducer_company_id'], unique=False)
+        batch_op.create_index(batch_op.f('ix_introductions_target_company_id'), ['target_company_id'], unique=False)
+
     op.create_table('invitations',
     sa.Column('company_id', sa.String(length=32), nullable=False),
     sa.Column('email', sa.String(length=320), nullable=False),
@@ -228,6 +249,21 @@ def upgrade() -> None:
         batch_op.create_index(batch_op.f('ix_projects_company_id'), ['company_id'], unique=False)
         batch_op.create_index(batch_op.f('ix_projects_event_id'), ['event_id'], unique=False)
 
+    op.create_table('promotions',
+    sa.Column('company_id', sa.String(length=32), nullable=False),
+    sa.Column('kind', sa.String(length=16), nullable=False),
+    sa.Column('body', sa.Text(), nullable=False),
+    sa.Column('status', sa.String(length=16), nullable=False),
+    sa.Column('expires_at', app.models.types.UTCDateTime(), nullable=True),
+    sa.Column('id', sa.String(length=32), nullable=False),
+    sa.Column('created_at', app.models.types.UTCDateTime(), nullable=False),
+    sa.Column('updated_at', app.models.types.UTCDateTime(), nullable=False),
+    sa.ForeignKeyConstraint(['company_id'], ['companies.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id')
+    )
+    with op.batch_alter_table('promotions', schema=None) as batch_op:
+        batch_op.create_index(batch_op.f('ix_promotions_company_id'), ['company_id'], unique=False)
+
     op.create_table('votes',
     sa.Column('event_id', sa.String(length=32), nullable=False),
     sa.Column('voter_id', sa.String(length=32), nullable=False),
@@ -246,6 +282,25 @@ def upgrade() -> None:
         batch_op.create_index(batch_op.f('ix_votes_company_id'), ['company_id'], unique=False)
         batch_op.create_index(batch_op.f('ix_votes_event_id'), ['event_id'], unique=False)
         batch_op.create_index(batch_op.f('ix_votes_voter_id'), ['voter_id'], unique=False)
+
+    op.create_table('comments',
+    sa.Column('project_id', sa.String(length=32), nullable=False),
+    sa.Column('author_id', sa.String(length=32), nullable=False),
+    sa.Column('parent_id', sa.String(length=32), nullable=True),
+    sa.Column('body', sa.Text(), nullable=False),
+    sa.Column('status', sa.String(length=16), nullable=False),
+    sa.Column('id', sa.String(length=32), nullable=False),
+    sa.Column('created_at', app.models.types.UTCDateTime(), nullable=False),
+    sa.Column('updated_at', app.models.types.UTCDateTime(), nullable=False),
+    sa.ForeignKeyConstraint(['author_id'], ['users.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['parent_id'], ['comments.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['project_id'], ['projects.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id')
+    )
+    with op.batch_alter_table('comments', schema=None) as batch_op:
+        batch_op.create_index(batch_op.f('ix_comments_author_id'), ['author_id'], unique=False)
+        batch_op.create_index(batch_op.f('ix_comments_parent_id'), ['parent_id'], unique=False)
+        batch_op.create_index(batch_op.f('ix_comments_project_id'), ['project_id'], unique=False)
 
     op.create_table('project_edit_sessions',
     sa.Column('project_id', sa.String(length=32), nullable=False),
@@ -283,12 +338,57 @@ def upgrade() -> None:
     with op.batch_alter_table('project_versions', schema=None) as batch_op:
         batch_op.create_index(batch_op.f('ix_project_versions_project_id'), ['project_id'], unique=False)
 
+    op.create_table('visits',
+    sa.Column('event_id', sa.String(length=32), nullable=False),
+    sa.Column('project_id', sa.String(length=32), nullable=False),
+    sa.Column('visitor_id', sa.String(length=32), nullable=False),
+    sa.Column('note', sa.Text(), nullable=True),
+    sa.Column('id', sa.String(length=32), nullable=False),
+    sa.Column('created_at', app.models.types.UTCDateTime(), nullable=False),
+    sa.Column('updated_at', app.models.types.UTCDateTime(), nullable=False),
+    sa.ForeignKeyConstraint(['event_id'], ['events.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['project_id'], ['projects.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['visitor_id'], ['users.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('event_id', 'project_id', 'visitor_id', name='uq_visit')
+    )
+    with op.batch_alter_table('visits', schema=None) as batch_op:
+        batch_op.create_index(batch_op.f('ix_visits_event_id'), ['event_id'], unique=False)
+        batch_op.create_index(batch_op.f('ix_visits_project_id'), ['project_id'], unique=False)
+        batch_op.create_index(batch_op.f('ix_visits_visitor_id'), ['visitor_id'], unique=False)
+
+    op.create_table('comment_reports',
+    sa.Column('comment_id', sa.String(length=32), nullable=False),
+    sa.Column('reporter_id', sa.String(length=32), nullable=False),
+    sa.Column('id', sa.String(length=32), nullable=False),
+    sa.Column('created_at', app.models.types.UTCDateTime(), nullable=False),
+    sa.Column('updated_at', app.models.types.UTCDateTime(), nullable=False),
+    sa.ForeignKeyConstraint(['comment_id'], ['comments.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['reporter_id'], ['users.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('comment_id', 'reporter_id', name='uq_comment_report')
+    )
+    with op.batch_alter_table('comment_reports', schema=None) as batch_op:
+        batch_op.create_index(batch_op.f('ix_comment_reports_comment_id'), ['comment_id'], unique=False)
+        batch_op.create_index(batch_op.f('ix_comment_reports_reporter_id'), ['reporter_id'], unique=False)
+
     # ### end Alembic commands ###
 
 
 def downgrade() -> None:
     """Downgrade schema."""
     # ### commands auto generated by Alembic - please adjust! ###
+    with op.batch_alter_table('comment_reports', schema=None) as batch_op:
+        batch_op.drop_index(batch_op.f('ix_comment_reports_reporter_id'))
+        batch_op.drop_index(batch_op.f('ix_comment_reports_comment_id'))
+
+    op.drop_table('comment_reports')
+    with op.batch_alter_table('visits', schema=None) as batch_op:
+        batch_op.drop_index(batch_op.f('ix_visits_visitor_id'))
+        batch_op.drop_index(batch_op.f('ix_visits_project_id'))
+        batch_op.drop_index(batch_op.f('ix_visits_event_id'))
+
+    op.drop_table('visits')
     with op.batch_alter_table('project_versions', schema=None) as batch_op:
         batch_op.drop_index(batch_op.f('ix_project_versions_project_id'))
 
@@ -299,12 +399,22 @@ def downgrade() -> None:
         batch_op.drop_index(batch_op.f('ix_project_edit_sessions_project_id'))
 
     op.drop_table('project_edit_sessions')
+    with op.batch_alter_table('comments', schema=None) as batch_op:
+        batch_op.drop_index(batch_op.f('ix_comments_project_id'))
+        batch_op.drop_index(batch_op.f('ix_comments_parent_id'))
+        batch_op.drop_index(batch_op.f('ix_comments_author_id'))
+
+    op.drop_table('comments')
     with op.batch_alter_table('votes', schema=None) as batch_op:
         batch_op.drop_index(batch_op.f('ix_votes_voter_id'))
         batch_op.drop_index(batch_op.f('ix_votes_event_id'))
         batch_op.drop_index(batch_op.f('ix_votes_company_id'))
 
     op.drop_table('votes')
+    with op.batch_alter_table('promotions', schema=None) as batch_op:
+        batch_op.drop_index(batch_op.f('ix_promotions_company_id'))
+
+    op.drop_table('promotions')
     with op.batch_alter_table('projects', schema=None) as batch_op:
         batch_op.drop_index(batch_op.f('ix_projects_event_id'))
         batch_op.drop_index(batch_op.f('ix_projects_company_id'))
@@ -330,6 +440,12 @@ def downgrade() -> None:
         batch_op.drop_index(batch_op.f('ix_invitations_company_id'))
 
     op.drop_table('invitations')
+    with op.batch_alter_table('introductions', schema=None) as batch_op:
+        batch_op.drop_index(batch_op.f('ix_introductions_target_company_id'))
+        batch_op.drop_index(batch_op.f('ix_introductions_introducer_company_id'))
+        batch_op.drop_index(batch_op.f('ix_introductions_event_id'))
+
+    op.drop_table('introductions')
     with op.batch_alter_table('sessions', schema=None) as batch_op:
         batch_op.drop_index(batch_op.f('ix_sessions_user_id'))
         batch_op.drop_index(batch_op.f('ix_sessions_token_hash'))

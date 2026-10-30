@@ -3,6 +3,7 @@
 from app.models.audit import AuditLog
 from app.models.base import BaseModel
 from app.models.event import Company, Event, Invitation, InviteLink, JoinRequest, Membership
+from app.models.exhibition import Comment, CommentReport, Introduction, Promotion, Visit
 from app.models.identity import ApiKey, Session, User
 from app.models.project import Project, ProjectEditSession, ProjectVersion
 from app.models.verification import VerificationCode
@@ -13,16 +14,21 @@ __all__ = [
     "AuditLog",
     "BaseModel",
     "Company",
+    "Comment",
     "Invitation",
+    "Introduction",
     "InviteLink",
     "JoinRequest",
     "Event",
     "Membership",
+    "Promotion",
     "Project",
     "ProjectEditSession",
     "ProjectVersion",
     "Session",
     "User",
     "VerificationCode",
+    "Visit",
+    "CommentReport",
     "Vote",
 ]

@@ -772,6 +772,148 @@
         }
       }
     },
+    "/api/v1/me/wallet": {
+      "get": {
+        "tags": [
+          "me"
+        ],
+        "summary": "我的硬币：已投公司与余额",
+        "operationId": "get_wallet_api_v1_me_wallet_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WalletOut"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "me"
+        ],
+        "summary": "整张选票一次性保存（最多三家公司）",
+        "operationId": "put_wallet_api_v1_me_wallet_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WalletIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WalletOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/me/wallet/coins/{company_id}": {
+      "put": {
+        "tags": [
+          "me"
+        ],
+        "summary": "投一枚硬币（幂等）",
+        "operationId": "invest_coin_api_v1_me_wallet_coins__company_id__put",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Company Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WalletOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "me"
+        ],
+        "summary": "撤回硬币（幂等）",
+        "operationId": "withdraw_coin_api_v1_me_wallet_coins__company_id__delete",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Company Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WalletOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/me/membership": {
       "get": {
         "tags": [
@@ -1368,210 +1510,6 @@
             "schema": {
               "type": "string",
               "default": "/passport",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/me/wallet": {
-      "get": {
-        "tags": [
-          "me",
-          "me"
-        ],
-        "summary": "我的硬币：已投公司与余额",
-        "operationId": "_handler_api_v1_me_wallet_get",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "我的硬币：已投公司与余额",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/wallet",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      },
-      "put": {
-        "tags": [
-          "me",
-          "me"
-        ],
-        "summary": "整张选票一次性保存（最多三家公司）",
-        "operationId": "_handler_api_v1_me_wallet_put",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "整张选票一次性保存（最多三家公司）",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/wallet",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/me/wallet/coins/{company_id}": {
-      "put": {
-        "tags": [
-          "me",
-          "me"
-        ],
-        "summary": "投一枚硬币（幂等）",
-        "operationId": "_handler_api_v1_me_wallet_coins__company_id__put",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "投一枚硬币（幂等）",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/wallet/coins/{company_id}",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "me",
-          "me"
-        ],
-        "summary": "撤回投给某公司的硬币（幂等）",
-        "operationId": "_handler_api_v1_me_wallet_coins__company_id__delete",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "撤回投给某公司的硬币（幂等）",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/wallet/coins/{company_id}",
               "title": " Path"
             }
           }
@@ -2384,162 +2322,6 @@
             "schema": {
               "type": "string",
               "default": "/{event_id}/results",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/events/{event_id}/market": {
-      "get": {
-        "tags": [
-          "events",
-          "events"
-        ],
-        "summary": "实时投票榜",
-        "operationId": "_handler_api_v1_events__event_id__market_get",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "实时投票榜",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/{event_id}/market",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/events/{event_id}/market/big-screen": {
-      "get": {
-        "tags": [
-          "events",
-          "events"
-        ],
-        "summary": "大屏仪式视图",
-        "operationId": "_handler_api_v1_events__event_id__market_big_screen_get",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "大屏仪式视图",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/{event_id}/market/big-screen",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/events/{event_id}/market/stream": {
-      "get": {
-        "tags": [
-          "events",
-          "events"
-        ],
-        "summary": "投票榜 SSE 推送",
-        "operationId": "_handler_api_v1_events__event_id__market_stream_get",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "投票榜 SSE 推送",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/{event_id}/market/stream",
               "title": " Path"
             }
           }
@@ -4988,48 +4770,17 @@
     "/api/v1/votes": {
       "get": {
         "tags": [
-          "votes",
           "votes"
         ],
-        "summary": "实时投票榜：各公司总数、名次与最近变化",
-        "operationId": "_handler_api_v1_votes_get",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "实时投票榜：各公司总数、名次与最近变化",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "",
-              "title": " Path"
-            }
-          }
-        ],
+        "summary": "实时投票榜",
+        "operationId": "get_board_api_v1_votes_get",
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/BoardOut"
                 }
               }
             }
@@ -5040,30 +4791,21 @@
     "/api/v1/votes/big-screen": {
       "get": {
         "tags": [
-          "votes",
           "votes"
         ],
-        "summary": "大屏仪式视图：前 N 名与名次变化",
-        "operationId": "_handler_api_v1_votes_big_screen_get",
+        "summary": "大屏仪式视图：前 N 名",
+        "operationId": "get_big_screen_api_v1_votes_big_screen_get",
         "parameters": [
           {
-            "name": "_summary",
+            "name": "n",
             "in": "query",
             "required": false,
             "schema": {
-              "type": "string",
-              "default": "大屏仪式视图：前 N 名与名次变化",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/big-screen",
-              "title": " Path"
+              "type": "integer",
+              "maximum": 50,
+              "minimum": 1,
+              "default": 10,
+              "title": "N"
             }
           }
         ],
@@ -5072,7 +4814,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/BoardOut"
+                }
               }
             }
           },
@@ -5092,49 +4836,16 @@
     "/api/v1/votes/stream": {
       "get": {
         "tags": [
-          "votes",
           "votes"
         ],
         "summary": "投票榜 SSE 推送",
-        "operationId": "_handler_api_v1_votes_stream_get",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "投票榜 SSE 推送",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/stream",
-              "title": " Path"
-            }
-          }
-        ],
+        "operationId": "stream_board_api_v1_votes_stream_get",
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
                 "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
               }
             }
           }
@@ -5404,48 +5115,21 @@
     "/api/v1/exhibition/feed": {
       "get": {
         "tags": [
-          "exhibition",
           "exhibition"
         ],
-        "summary": "活动流：新作品、合作、介绍与广告",
-        "operationId": "_handler_api_v1_exhibition_feed_get",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "活动流：新作品、合作、介绍与广告",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/feed",
-              "title": " Path"
-            }
-          }
-        ],
+        "summary": "活动流：新作品与广告",
+        "operationId": "feed_api_v1_exhibition_feed_get",
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "items": {
+                    "$ref": "#/components/schemas/FeedItem"
+                  },
+                  "type": "array",
+                  "title": "Response Feed Api V1 Exhibition Feed Get"
                 }
               }
             }
@@ -5456,30 +5140,18 @@
     "/api/v1/exhibition/projects/{project_id}/comments": {
       "get": {
         "tags": [
-          "exhibition",
           "exhibition"
         ],
         "summary": "作品的评论串（时间正序）",
-        "operationId": "_handler_api_v1_exhibition_projects__project_id__comments_get",
+        "operationId": "list_comments_api_v1_exhibition_projects__project_id__comments_get",
         "parameters": [
           {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
+            "name": "project_id",
+            "in": "path",
+            "required": true,
             "schema": {
               "type": "string",
-              "default": "作品的评论串（时间正序）",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/projects/{project_id}/comments",
-              "title": " Path"
+              "title": "Project Id"
             }
           }
         ],
@@ -5488,7 +5160,13 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CommentOut"
+                  },
+                  "title": "Response List Comments Api V1 Exhibition Projects  Project Id  Comments Get"
+                }
               }
             }
           },
@@ -5506,39 +5184,39 @@
       },
       "post": {
         "tags": [
-          "exhibition",
           "exhibition"
         ],
         "summary": "发表评论或回复",
-        "operationId": "_handler_api_v1_exhibition_projects__project_id__comments_post",
+        "operationId": "create_comment_api_v1_exhibition_projects__project_id__comments_post",
         "parameters": [
           {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
+            "name": "project_id",
+            "in": "path",
+            "required": true,
             "schema": {
               "type": "string",
-              "default": "发表评论或回复",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/projects/{project_id}/comments",
-              "title": " Path"
+              "title": "Project Id"
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommentIn"
+              }
+            }
+          }
+        },
         "responses": {
-          "200": {
+          "201": {
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/CommentOut"
+                }
               }
             }
           },
@@ -5558,39 +5236,39 @@
     "/api/v1/exhibition/comments/{comment_id}": {
       "patch": {
         "tags": [
-          "exhibition",
           "exhibition"
         ],
         "summary": "编辑我的评论",
-        "operationId": "_handler_api_v1_exhibition_comments__comment_id__patch",
+        "operationId": "edit_comment_api_v1_exhibition_comments__comment_id__patch",
         "parameters": [
           {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
+            "name": "comment_id",
+            "in": "path",
+            "required": true,
             "schema": {
               "type": "string",
-              "default": "编辑我的评论",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/comments/{comment_id}",
-              "title": " Path"
+              "title": "Comment Id"
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommentIn"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/CommentOut"
+                }
               }
             }
           },
@@ -5608,30 +5286,18 @@
       },
       "delete": {
         "tags": [
-          "exhibition",
           "exhibition"
         ],
         "summary": "删除我的评论",
-        "operationId": "_handler_api_v1_exhibition_comments__comment_id__delete",
+        "operationId": "delete_comment_api_v1_exhibition_comments__comment_id__delete",
         "parameters": [
           {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
+            "name": "comment_id",
+            "in": "path",
+            "required": true,
             "schema": {
               "type": "string",
-              "default": "删除我的评论",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/comments/{comment_id}",
-              "title": " Path"
+              "title": "Comment Id"
             }
           }
         ],
@@ -5640,7 +5306,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/OkOut"
+                }
               }
             }
           },
@@ -5660,30 +5328,18 @@
     "/api/v1/exhibition/comments/{comment_id}/reports": {
       "post": {
         "tags": [
-          "exhibition",
           "exhibition"
         ],
         "summary": "举报评论（每人一次）",
-        "operationId": "_handler_api_v1_exhibition_comments__comment_id__reports_post",
+        "operationId": "report_comment_api_v1_exhibition_comments__comment_id__reports_post",
         "parameters": [
           {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
+            "name": "comment_id",
+            "in": "path",
+            "required": true,
             "schema": {
               "type": "string",
-              "default": "举报评论（每人一次）",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/comments/{comment_id}/reports",
-              "title": " Path"
+              "title": "Comment Id"
             }
           }
         ],
@@ -5692,7 +5348,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/OkOut"
+                }
               }
             }
           },
@@ -5712,48 +5370,21 @@
     "/api/v1/exhibition/promotions": {
       "get": {
         "tags": [
-          "exhibition",
           "exhibition"
         ],
         "summary": "广告墙与跑马灯",
-        "operationId": "_handler_api_v1_exhibition_promotions_get",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "广告墙与跑马灯",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/promotions",
-              "title": " Path"
-            }
-          }
-        ],
+        "operationId": "list_promotions_api_v1_exhibition_promotions_get",
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "items": {
+                    "$ref": "#/components/schemas/PromotionOut"
+                  },
+                  "type": "array",
+                  "title": "Response List Promotions Api V1 Exhibition Promotions Get"
                 }
               }
             }
@@ -5762,39 +5393,28 @@
       },
       "post": {
         "tags": [
-          "exhibition",
           "exhibition"
         ],
-        "summary": "发布广告（每家公司最多三条在线）",
-        "operationId": "_handler_api_v1_exhibition_promotions_post",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "发布广告（每家公司最多三条在线）",
-              "title": " Summary"
+        "summary": "发布广告",
+        "operationId": "create_promotion_api_v1_exhibition_promotions_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PromotionIn"
+              }
             }
           },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/promotions",
-              "title": " Path"
-            }
-          }
-        ],
+          "required": true
+        },
         "responses": {
-          "200": {
+          "201": {
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/PromotionOut"
+                }
               }
             }
           },
@@ -5814,39 +5434,39 @@
     "/api/v1/exhibition/promotions/{promotion_id}": {
       "patch": {
         "tags": [
-          "exhibition",
           "exhibition"
         ],
         "summary": "编辑我公司的广告",
-        "operationId": "_handler_api_v1_exhibition_promotions__promotion_id__patch",
+        "operationId": "edit_promotion_api_v1_exhibition_promotions__promotion_id__patch",
         "parameters": [
           {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
+            "name": "promotion_id",
+            "in": "path",
+            "required": true,
             "schema": {
               "type": "string",
-              "default": "编辑我公司的广告",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/promotions/{promotion_id}",
-              "title": " Path"
+              "title": "Promotion Id"
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PromotionIn"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/OkOut"
+                }
               }
             }
           },
@@ -5864,30 +5484,18 @@
       },
       "delete": {
         "tags": [
-          "exhibition",
           "exhibition"
         ],
         "summary": "撤下我公司的广告",
-        "operationId": "_handler_api_v1_exhibition_promotions__promotion_id__delete",
+        "operationId": "delete_promotion_api_v1_exhibition_promotions__promotion_id__delete",
         "parameters": [
           {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
+            "name": "promotion_id",
+            "in": "path",
+            "required": true,
             "schema": {
               "type": "string",
-              "default": "撤下我公司的广告",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/promotions/{promotion_id}",
-              "title": " Path"
+              "title": "Promotion Id"
             }
           }
         ],
@@ -5896,7 +5504,337 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/OkOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/exhibition/visits": {
+      "get": {
+        "tags": [
+          "exhibition"
+        ],
+        "summary": "我的参观护照：印章与完成度",
+        "operationId": "my_passport_api_v1_exhibition_visits_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassportOut"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/exhibition/visits/{project_id}": {
+      "put": {
+        "tags": [
+          "exhibition"
+        ],
+        "summary": "为作品盖章",
+        "operationId": "stamp_api_v1_exhibition_visits__project_id__put",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VisitIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "exhibition"
+        ],
+        "summary": "移除印章",
+        "operationId": "remove_stamp_api_v1_exhibition_visits__project_id__delete",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/exhibition/companies/{company_id}/visits": {
+      "get": {
+        "tags": [
+          "exhibition"
+        ],
+        "summary": "谁为我们公司盖过章",
+        "operationId": "company_stamps_api_v1_exhibition_companies__company_id__visits_get",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Company Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/StampOut"
+                  },
+                  "title": "Response Company Stamps Api V1 Exhibition Companies  Company Id  Visits Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/exhibition/introductions": {
+      "get": {
+        "tags": [
+          "exhibition"
+        ],
+        "summary": "与我公司相关的介绍任务",
+        "operationId": "my_introductions_api_v1_exhibition_introductions_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/IntroductionOut"
+                  },
+                  "type": "array",
+                  "title": "Response My Introductions Api V1 Exhibition Introductions Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/exhibition/introductions/{introduction_id}/text": {
+      "put": {
+        "tags": [
+          "exhibition"
+        ],
+        "summary": "撰写奖项日介绍",
+        "operationId": "set_introduction_text_api_v1_exhibition_introductions__introduction_id__text_put",
+        "parameters": [
+          {
+            "name": "introduction_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Introduction Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntroductionTextIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntroductionOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/exhibition/introductions/{introduction_id}/reply": {
+      "put": {
+        "tags": [
+          "exhibition"
+        ],
+        "summary": "被介绍公司作答",
+        "operationId": "set_introduction_reply_api_v1_exhibition_introductions__introduction_id__reply_put",
+        "parameters": [
+          {
+            "name": "introduction_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Introduction Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntroductionReplyIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntroductionOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "exhibition"
+        ],
+        "summary": "删除我方回复",
+        "operationId": "delete_introduction_reply_api_v1_exhibition_introductions__introduction_id__reply_delete",
+        "parameters": [
+          {
+            "name": "introduction_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Introduction Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkOut"
+                }
               }
             }
           },
@@ -5939,418 +5877,6 @@
             "schema": {
               "type": "string",
               "default": "/collaborations",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/exhibition/introductions": {
-      "get": {
-        "tags": [
-          "exhibition",
-          "exhibition"
-        ],
-        "summary": "我公司的介绍任务",
-        "operationId": "_handler_api_v1_exhibition_introductions_get",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "我公司的介绍任务",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/introductions",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/exhibition/introductions/{introduction_id}/reply": {
-      "put": {
-        "tags": [
-          "exhibition",
-          "exhibition"
-        ],
-        "summary": "被介绍公司作答",
-        "operationId": "_handler_api_v1_exhibition_introductions__introduction_id__reply_put",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "被介绍公司作答",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/introductions/{introduction_id}/reply",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "exhibition",
-          "exhibition"
-        ],
-        "summary": "删除我方回复",
-        "operationId": "_handler_api_v1_exhibition_introductions__introduction_id__reply_delete",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "删除我方回复",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/introductions/{introduction_id}/reply",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/exhibition/introductions/{introduction_id}/text": {
-      "put": {
-        "tags": [
-          "exhibition",
-          "exhibition"
-        ],
-        "summary": "撰写奖项日介绍（约 150 字）",
-        "operationId": "_handler_api_v1_exhibition_introductions__introduction_id__text_put",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "撰写奖项日介绍（约 150 字）",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/introductions/{introduction_id}/text",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/exhibition/visits": {
-      "get": {
-        "tags": [
-          "exhibition",
-          "exhibition"
-        ],
-        "summary": "我的护照印章",
-        "operationId": "_handler_api_v1_exhibition_visits_get",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "我的护照印章",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/visits",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/exhibition/visits/{project_id}": {
-      "put": {
-        "tags": [
-          "exhibition",
-          "exhibition"
-        ],
-        "summary": "为作品盖章",
-        "operationId": "_handler_api_v1_exhibition_visits__project_id__put",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "为作品盖章",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/visits/{project_id}",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "exhibition",
-          "exhibition"
-        ],
-        "summary": "移除印章",
-        "operationId": "_handler_api_v1_exhibition_visits__project_id__delete",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "移除印章",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/visits/{project_id}",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/exhibition/companies/{company_id}/visits": {
-      "get": {
-        "tags": [
-          "exhibition",
-          "exhibition"
-        ],
-        "summary": "谁为我们公司盖过章",
-        "operationId": "_handler_api_v1_exhibition_companies__company_id__visits_get",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "谁为我们公司盖过章",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/companies/{company_id}/visits",
               "title": " Path"
             }
           }
@@ -14442,6 +13968,66 @@
         ],
         "title": "AttendanceIn"
       },
+      "BoardOut": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/BoardRow"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total_coins": {
+            "type": "integer",
+            "title": "Total Coins"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total_coins",
+          "updated_at"
+        ],
+        "title": "BoardOut"
+      },
+      "BoardRow": {
+        "properties": {
+          "company_id": {
+            "type": "string",
+            "title": "Company Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "slug": {
+            "type": "string",
+            "title": "Slug"
+          },
+          "coins": {
+            "type": "integer",
+            "title": "Coins"
+          },
+          "rank": {
+            "type": "integer",
+            "title": "Rank"
+          }
+        },
+        "type": "object",
+        "required": [
+          "company_id",
+          "name",
+          "slug",
+          "coins",
+          "rank"
+        ],
+        "title": "BoardRow"
+      },
       "BotChallengeOut": {
         "properties": {
           "challenge": {
@@ -14482,6 +14068,82 @@
           "expires_in"
         ],
         "title": "CodeSentOut"
+      },
+      "CommentIn": {
+        "properties": {
+          "body": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Body"
+          },
+          "parent_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "body"
+        ],
+        "title": "CommentIn"
+      },
+      "CommentOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "project_id": {
+            "type": "string",
+            "title": "Project Id"
+          },
+          "author_id": {
+            "type": "string",
+            "title": "Author Id"
+          },
+          "author_name": {
+            "type": "string",
+            "title": "Author Name"
+          },
+          "parent_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Id"
+          },
+          "body": {
+            "type": "string",
+            "title": "Body"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "project_id",
+          "author_id",
+          "author_name",
+          "body",
+          "created_at"
+        ],
+        "title": "CommentOut"
       },
       "CompanyCreateIn": {
         "properties": {
@@ -14769,9 +14431,13 @@
             "type": "boolean",
             "title": "Registration Open"
           },
-          "project_seats": {
+          "voting_open": {
+            "type": "boolean",
+            "title": "Voting Open"
+          },
+          "company_seats": {
             "type": "integer",
-            "title": "Project Seats"
+            "title": "Company Seats"
           }
         },
         "type": "object",
@@ -14781,9 +14447,39 @@
           "name",
           "stage",
           "registration_open",
-          "project_seats"
+          "voting_open",
+          "company_seats"
         ],
         "title": "EventOut"
+      },
+      "FeedItem": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "title": "Type"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "company_name": {
+            "type": "string",
+            "title": "Company Name"
+          },
+          "at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "type",
+          "title",
+          "company_name",
+          "at"
+        ],
+        "title": "FeedItem"
       },
       "HTTPValidationError": {
         "properties": {
@@ -14820,6 +14516,91 @@
           "database"
         ],
         "title": "HealthOut"
+      },
+      "IntroductionOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "role": {
+            "type": "string",
+            "title": "Role"
+          },
+          "introducer_company": {
+            "type": "string",
+            "title": "Introducer Company"
+          },
+          "target_company": {
+            "type": "string",
+            "title": "Target Company"
+          },
+          "text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Text"
+          },
+          "reply": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reply"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "role",
+          "introducer_company",
+          "target_company",
+          "status"
+        ],
+        "title": "IntroductionOut"
+      },
+      "IntroductionReplyIn": {
+        "properties": {
+          "reply": {
+            "type": "string",
+            "maxLength": 1200,
+            "minLength": 1,
+            "title": "Reply"
+          }
+        },
+        "type": "object",
+        "required": [
+          "reply"
+        ],
+        "title": "IntroductionReplyIn"
+      },
+      "IntroductionTextIn": {
+        "properties": {
+          "text": {
+            "type": "string",
+            "maxLength": 1200,
+            "minLength": 1,
+            "title": "Text"
+          }
+        },
+        "type": "object",
+        "required": [
+          "text"
+        ],
+        "title": "IntroductionTextIn"
       },
       "InvitationCreatedOut": {
         "properties": {
@@ -15086,6 +14867,32 @@
         "type": "object",
         "title": "OkOut"
       },
+      "PassportOut": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/VisitOut"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "needed": {
+            "type": "integer",
+            "title": "Needed"
+          },
+          "complete": {
+            "type": "boolean",
+            "title": "Complete"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "needed",
+          "complete"
+        ],
+        "title": "PassportOut"
+      },
       "PasswordChangeIn": {
         "properties": {
           "current_password": {
@@ -15163,6 +14970,35 @@
           "email"
         ],
         "title": "PasswordResetRequestIn"
+      },
+      "PickOut": {
+        "properties": {
+          "company_id": {
+            "type": "string",
+            "title": "Company Id"
+          },
+          "company_name": {
+            "type": "string",
+            "title": "Company Name"
+          },
+          "company_slug": {
+            "type": "string",
+            "title": "Company Slug"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "company_id",
+          "company_name",
+          "company_slug",
+          "created_at"
+        ],
+        "title": "PickOut"
       },
       "ProfileUpdateIn": {
         "properties": {
@@ -15345,6 +15181,66 @@
         ],
         "title": "ProjectOut"
       },
+      "PromotionIn": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "pattern": "^(wall|ticker)$",
+            "title": "Kind",
+            "default": "wall"
+          },
+          "body": {
+            "type": "string",
+            "maxLength": 280,
+            "minLength": 1,
+            "title": "Body"
+          }
+        },
+        "type": "object",
+        "required": [
+          "body"
+        ],
+        "title": "PromotionIn"
+      },
+      "PromotionOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "company_id": {
+            "type": "string",
+            "title": "Company Id"
+          },
+          "company_name": {
+            "type": "string",
+            "title": "Company Name"
+          },
+          "kind": {
+            "type": "string",
+            "title": "Kind"
+          },
+          "body": {
+            "type": "string",
+            "title": "Body"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "company_id",
+          "company_name",
+          "kind",
+          "body",
+          "created_at"
+        ],
+        "title": "PromotionOut"
+      },
       "PublishOut": {
         "properties": {
           "project": {
@@ -15519,6 +15415,36 @@
         "title": "SessionResponse",
         "description": "登录成功后返回；会话令牌同时写入 ``sid`` cookie。"
       },
+      "StampOut": {
+        "properties": {
+          "visitor_name": {
+            "type": "string",
+            "title": "Visitor Name"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "visitor_name",
+          "created_at"
+        ],
+        "title": "StampOut"
+      },
       "TransferIn": {
         "properties": {
           "user_id": {
@@ -15689,6 +15615,102 @@
           "published_at"
         ],
         "title": "VersionOut"
+      },
+      "VisitIn": {
+        "properties": {
+          "note": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 280
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          }
+        },
+        "type": "object",
+        "title": "VisitIn"
+      },
+      "VisitOut": {
+        "properties": {
+          "project_id": {
+            "type": "string",
+            "title": "Project Id"
+          },
+          "company_name": {
+            "type": "string",
+            "title": "Company Name"
+          },
+          "project_title": {
+            "type": "string",
+            "title": "Project Title"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "project_id",
+          "company_name",
+          "project_title",
+          "created_at"
+        ],
+        "title": "VisitOut"
+      },
+      "WalletIn": {
+        "properties": {
+          "company_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 20,
+            "title": "Company Ids"
+          }
+        },
+        "type": "object",
+        "required": [
+          "company_ids"
+        ],
+        "title": "WalletIn"
+      },
+      "WalletOut": {
+        "properties": {
+          "picks": {
+            "items": {
+              "$ref": "#/components/schemas/PickOut"
+            },
+            "type": "array",
+            "title": "Picks"
+          },
+          "picks_left": {
+            "type": "integer",
+            "title": "Picks Left"
+          }
+        },
+        "type": "object",
+        "required": [
+          "picks",
+          "picks_left"
+        ],
+        "title": "WalletOut"
       }
     }
   }
