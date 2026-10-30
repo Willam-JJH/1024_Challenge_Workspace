@@ -23,6 +23,10 @@ class User(BaseModel):
     # online | in_person | both
     mode: Mapped[str] = mapped_column(String(16), default="both")
     llm_blocked: Mapped[bool] = mapped_column(default=False)
+    digest_comments: Mapped[bool] = mapped_column(default=True)
+    deletion_requested_at: Mapped[datetime | None] = mapped_column(
+        UTCDateTime(), nullable=True
+    )
 
     sessions: Mapped[list["Session"]] = relationship(back_populates="user")
     api_keys: Mapped[list["ApiKey"]] = relationship(back_populates="user")

@@ -1,8 +1,8 @@
 """initial schema
 
-Revision ID: fc5b2cce8fe1
+Revision ID: 98e09724d166
 Revises: 
-Create Date: 2026-10-30 17:14:05.946666
+Create Date: 2026-10-30 17:16:48.541686
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'fc5b2cce8fe1'
+revision: str = '98e09724d166'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -77,6 +77,8 @@ def upgrade() -> None:
     sa.Column('status', sa.String(length=32), nullable=False),
     sa.Column('mode', sa.String(length=16), nullable=False),
     sa.Column('llm_blocked', sa.Boolean(), nullable=False),
+    sa.Column('digest_comments', sa.Boolean(), nullable=False),
+    sa.Column('deletion_requested_at', app.models.types.UTCDateTime(), nullable=True),
     sa.Column('id', sa.String(length=32), nullable=False),
     sa.Column('created_at', app.models.types.UTCDateTime(), nullable=False),
     sa.Column('updated_at', app.models.types.UTCDateTime(), nullable=False),
@@ -238,6 +240,21 @@ def upgrade() -> None:
     with op.batch_alter_table('llm_usage', schema=None) as batch_op:
         batch_op.create_index(batch_op.f('ix_llm_usage_model_id'), ['model_id'], unique=False)
         batch_op.create_index(batch_op.f('ix_llm_usage_user_id'), ['user_id'], unique=False)
+
+    op.create_table('notifications',
+    sa.Column('user_id', sa.String(length=32), nullable=False),
+    sa.Column('kind', sa.String(length=32), nullable=False),
+    sa.Column('title', sa.String(length=160), nullable=False),
+    sa.Column('body', sa.Text(), nullable=True),
+    sa.Column('read_at', app.models.types.UTCDateTime(), nullable=True),
+    sa.Column('id', sa.String(length=32), nullable=False),
+    sa.Column('created_at', app.models.types.UTCDateTime(), nullable=False),
+    sa.Column('updated_at', app.models.types.UTCDateTime(), nullable=False),
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id')
+    )
+    with op.batch_alter_table('notifications', schema=None) as batch_op:
+        batch_op.create_index(batch_op.f('ix_notifications_user_id'), ['user_id'], unique=False)
 
     op.create_table('offline_sessions',
     sa.Column('event_id', sa.String(length=32), nullable=False),
@@ -794,6 +811,10 @@ def downgrade() -> None:
         batch_op.drop_index(batch_op.f('ix_offline_sessions_event_id'))
 
     op.drop_table('offline_sessions')
+    with op.batch_alter_table('notifications', schema=None) as batch_op:
+        batch_op.drop_index(batch_op.f('ix_notifications_user_id'))
+
+    op.drop_table('notifications')
     with op.batch_alter_table('llm_usage', schema=None) as batch_op:
         batch_op.drop_index(batch_op.f('ix_llm_usage_user_id'))
         batch_op.drop_index(batch_op.f('ix_llm_usage_model_id'))

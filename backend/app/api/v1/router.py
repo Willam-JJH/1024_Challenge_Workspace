@@ -23,6 +23,7 @@ from app.api.v1 import (
     health,
     judging,
     me,
+    me_extra,
     media,
     oauth,
     offline,
@@ -37,6 +38,7 @@ api_router = APIRouter()
 api_router.include_router(health.router)
 api_router.include_router(auth.router)
 api_router.include_router(me.router)
+api_router.include_router(me_extra.router)
 api_router.include_router(events.router)
 api_router.include_router(finder.router)
 api_router.include_router(companies.router)
