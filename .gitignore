@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+*.db
+*.sqlite3
+
+# Node（前端后续重设计时启用）
+node_modules/
+dist/
+.next/
+
+# 本地配置与密钥
+.env
+.env.local
+!.env.example
+
+# 系统
+.DS_Store
+Thumbs.db
+
+# 基础设施密钥
+infra/secrets/
+infra/.env.infra

@@ -1,0 +1,22 @@
+{
+  "{$DOMAIN}": {
+    tls {
+      # origin = Cloudflare Origin CA 证书；acme = Let's Encrypt
+      issuer internal
+    }
+    encode zstd gzip
+
+    handle /api/* {
+      reverse_proxy api:8000
+    }
+
+    handle /v1/* {
+      reverse_proxy api:8000
+    }
+
+    handle {
+      # 前端重设计完成后指向静态站点或前端容器
+      respond "frontend not built yet" 200
+    }
+  }
+}

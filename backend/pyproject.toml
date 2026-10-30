@@ -1,0 +1,34 @@
+[project]
+name = "challenge-api"
+version = "0.1.0"
+description = "1024 Challenge Workspace — 平台后端（FastAPI）"
+requires-python = ">=3.12"
+dependencies = [
+  "fastapi>=0.141,<1",
+  "uvicorn[standard]>=0.54",
+  "pydantic[email]>=2.13,<3",
+  "pydantic-settings>=2.8",
+  "sqlalchemy>=2.0.36,<3",
+  "alembic>=1.16",
+  "psycopg[binary]>=3.2",
+]
+
+[dependency-groups]
+dev = [
+  "pytest>=8.3",
+  "httpx>=0.28",
+  "ruff>=0.9",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-exclude = ["migrations/versions"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+ignore = ["B008"]

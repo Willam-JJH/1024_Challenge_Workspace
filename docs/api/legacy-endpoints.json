@@ -1,0 +1,2672 @@
+[
+ {
+  "method": "GET",
+  "path": "/admin/audit",
+  "summary": "The audit log (ADM-11), newest first",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "admin",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/admin/audit/actions",
+  "summary": "Every action verb in the log (filter menu)",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "admin",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/admin/companies",
+  "summary": "Companies of the current event (rosters, captains, projects)",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "admin",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/admin/companies/:companyId",
+  "summary": "A company’s file: members, invitations, project, roster log",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "admin",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/admin/companies/:companyId/dissolve",
+  "summary": "Force-dissolve a company (members removed, project hidden, votes returned)",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "admin",
+  "service": "api"
+ },
+ {
+  "method": "PUT",
+  "path": "/admin/companies/:companyId/roster-lock",
+  "summary": "Lock or unlock one company’s roster (ADM-3)",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "admin",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/admin/companies/:companyId/transfer-captain",
+  "summary": "Make another active member the captain (the submitter follows the old captain)",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "admin",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/admin/companies/:companyId/transfer-submitter",
+  "summary": "Hand the project submitter role to another active member",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "admin",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/admin/dashboard",
+  "summary": "Event vital signs (ADM-1); sections outside the viewer’s role are null",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "admin",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/admin/members/move",
+  "summary": "Move a person to another company, or remove them (toCompanyId = null)",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "admin",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/admin/search",
+  "summary": "Command bar: people, companies and projects",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "admin",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/admin/users",
+  "summary": "Search users (email, English or display name) with filters and sort/dir",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "admin",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/admin/users",
+  "summary": "Create an account (pending) and email an invitation to set its password",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "admin",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/admin/users/:userId",
+  "summary": "A person’s file: profile, teams, project, votes, keys, usage, sessions",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "admin",
+  "service": "api"
+ },
+ {
+  "method": "PUT",
+  "path": "/admin/users/:userId/locale",
+  "summary": "Set the email language of one account (audited)",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "admin",
+  "service": "api"
+ },
+ {
+  "method": "PUT",
+  "path": "/admin/users/:userId/mode",
+  "summary": "Change how someone takes part (online, in person, both); audited",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "admin",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/admin/users/:userId/remove",
+  "summary": "Remove an account: keep its data, also leave its company, or delete the row entirely",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "admin",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/admin/users/:userId/resend-activation",
+  "summary": "Re-send a pending teammate",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "admin",
+  "service": "api"
+ },
+ {
+  "method": "PUT",
+  "path": "/admin/users/:userId/role",
+  "summary": "Change a global role (admin rights need a super admin; never your own)",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "admin",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/admin/users/:userId/sign-out",
+  "summary": "Sign someone out of every session and connected app (force logout)",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "admin",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/admin/users/:userId/suspend",
+  "summary": "Suspend an account: signed out everywhere, LLM off, coins stop counting",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "admin",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/admin/users/:userId/teams",
+  "summary": "A user",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "admin",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/admin/users/:userId/unsuspend",
+  "summary": "Reinstate a suspended account",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "admin",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/admin/users/export",
+  "summary": "Everyone matching the filters as CSV (audited)",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "admin",
+  "service": "api"
+ },
+ {
+  "method": "PUT",
+  "path": "/admin/users/locale",
+  "summary": "Set the email language for everyone matching the filters (audited)",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "admin",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/admin/users/remove",
+  "summary": "Remove the ticked accounts (or everyone matching): audited one by one",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "admin",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/admin/email/quota",
+  "summary": "The email provider",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "admin-email",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/api-keys",
+  "summary": "List anyone",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "admin-llm",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/api-keys/:id/revoke",
+  "summary": "Revoke anyone",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "admin-llm",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/budget",
+  "summary": "The event budget",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "admin-llm",
+  "service": "api"
+ },
+ {
+  "method": "PUT",
+  "path": "/budget",
+  "summary": "Set the event budget (micro-USD)",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "admin-llm",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/kill-switches",
+  "summary": "Kill switch state",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "admin-llm",
+  "service": "api"
+ },
+ {
+  "method": "PUT",
+  "path": "/kill-switches/global",
+  "summary": "Turn the whole LLM API on or off",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "admin-llm",
+  "service": "api"
+ },
+ {
+  "method": "PUT",
+  "path": "/kill-switches/models/:modelId",
+  "summary": "Turn one model on or off",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "admin-llm",
+  "service": "api"
+ },
+ {
+  "method": "PUT",
+  "path": "/kill-switches/users/:userId",
+  "summary": "Turn one person",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "admin-llm",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/models",
+  "summary": "List models with prices and routes",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "admin-llm",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/models",
+  "summary": "Add a public model",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "admin-llm",
+  "service": "api"
+ },
+ {
+  "method": "DELETE",
+  "path": "/models/:id",
+  "summary": "Delete a model",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "admin-llm",
+  "service": "api"
+ },
+ {
+  "method": "PATCH",
+  "path": "/models/:id",
+  "summary": "Edit a model (prices, limits, capabilities, enabled)",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "admin-llm",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/models/:id/routes",
+  "summary": "Map the model to an upstream model (fallback by priority)",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "admin-llm",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/overview",
+  "summary": "Spend, remaining credit, burn rate, forecast and breakdowns",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "admin-llm",
+  "service": "api"
+ },
+ {
+  "method": "DELETE",
+  "path": "/routes/:id",
+  "summary": "Delete a route",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "admin-llm",
+  "service": "api"
+ },
+ {
+  "method": "PATCH",
+  "path": "/routes/:id",
+  "summary": "Edit a route",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "admin-llm",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/upstreams",
+  "summary": "List upstreams (keys masked)",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "admin-llm",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/upstreams",
+  "summary": "Add an OpenAI-compatible upstream (the key is write-only)",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "admin-llm",
+  "service": "api"
+ },
+ {
+  "method": "DELETE",
+  "path": "/upstreams/:id",
+  "summary": "Delete an upstream (and its routes)",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "admin-llm",
+  "service": "api"
+ },
+ {
+  "method": "PATCH",
+  "path": "/upstreams/:id",
+  "summary": "Edit an upstream; send apiKey to replace the key (required when the host or extra headers change)",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "admin-llm",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/usage/teams",
+  "summary": "Burn rate: companies by AI tokens through the gateway (WP15, Highest Burn Rate)",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "admin-llm",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/usage/users",
+  "summary": "Usage per user (most expensive first)",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "admin-llm",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/admin/announcements",
+  "summary": "Every announcement",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "announcements",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/admin/announcements",
+  "summary": "Write an announcement (publish now or keep as a draft)",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "announcements",
+  "service": "api"
+ },
+ {
+  "method": "DELETE",
+  "path": "/admin/announcements/:announcementId",
+  "summary": "Delete an announcement",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "announcements",
+  "service": "api"
+ },
+ {
+  "method": "PATCH",
+  "path": "/admin/announcements/:announcementId",
+  "summary": "Edit an announcement",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "announcements",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/admin/sponsors",
+  "summary": "The sponsors strip",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "announcements",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/admin/sponsors",
+  "summary": "Add a sponsor (logo: a `sponsor_logo` upload)",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "announcements",
+  "service": "api"
+ },
+ {
+  "method": "DELETE",
+  "path": "/admin/sponsors/:sponsorId",
+  "summary": "Remove a sponsor",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "announcements",
+  "service": "api"
+ },
+ {
+  "method": "PATCH",
+  "path": "/admin/sponsors/:sponsorId",
+  "summary": "Edit a sponsor",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "announcements",
+  "service": "api"
+ },
+ {
+  "method": "PUT",
+  "path": "/admin/sponsors/order",
+  "summary": "Reorder the strip (every sponsor id, in order)",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "announcements",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/announcements",
+  "summary": "Live announcements (the banner and the news feed), newest first",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "announcements",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/api-keys",
+  "summary": "Create an API key. The full key is returned ONCE.",
+  "auth": "authenticated",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "api-keys",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/api-keys/:id/rotate",
+  "summary": "Rotate an API key: revoke it and issue a new one with the same label",
+  "auth": "authenticated",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "api-keys",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/llm/setup",
+  "summary": "Gateway base URL and public models (for setup snippets)",
+  "auth": "authenticated",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "api-keys",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/auth/bot/challenge",
+  "summary": "Issue a self-hosted proof-of-work challenge",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "auth",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/auth/login",
+  "summary": "Sign in with email + password",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "auth",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/auth/logout",
+  "summary": "Sign out of this device",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "auth",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/auth/logout-everywhere",
+  "summary": "Sign out on every device",
+  "auth": "authenticated",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "auth",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/auth/password/forgot",
+  "summary": "Email a password-reset code",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "auth",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/auth/password/reset",
+  "summary": "Set a new password (signs in, revokes every other session)",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "auth",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/auth/password/verify",
+  "summary": "Exchange a reset code for a reset token",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "auth",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/auth/sessions",
+  "summary": "My active sessions",
+  "auth": "authenticated",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "auth",
+  "service": "api"
+ },
+ {
+  "method": "DELETE",
+  "path": "/auth/sessions/:sessionId",
+  "summary": "Revoke one session",
+  "auth": "authenticated",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "auth",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/csp-report",
+  "summary": "Content-Security-Policy violation reports from browsers (logged as metadata)",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "csp-report",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/admin/email/audience/estimate",
+  "summary": "How many people an audience reaches (by language), before the daily cap",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "email-admin",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/admin/email/broadcasts",
+  "summary": "Broadcasts, newest first",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "email-admin",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/admin/email/broadcasts",
+  "summary": "Save a broadcast draft",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "email-admin",
+  "service": "api"
+ },
+ {
+  "method": "DELETE",
+  "path": "/admin/email/broadcasts/:broadcastId",
+  "summary": "Delete a draft (or cancelled) broadcast",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "email-admin",
+  "service": "api"
+ },
+ {
+  "method": "PATCH",
+  "path": "/admin/email/broadcasts/:broadcastId",
+  "summary": "Edit a draft or scheduled broadcast",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "email-admin",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/admin/email/broadcasts/:broadcastId/cancel",
+  "summary": "Cancel a draft or scheduled broadcast",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "email-admin",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/admin/email/broadcasts/:broadcastId/schedule",
+  "summary": "Send now (scheduledAt null) or at a future time",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "email-admin",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/admin/email/broadcasts/:broadcastId/test",
+  "summary": "Send the broadcast to myself",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "email-admin",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/admin/email/broadcasts/preview",
+  "summary": "Render broadcast content as the recipients will see it",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "email-admin",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/admin/email/messages",
+  "summary": "The email log (newest first) with counts by status",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "email-admin",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/admin/email/messages/:messageId/resend",
+  "summary": "Queue a failed message again (broadcasts and offline-session emails)",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "email-admin",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/admin/email/preview",
+  "summary": "Render a template with sample props in English or Chinese",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "email-admin",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/admin/email/setup",
+  "summary": "The email driver, and whether the outbox reports a daily quota",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "email-admin",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/admin/email/templates",
+  "summary": "Every email template",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "email-admin",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/email/unsubscribe",
+  "summary": "Turn optional emails off with the token from an email (no sign-in)",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "email-preferences",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/email/unsubscribe/one-click",
+  "summary": "RFC 8058 one-click unsubscribe (List-Unsubscribe-Post)",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "email-preferences",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/admin/event",
+  "summary": "The current event: schedule, stage, switches",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "event-admin",
+  "service": "api"
+ },
+ {
+  "method": "PATCH",
+  "path": "/admin/event/schedule",
+  "summary": "Edit stage dates (UTC instants; order checked) and the stage override",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "event-admin",
+  "service": "api"
+ },
+ {
+  "method": "PUT",
+  "path": "/admin/event/switches",
+  "summary": "Open/close registration, lock every project or every roster",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "event-admin",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/admin/feature-flags",
+  "summary": "Feature flags",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "event-admin",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/admin/feature-flags",
+  "summary": "Create a feature flag",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "event-admin",
+  "service": "api"
+ },
+ {
+  "method": "DELETE",
+  "path": "/admin/feature-flags/:flagId",
+  "summary": "Delete a feature flag",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "event-admin",
+  "service": "api"
+ },
+ {
+  "method": "PATCH",
+  "path": "/admin/feature-flags/:flagId",
+  "summary": "Turn a flag on or off, or describe it",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "event-admin",
+  "service": "api"
+ },
+ {
+  "method": "PUT",
+  "path": "/exhibition/assignments/:assignmentId/intro",
+  "summary": "Write or edit the award-day introduction, up to ~150 words (members of the drawing company)",
+  "auth": "authenticated",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "exhibition",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/exhibition/collaborations",
+  "summary": "Published collaborations (announcements), newest first",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "exhibition",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/exhibition/collaborations",
+  "summary": "Propose a collaboration or pretend acquisition to another company",
+  "auth": "authenticated",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "exhibition",
+  "service": "api"
+ },
+ {
+  "method": "DELETE",
+  "path": "/exhibition/comments/:commentId",
+  "summary": "Delete my comment (replies keep a",
+  "auth": "authenticated",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "exhibition",
+  "service": "api"
+ },
+ {
+  "method": "PATCH",
+  "path": "/exhibition/comments/:commentId",
+  "summary": "Edit my comment",
+  "auth": "authenticated",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "exhibition",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/exhibition/comments/:commentId/report",
+  "summary": "Report a comment to the organisers (once per person)",
+  "auth": "authenticated",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "exhibition",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/exhibition/companies/:companyId/visits",
+  "summary": "Who stamped this company, with their notes (members and admins)",
+  "auth": "authenticated",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "exhibition",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/exhibition/feed",
+  "summary": "Activity ticker: new projects, collaborations, intros and ads (public)",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "exhibition",
+  "service": "api"
+ },
+ {
+  "method": "DELETE",
+  "path": "/exhibition/intros/:introId/reply",
+  "summary": "Delete our reply",
+  "auth": "authenticated",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "exhibition",
+  "service": "api"
+ },
+ {
+  "method": "PUT",
+  "path": "/exhibition/intros/:introId/reply",
+  "summary": "The introduced company",
+  "auth": "authenticated",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "exhibition",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/exhibition/projects/:projectId/comments",
+  "summary": "Comment threads on a project, oldest first (public)",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "exhibition",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/exhibition/projects/:projectId/comments",
+  "summary": "Comment (or reply to a top-level comment)",
+  "auth": "authenticated",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "exhibition",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/exhibition/promotions",
+  "summary": "The ad wall / ticker (public)",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "exhibition",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/exhibition/promotions",
+  "summary": "Post an ad to the wall or ticker (members; 3 live per company)",
+  "auth": "authenticated",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "exhibition",
+  "service": "api"
+ },
+ {
+  "method": "DELETE",
+  "path": "/exhibition/promotions/:promotionId",
+  "summary": "Take my company",
+  "auth": "authenticated",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "exhibition",
+  "service": "api"
+ },
+ {
+  "method": "PATCH",
+  "path": "/exhibition/promotions/:promotionId",
+  "summary": "Edit my company",
+  "auth": "authenticated",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "exhibition",
+  "service": "api"
+ },
+ {
+  "method": "DELETE",
+  "path": "/exhibition/visits/:projectId",
+  "summary": "Remove a passport stamp",
+  "auth": "authenticated",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "exhibition",
+  "service": "api"
+ },
+ {
+  "method": "PUT",
+  "path": "/exhibition/visits/:projectId",
+  "summary": "",
+  "auth": "authenticated",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "exhibition",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/me/assignment",
+  "summary": "My company",
+  "auth": "authenticated",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "exhibition",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/me/collaborations",
+  "summary": "My company",
+  "auth": "authenticated",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "exhibition",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/me/digest-preferences",
+  "summary": "Email digest preferences",
+  "auth": "authenticated",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "exhibition",
+  "service": "api"
+ },
+ {
+  "method": "PUT",
+  "path": "/me/digest-preferences",
+  "summary": "Turn the daily comment digest on or off",
+  "auth": "authenticated",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "exhibition",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/me/passport",
+  "summary": "My Visitor Passport: stamps and progress toward 3 companies (never a gate)",
+  "auth": "authenticated",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "exhibition",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/me/promotions",
+  "summary": "My company",
+  "auth": "authenticated",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "exhibition",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/admin/exhibition",
+  "summary": "Exhibition at a glance: passports, intros, comments, deals, ads",
+  "auth": "public",
+  "bearer": false,
+  "source": "admin-routes.ts",
+  "module": "exhibition-admin",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/admin/exhibition/assignments",
+  "summary": "Assignments: live ones, eligible companies, gaps, skipped companies",
+  "auth": "public",
+  "bearer": false,
+  "source": "admin-routes.ts",
+  "module": "exhibition-admin",
+  "service": "api"
+ },
+ {
+  "method": "PATCH",
+  "path": "/admin/exhibition/assignments/:assignmentId",
+  "summary": "Adjust a draft assignment",
+  "auth": "public",
+  "bearer": false,
+  "source": "admin-routes.ts",
+  "module": "exhibition-admin",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/admin/exhibition/assignments/:assignmentId/cancel",
+  "summary": "Cancel an assignment",
+  "auth": "public",
+  "bearer": false,
+  "source": "admin-routes.ts",
+  "module": "exhibition-admin",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/admin/exhibition/assignments/:assignmentId/given",
+  "summary": "Mark an introduction as given (public, creators see who) or take it back",
+  "auth": "public",
+  "bearer": false,
+  "source": "admin-routes.ts",
+  "module": "exhibition-admin",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/admin/exhibition/assignments/:assignmentId/reassign",
+  "summary": "Give a company another project to introduce (the old one is unavailable)",
+  "auth": "public",
+  "bearer": false,
+  "source": "admin-routes.ts",
+  "module": "exhibition-admin",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/admin/exhibition/assignments/assign-remaining",
+  "summary": "Draft assignments for eligible companies that have none (late joiners)",
+  "auth": "public",
+  "bearer": false,
+  "source": "admin-routes.ts",
+  "module": "exhibition-admin",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/admin/exhibition/assignments/generate",
+  "summary": "Draw a random derangement over eligible companies (drafts, replaces drafts)",
+  "auth": "public",
+  "bearer": false,
+  "source": "admin-routes.ts",
+  "module": "exhibition-admin",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/admin/exhibition/assignments/publish",
+  "summary": "Publish every draft and notify the companies (in-app + email)",
+  "auth": "public",
+  "bearer": false,
+  "source": "admin-routes.ts",
+  "module": "exhibition-admin",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/admin/exhibition/assignments/reset",
+  "summary": "Cancel the whole draw (drafts dropped, published ones cancelled) to draw again",
+  "auth": "public",
+  "bearer": false,
+  "source": "admin-routes.ts",
+  "module": "exhibition-admin",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/admin/exhibition/assignments/reveal-all",
+  "summary": "Mark every published introduction as given at once",
+  "auth": "public",
+  "bearer": false,
+  "source": "admin-routes.ts",
+  "module": "exhibition-admin",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/admin/exhibition/collaborations",
+  "summary": "Every published collaboration of the event, hidden ones included",
+  "auth": "public",
+  "bearer": false,
+  "source": "admin-routes.ts",
+  "module": "exhibition-admin",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/admin/exhibition/comments",
+  "summary": "Comments to moderate (reported first)",
+  "auth": "public",
+  "bearer": false,
+  "source": "admin-routes.ts",
+  "module": "exhibition-admin",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/admin/exhibition/intros/:introId/moderate",
+  "summary": "Hide or show an introduction",
+  "auth": "public",
+  "bearer": false,
+  "source": "admin-routes.ts",
+  "module": "exhibition-admin",
+  "service": "api"
+ },
+ {
+  "method": "PUT",
+  "path": "/admin/exhibition/presence/:companyId",
+  "summary": "Mark a company present (or not) on award day; only present teams are drawn",
+  "auth": "public",
+  "bearer": false,
+  "source": "admin-routes.ts",
+  "module": "exhibition-admin",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/admin/exhibition/promotions",
+  "summary": "Every ad of the event",
+  "auth": "public",
+  "bearer": false,
+  "source": "admin-routes.ts",
+  "module": "exhibition-admin",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/admin/exhibition/replies/:replyId/moderate",
+  "summary": "Hide or show a reply to an introduction",
+  "auth": "public",
+  "bearer": false,
+  "source": "admin-routes.ts",
+  "module": "exhibition-admin",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/github/repos/:owner/:repo",
+  "summary": "GitHub repo card (cached; status not_found = missing or not public)",
+  "auth": "authenticated",
+  "bearer": true,
+  "source": "routes.ts",
+  "module": "github",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/health",
+  "summary": "Service health",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "health",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/link-preview",
+  "summary": "Preview a link (title, description, og:image) for a link card",
+  "auth": "authenticated",
+  "bearer": true,
+  "source": "routes.ts",
+  "module": "link-preview",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/me",
+  "summary": "The signed-in person",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "me",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/me/company",
+  "summary": "My company in the current event (member view)",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "me",
+  "service": "api"
+ },
+ {
+  "method": "DELETE",
+  "path": "/me/deletion-request",
+  "summary": "Cancel my deletion request",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "me",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/me/deletion-request",
+  "summary": "Ask for my account to be deleted (SEC-6)",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "me",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/me/invites",
+  "summary": "Invitations addressed to me",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "me",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/me/invites/:inviteId/accept",
+  "summary": "Accept an invitation",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "me",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/me/invites/:inviteId/decline",
+  "summary": "Decline an invitation",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "me",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/me/join-requests",
+  "summary": "My requests to join companies",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "me",
+  "service": "api"
+ },
+ {
+  "method": "DELETE",
+  "path": "/me/join-requests/:requestId",
+  "summary": "Withdraw a join request",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "me",
+  "service": "api"
+ },
+ {
+  "method": "PUT",
+  "path": "/me/locale",
+  "summary": "Set my language (emails + website cookie)",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "me",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/me/notifications",
+  "summary": "My notifications (newest first)",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "me",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/me/notifications/read",
+  "summary": "Mark notifications read",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "me",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/me/password",
+  "summary": "Change my password (signs out every other session and every OAuth app)",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "me",
+  "service": "api"
+ },
+ {
+  "method": "PATCH",
+  "path": "/me/profile",
+  "summary": "Update my profile",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "me",
+  "service": "api"
+ },
+ {
+  "method": "PUT",
+  "path": "/me/registration",
+  "summary": "Switch audience ↔ competitor, or register for the current event",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "me",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/admin/media/:assetId/remove",
+  "summary": "Take a file down (any purpose, even if used): bytes deleted, audited",
+  "auth": "authenticated",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "media",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/files/:assetId",
+  "summary": "",
+  "auth": "public",
+  "bearer": true,
+  "source": "routes.ts",
+  "module": "media",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/files/:assetId/:variant",
+  "summary": "",
+  "auth": "public",
+  "bearer": true,
+  "source": "routes.ts",
+  "module": "media",
+  "service": "api"
+ },
+ {
+  "method": "DELETE",
+  "path": "/media/:assetId",
+  "summary": "Delete an upload that no draft or version uses",
+  "auth": "authenticated",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "media",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/media/:assetId",
+  "summary": "Asset metadata (public assets for anyone; drafts for members)",
+  "auth": "public",
+  "bearer": true,
+  "source": "routes.ts",
+  "module": "media",
+  "service": "api"
+ },
+ {
+  "method": "PATCH",
+  "path": "/media/:assetId",
+  "summary": "Set alt text",
+  "auth": "authenticated",
+  "bearer": true,
+  "source": "routes.ts",
+  "module": "media",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/media/:assetId/complete",
+  "summary": "Finish an upload: sniff the type, re-encode images (EXIF stripped)",
+  "auth": "authenticated",
+  "bearer": true,
+  "source": "routes.ts",
+  "module": "media",
+  "service": "api"
+ },
+ {
+  "method": "PUT",
+  "path": "/media/:assetId/parts/:part",
+  "summary": "Upload one part of a large file (local storage driver only)",
+  "auth": "authenticated",
+  "bearer": true,
+  "source": "routes.ts",
+  "module": "media",
+  "service": "api"
+ },
+ {
+  "method": "PUT",
+  "path": "/media/:assetId/upload",
+  "summary": "Upload the bytes (local storage driver only)",
+  "auth": "authenticated",
+  "bearer": true,
+  "source": "routes.ts",
+  "module": "media",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/media/uploads",
+  "summary": "Reserve an upload and get the URL to PUT the bytes to",
+  "auth": "authenticated",
+  "bearer": true,
+  "source": "routes.ts",
+  "module": "media",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/.well-known/oauth-authorization-server",
+  "summary": "Authorization server metadata (RFC 8414)",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "oauth",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/authorize",
+  "summary": "Authorization endpoint (Authorization Code + PKCE S256). Always redirects.",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "oauth",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/consent",
+  "summary": "What the consent screen shows for an authorization request",
+  "auth": "authenticated",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "oauth",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/consent",
+  "summary": "Allow or deny an app; returns where to send the browser (the app)",
+  "auth": "authenticated",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "oauth",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/revoke",
+  "summary": "Token revocation (RFC 7009): signs the device out (its whole token family)",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "oauth",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/token",
+  "summary": "Token endpoint: authorization_code (PKCE) and refresh_token (rotating)",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "oauth",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/userinfo",
+  "summary": "Who the access token belongs to (needs the profile scope)",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "oauth",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/me/connected-apps",
+  "summary": "Apps I signed in to with my account (Intern), with their devices",
+  "auth": "authenticated",
+  "bearer": false,
+  "source": "connected-apps-routes.ts",
+  "module": "oauth-connected-apps",
+  "service": "api"
+ },
+ {
+  "method": "DELETE",
+  "path": "/me/connected-apps/:clientId",
+  "summary": "Revoke an app: sign out all its devices and forget the approval",
+  "auth": "authenticated",
+  "bearer": false,
+  "source": "connected-apps-routes.ts",
+  "module": "oauth-connected-apps",
+  "service": "api"
+ },
+ {
+  "method": "DELETE",
+  "path": "/me/connected-apps/:clientId/devices/:deviceId",
+  "summary": "Sign one device out of an app",
+  "auth": "authenticated",
+  "bearer": false,
+  "source": "connected-apps-routes.ts",
+  "module": "oauth-connected-apps",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/admin/offline-sessions",
+  "summary": "Offline sessions with answer counts",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "offline",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/admin/offline-sessions",
+  "summary": "Create an offline session",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "offline",
+  "service": "api"
+ },
+ {
+  "method": "DELETE",
+  "path": "/admin/offline-sessions/:sessionId",
+  "summary": "Delete a session nobody answered yet",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "offline",
+  "service": "api"
+ },
+ {
+  "method": "PATCH",
+  "path": "/admin/offline-sessions/:sessionId",
+  "summary": "Edit a session (more seats promote the waitlist; a new time re-arms reminders)",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "offline",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/admin/offline-sessions/:sessionId/cancel",
+  "summary": "Cancel a session and tell everyone who answered",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "offline",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/admin/offline-sessions/:sessionId/rsvps",
+  "summary": "Everyone who answered, with waitlist places and check-ins",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "offline",
+  "service": "api"
+ },
+ {
+  "method": "PUT",
+  "path": "/admin/offline-sessions/:sessionId/rsvps/:rsvpId/check-in",
+  "summary": "Tick someone off at the door (or undo it)",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "offline",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/offline-sessions",
+  "summary": "Offline sessions of the current event (with my answer when signed in)",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "offline",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/offline-sessions/:sessionId",
+  "summary": "One offline session",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "offline",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/offline-sessions/:sessionId/ics",
+  "summary": "The session as an iCalendar file",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "offline",
+  "service": "api"
+ },
+ {
+  "method": "PUT",
+  "path": "/offline-sessions/:sessionId/rsvp",
+  "summary": "Answer going / maybe / not going (full → waitlist)",
+  "auth": "authenticated",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "offline",
+  "service": "api"
+ },
+ {
+  "method": "PATCH",
+  "path": "/admin/pitch",
+  "summary": "The stream title and the on-air switch",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "pitch",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/admin/pitch/messages",
+  "summary": "The latest live-page messages, hidden ones included",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "pitch",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/admin/pitch/messages/:messageId/moderate",
+  "summary": "Hide a live-page message, or put it back",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "pitch",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/admin/pitch/sources",
+  "summary": "Every stream source of the event, in order",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "pitch",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/admin/pitch/sources",
+  "summary": "Add a source (Bilibili room, YouTube link or Twitch channel)",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "pitch",
+  "service": "api"
+ },
+ {
+  "method": "DELETE",
+  "path": "/admin/pitch/sources/:sourceId",
+  "summary": "Remove a source",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "pitch",
+  "service": "api"
+ },
+ {
+  "method": "PATCH",
+  "path": "/admin/pitch/sources/:sourceId",
+  "summary": "Change a source: address, name, region, enabled",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "pitch",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/admin/pitch/sources/:sourceId/move",
+  "summary": "Move a source one place up or down",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "pitch",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/pitch",
+  "summary": "The Pitching Day page: on air or not, the sources, the match, the chat",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "pitch",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/pitch/messages",
+  "summary": "Say something on the live page",
+  "auth": "authenticated",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "pitch",
+  "service": "api"
+ },
+ {
+  "method": "DELETE",
+  "path": "/pitch/messages/:messageId",
+  "summary": "Take my own message back",
+  "auth": "authenticated",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "pitch",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/pitch/stream",
+  "summary": "Live page updates over SSE",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "pitch",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/me/project",
+  "summary": "My company",
+  "auth": "authenticated",
+  "bearer": true,
+  "source": "routes.ts",
+  "module": "projects",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/projects",
+  "summary": "Gallery of published projects (EXH-1)",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "projects",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/projects/:projectId",
+  "summary": "Draft view (members and admins)",
+  "auth": "authenticated",
+  "bearer": true,
+  "source": "routes.ts",
+  "module": "projects",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/projects/:projectId/approve-agent-draft",
+  "summary": "Mark an agent-written draft as reviewed by a human",
+  "auth": "authenticated",
+  "bearer": true,
+  "source": "routes.ts",
+  "module": "projects",
+  "service": "api"
+ },
+ {
+  "method": "PATCH",
+  "path": "/projects/:projectId/draft",
+  "summary": "Save the draft (submitter; needs the edit lease and the current revision)",
+  "auth": "authenticated",
+  "bearer": true,
+  "source": "routes.ts",
+  "module": "projects",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/projects/:projectId/lock",
+  "summary": "Take the edit lease (PRJ-4); edit_locked when another tab/device holds it",
+  "auth": "authenticated",
+  "bearer": true,
+  "source": "routes.ts",
+  "module": "projects",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/projects/:projectId/lock/heartbeat",
+  "summary": "Keep the edit lease",
+  "auth": "authenticated",
+  "bearer": true,
+  "source": "routes.ts",
+  "module": "projects",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/projects/:projectId/lock/release",
+  "summary": "Give the edit lease back (no-op if it is no longer yours)",
+  "auth": "authenticated",
+  "bearer": true,
+  "source": "routes.ts",
+  "module": "projects",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/projects/:projectId/publish",
+  "summary": "Turn in / update the project: snapshot the draft as a new live version",
+  "auth": "authenticated",
+  "bearer": true,
+  "source": "routes.ts",
+  "module": "projects",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/projects/:projectId/versions",
+  "summary": "Published versions, newest first (PRJ-3)",
+  "auth": "authenticated",
+  "bearer": true,
+  "source": "routes.ts",
+  "module": "projects",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/projects/:projectId/versions/:version",
+  "summary": "One published version",
+  "auth": "authenticated",
+  "bearer": true,
+  "source": "routes.ts",
+  "module": "projects",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/projects/:projectId/versions/:version/restore",
+  "summary": "Copy a published version into the draft (publish again to make it live)",
+  "auth": "authenticated",
+  "bearer": true,
+  "source": "routes.ts",
+  "module": "projects",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/projects/by-company/:companySlug",
+  "summary": "A published project page (members, repo card, media)",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "projects",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/projects/draft-schema",
+  "summary": "JSON Schema of the draft fields an agent may send (CLI-12)",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "projects",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/admin/projects",
+  "summary": "All projects of the current event, drafts included",
+  "auth": "public",
+  "bearer": false,
+  "source": "admin-routes.ts",
+  "module": "projects-admin",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/admin/projects/:projectId",
+  "summary": "A project",
+  "auth": "public",
+  "bearer": false,
+  "source": "admin-routes.ts",
+  "module": "projects-admin",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/admin/projects/:projectId/versions",
+  "summary": "A project",
+  "auth": "public",
+  "bearer": false,
+  "source": "admin-routes.ts",
+  "module": "projects-admin",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/admin/projects/:projectId/versions/:version",
+  "summary": "One published version",
+  "auth": "public",
+  "bearer": false,
+  "source": "admin-routes.ts",
+  "module": "projects-admin",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/public/event",
+  "summary": "Current event: stage, schedule, names, flags and sponsors",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "public",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/public/shortlist",
+  "summary": "The announced shortlist (a Distinction each), in the organisers",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "public",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/public/stats",
+  "summary": "Aggregate counters for the landing page",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "public",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/auth/activation/complete",
+  "summary": "Activate a pre-created teammate account and join the team",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "registration",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/auth/activation/preview",
+  "summary": "Look at a teammate activation link before using it",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "registration",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/auth/register",
+  "summary": "Register (REG-1..4) and receive an email code",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "registration",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/auth/register/resend",
+  "summary": "Send a new registration code",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "registration",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/auth/register/verify",
+  "summary": "Confirm the email code: activates the account and signs in",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "registration",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/me/registration",
+  "summary": "Join the event as an audience member, a competitor or a company founder",
+  "auth": "authenticated",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "registration",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/judging/projects",
+  "summary": "Projects to judge, each with my own score card",
+  "auth": "authenticated",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "results",
+  "service": "api"
+ },
+ {
+  "method": "PUT",
+  "path": "/judging/scores/:projectId",
+  "summary": "Save my scores (1–10) and private notes; submit when final",
+  "auth": "authenticated",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "results",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/results",
+  "summary": "Published results: awards with winners, and the final board",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "results",
+  "service": "api"
+ },
+ {
+  "method": "PUT",
+  "path": "/projects/:projectId/round2/attendance",
+  "summary": "Answer the attendance question for this project (submitter or captain)",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "round2",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/companies",
+  "summary": "Found a company (you become captain)",
+  "auth": "authenticated",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "teams",
+  "service": "api"
+ },
+ {
+  "method": "PATCH",
+  "path": "/companies/:companyId",
+  "summary": "Edit the company profile (any member)",
+  "auth": "authenticated",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "teams",
+  "service": "api"
+ },
+ {
+  "method": "DELETE",
+  "path": "/companies/:companyId/invite-link",
+  "summary": "Disable the shareable invite link (captain)",
+  "auth": "authenticated",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "teams",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/companies/:companyId/invite-link",
+  "summary": "Create a new shareable invite link (captain)",
+  "auth": "authenticated",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "teams",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/companies/:companyId/invites",
+  "summary": "Invite teammates (captain)",
+  "auth": "authenticated",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "teams",
+  "service": "api"
+ },
+ {
+  "method": "DELETE",
+  "path": "/companies/:companyId/invites/:inviteId",
+  "summary": "Revoke an invitation (captain)",
+  "auth": "authenticated",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "teams",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/companies/:companyId/invites/:inviteId/resend",
+  "summary": "Re-send an invitation / activation link (captain or admin)",
+  "auth": "authenticated",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "teams",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/companies/:companyId/join-requests",
+  "summary": "Pending join requests (members)",
+  "auth": "authenticated",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "teams",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/companies/:companyId/join-requests",
+  "summary": "Ask to join a recruiting company",
+  "auth": "authenticated",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "teams",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/companies/:companyId/leave",
+  "summary": "Quit the company",
+  "auth": "authenticated",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "teams",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/companies/:companyId/transfer-captain",
+  "summary": "Hand the captaincy to another member (captain)",
+  "auth": "authenticated",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "teams",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/companies/:companyId/transfer-submitter",
+  "summary": "Appoint the project submitter (the captain, who is the submitter by default)",
+  "auth": "authenticated",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "teams",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/companies/:companyKey",
+  "summary": "Public company profile (by id or slug)",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "teams",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/finder/companies",
+  "summary": "Teammate finder: recruiting companies with free seats (sort/dir order them)",
+  "auth": "authenticated",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "teams",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/finder/people",
+  "summary": "Teammate finder: individuals looking for a team (sort/dir order them)",
+  "auth": "authenticated",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "teams",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/invites/accept",
+  "summary": "Join a company through an invitation link",
+  "auth": "authenticated",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "teams",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/invites/decline",
+  "summary": "Decline an email invitation",
+  "auth": "authenticated",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "teams",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/invites/preview",
+  "summary": "Look at an invitation link (signed in or not)",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "teams",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/usage/requests",
+  "summary": "My recent LLM requests (numbers only, no content)",
+  "auth": "authenticated",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "usage",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/usage/summary",
+  "summary": "My LLM usage: totals, per event-time day, per model, per client",
+  "auth": "authenticated",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "usage",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/usage/team",
+  "summary": "My company",
+  "auth": "authenticated",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "usage",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/market",
+  "summary": "The live board: totals per company, shared ranks, last change (public)",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "votes",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/market/big-screen",
+  "summary": "Big-Screen ceremony view: top N with previous rank and coin deltas",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "votes",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/market/stream",
+  "summary": "Server-Sent Events: the board (or Big Screen) live",
+  "auth": "public",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "votes",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/me/wallet",
+  "summary": "My coins: invested picks, coins left,",
+  "auth": "authenticated",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "votes",
+  "service": "api"
+ },
+ {
+  "method": "PUT",
+  "path": "/me/wallet",
+  "summary": "Save the whole ballot at once (at most 3 companies, atomic)",
+  "auth": "authenticated",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "votes",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/me/wallet/coins",
+  "summary": "Invest one coin in a company (idempotent)",
+  "auth": "authenticated",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "votes",
+  "service": "api"
+ },
+ {
+  "method": "DELETE",
+  "path": "/me/wallet/coins/:companyId",
+  "summary": "Withdraw the coin invested in a company (idempotent)",
+  "auth": "authenticated",
+  "bearer": false,
+  "source": "routes.ts",
+  "module": "votes",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/admin/voting",
+  "summary": "Voting state, visibility, ballot statistics and the live totals",
+  "auth": "public",
+  "bearer": false,
+  "source": "admin-routes.ts",
+  "module": "votes-admin",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/admin/voting/ballots",
+  "summary": "Who voted for whom (admins only, never public)",
+  "auth": "public",
+  "bearer": false,
+  "source": "admin-routes.ts",
+  "module": "votes-admin",
+  "service": "api"
+ },
+ {
+  "method": "GET",
+  "path": "/admin/voting/events",
+  "summary": "Every cast, withdrawal, return and void (VOTE-8)",
+  "auth": "public",
+  "bearer": false,
+  "source": "admin-routes.ts",
+  "module": "votes-admin",
+  "service": "api"
+ },
+ {
+  "method": "PUT",
+  "path": "/admin/voting/visibility",
+  "summary": "Show or hide live totals from the public (admins always see them)",
+  "auth": "public",
+  "bearer": false,
+  "source": "admin-routes.ts",
+  "module": "votes-admin",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/admin/voting/void",
+  "summary": "Void one coin or a voter",
+  "auth": "public",
+  "bearer": false,
+  "source": "admin-routes.ts",
+  "module": "votes-admin",
+  "service": "api"
+ },
+ {
+  "method": "POST",
+  "path": "/chat/completions",
+  "summary": "",
+  "auth": "public",
+  "bearer": false,
+  "source": "openai.ts",
+  "module": "gateway",
+  "service": "gateway"
+ },
+ {
+  "method": "POST",
+  "path": "/embeddings",
+  "summary": "",
+  "auth": "public",
+  "bearer": false,
+  "source": "openai.ts",
+  "module": "gateway",
+  "service": "gateway"
+ },
+ {
+  "method": "GET",
+  "path": "/health",
+  "summary": "",
+  "auth": "public",
+  "bearer": false,
+  "source": "health.ts",
+  "module": "gateway",
+  "service": "gateway"
+ },
+ {
+  "method": "GET",
+  "path": "/models",
+  "summary": "",
+  "auth": "public",
+  "bearer": false,
+  "source": "openai.ts",
+  "module": "gateway",
+  "service": "gateway"
+ },
+ {
+  "method": "POST",
+  "path": "/responses",
+  "summary": "",
+  "auth": "public",
+  "bearer": false,
+  "source": "openai.ts",
+  "module": "gateway",
+  "service": "gateway"
+ },
+ {
+  "method": "POST",
+  "path": "/search",
+  "summary": "",
+  "auth": "public",
+  "bearer": false,
+  "source": "search.ts",
+  "module": "gateway",
+  "service": "gateway"
+ }
+]
