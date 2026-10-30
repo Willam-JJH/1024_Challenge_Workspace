@@ -7,9 +7,9 @@ from sqlalchemy.orm import Session as DbSession
 from app.core.db import get_db
 from app.core.deps import Principal, require_staff
 from app.core.errors import Conflict, NotFound
-from app.core.stubs import register_stubs
 from app.models.event import Company, Membership
 from app.models.identity import User
+from app.models.media import MediaAsset
 from app.models.project import Project, ProjectVersion
 from app.schemas.common import OkOut, ProjectOut
 from app.schemas.company import MemberOut, MoveIn, RosterLockIn, TransferIn
@@ -293,9 +293,22 @@ def get_version(
     return VersionOut.model_validate(row)
 
 
-register_stubs(
-    router,
-    [("DELETE", "/admin/media/{asset_id}", "下架文件（素材模块待实现）")],
-    tag="admin",
-    auth="staff",
-)
+@router.delete("/admin/media/{asset_id}", response_model=OkOut, summary="下架文件")
+def remove_asset(
+    asset_id: str,
+    principal: Principal = Depends(require_staff),
+    db: DbSession = Depends(get_db),
+) -> OkOut:
+    row = db.get(MediaAsset, asset_id)
+    if row is None:
+        raise NotFound("素材不存在")
+    row.status = "removed"
+    audit.record(
+        db,
+        actor_id=principal.user.id,
+        action="media.remove",
+        target_type="media_asset",
+        target_id=row.id,
+        note=row.filename,
+    )
+    return OkOut()

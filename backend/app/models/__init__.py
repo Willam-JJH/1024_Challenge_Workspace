@@ -16,6 +16,7 @@ from app.models.exhibition import (
 from app.models.identity import ApiKey, Session, User
 from app.models.judging import Award, Score, ShortlistEntry
 from app.models.llm import LlmModel, LlmRoute, LlmUpstream, LlmUsage
+from app.models.media import MediaAsset
 from app.models.notify import Notification
 from app.models.offline import OfflineRsvp, OfflineSession
 from app.models.pitch import PitchMessage, PitchSource
@@ -45,6 +46,7 @@ __all__ = [
     "LlmRoute",
     "LlmUpstream",
     "LlmUsage",
+    "MediaAsset",
     "Notification",
     "OfflineRsvp",
     "OfflineSession",

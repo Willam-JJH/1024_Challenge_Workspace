@@ -46,6 +46,10 @@ class Settings(BaseSettings):
     require_bot_check: bool = False
     bot_check_secret: str = "dev-only-change-me"
 
+    # 上传
+    upload_dir: str = "uploads"
+    max_upload_bytes: int = 100 * 1024 * 1024
+
     # 分页
     default_page_size: int = 20
     max_page_size: int = 100

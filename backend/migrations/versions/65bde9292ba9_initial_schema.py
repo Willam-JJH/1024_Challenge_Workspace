@@ -1,8 +1,8 @@
 """initial schema
 
-Revision ID: 98e09724d166
+Revision ID: 65bde9292ba9
 Revises: 
-Create Date: 2026-10-30 17:16:48.541686
+Create Date: 2026-10-30 17:19:06.634795
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '98e09724d166'
+revision: str = '65bde9292ba9'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -451,6 +451,26 @@ def upgrade() -> None:
         batch_op.create_index(batch_op.f('ix_join_requests_company_id'), ['company_id'], unique=False)
         batch_op.create_index(batch_op.f('ix_join_requests_user_id'), ['user_id'], unique=False)
 
+    op.create_table('media_assets',
+    sa.Column('owner_id', sa.String(length=32), nullable=False),
+    sa.Column('company_id', sa.String(length=32), nullable=True),
+    sa.Column('filename', sa.String(length=200), nullable=False),
+    sa.Column('content_type', sa.String(length=120), nullable=False),
+    sa.Column('size', sa.Integer(), nullable=False),
+    sa.Column('purpose', sa.String(length=32), nullable=False),
+    sa.Column('alt', sa.String(length=300), nullable=True),
+    sa.Column('status', sa.String(length=16), nullable=False),
+    sa.Column('storage_key', sa.String(length=300), nullable=False),
+    sa.Column('id', sa.String(length=32), nullable=False),
+    sa.Column('created_at', app.models.types.UTCDateTime(), nullable=False),
+    sa.Column('updated_at', app.models.types.UTCDateTime(), nullable=False),
+    sa.ForeignKeyConstraint(['company_id'], ['companies.id'], ondelete='SET NULL'),
+    sa.ForeignKeyConstraint(['owner_id'], ['users.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id')
+    )
+    with op.batch_alter_table('media_assets', schema=None) as batch_op:
+        batch_op.create_index(batch_op.f('ix_media_assets_owner_id'), ['owner_id'], unique=False)
+
     op.create_table('memberships',
     sa.Column('company_id', sa.String(length=32), nullable=False),
     sa.Column('user_id', sa.String(length=32), nullable=False),
@@ -757,6 +777,10 @@ def downgrade() -> None:
         batch_op.drop_index(batch_op.f('ix_memberships_company_id'))
 
     op.drop_table('memberships')
+    with op.batch_alter_table('media_assets', schema=None) as batch_op:
+        batch_op.drop_index(batch_op.f('ix_media_assets_owner_id'))
+
+    op.drop_table('media_assets')
     with op.batch_alter_table('join_requests', schema=None) as batch_op:
         batch_op.drop_index(batch_op.f('ix_join_requests_user_id'))
         batch_op.drop_index(batch_op.f('ix_join_requests_company_id'))

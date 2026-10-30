@@ -26,3 +26,6 @@ Thumbs.db
 # 基础设施密钥
 infra/secrets/
 infra/.env.infra
+
+# 上传目录
+uploads/
