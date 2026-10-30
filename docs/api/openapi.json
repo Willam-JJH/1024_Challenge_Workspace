@@ -914,162 +914,6 @@
         }
       }
     },
-    "/api/v1/me/connected-apps": {
-      "get": {
-        "tags": [
-          "me",
-          "me"
-        ],
-        "summary": "我用账号登录过的应用与设备",
-        "operationId": "_handler_api_v1_me_connected_apps_get",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "我用账号登录过的应用与设备",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/connected-apps",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/me/connected-apps/{client_id}": {
-      "delete": {
-        "tags": [
-          "me",
-          "me"
-        ],
-        "summary": "吊销某个应用的全部设备",
-        "operationId": "_handler_api_v1_me_connected_apps__client_id__delete",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "吊销某个应用的全部设备",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/connected-apps/{client_id}",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/me/connected-apps/{client_id}/devices/{device_id}": {
-      "delete": {
-        "tags": [
-          "me",
-          "me"
-        ],
-        "summary": "登出某个应用的单个设备",
-        "operationId": "_handler_api_v1_me_connected_apps__client_id__devices__device_id__delete",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "登出某个应用的单个设备",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/connected-apps/{client_id}/devices/{device_id}",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/v1/me/membership": {
       "get": {
         "tags": [
@@ -3439,30 +3283,18 @@
     "/api/v1/projects/{project_id}/agent-draft-approvals": {
       "post": {
         "tags": [
-          "projects",
           "projects"
         ],
         "summary": "标记代理草稿已由人复核",
-        "operationId": "_handler_api_v1_projects__project_id__agent_draft_approvals_post",
+        "operationId": "approve_agent_draft_api_v1_projects__project_id__agent_draft_approvals_post",
         "parameters": [
           {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
+            "name": "project_id",
+            "in": "path",
+            "required": true,
             "schema": {
               "type": "string",
-              "default": "标记代理草稿已由人复核",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/{project_id}/agent-draft-approvals",
-              "title": " Path"
+              "title": "Project Id"
             }
           }
         ],
@@ -3471,7 +3303,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/OkOut"
+                }
               }
             }
           },
@@ -4835,48 +4669,21 @@
     "/api/v1/exhibition/collaborations": {
       "get": {
         "tags": [
-          "exhibition",
           "exhibition"
         ],
         "summary": "已公布的合作",
-        "operationId": "_handler_api_v1_exhibition_collaborations_get",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "已公布的合作",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/collaborations",
-              "title": " Path"
-            }
-          }
-        ],
+        "operationId": "list_collaborations_api_v1_exhibition_collaborations_get",
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "items": {
+                    "$ref": "#/components/schemas/CollaborationOut"
+                  },
+                  "type": "array",
+                  "title": "Response List Collaborations Api V1 Exhibition Collaborations Get"
                 }
               }
             }
@@ -5433,30 +5240,82 @@
     "/api/v1/oauth/authorize": {
       "get": {
         "tags": [
-          "oauth",
           "oauth"
         ],
         "summary": "授权端点（授权码 + PKCE S256）",
-        "operationId": "_handler_api_v1_oauth_authorize_get",
+        "operationId": "authorize_api_v1_oauth_authorize_get",
         "parameters": [
           {
-            "name": "_summary",
+            "name": "client_id",
             "in": "query",
-            "required": false,
+            "required": true,
             "schema": {
               "type": "string",
-              "default": "授权端点（授权码 + PKCE S256）",
-              "title": " Summary"
+              "title": "Client Id"
             }
           },
           {
-            "name": "_path",
+            "name": "redirect_uri",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Redirect Uri"
+            }
+          },
+          {
+            "name": "code_challenge",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Code Challenge"
+            }
+          },
+          {
+            "name": "response_type",
             "in": "query",
             "required": false,
             "schema": {
               "type": "string",
-              "default": "/authorize",
-              "title": " Path"
+              "default": "code",
+              "title": "Response Type"
+            }
+          },
+          {
+            "name": "code_challenge_method",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "S256",
+              "title": "Code Challenge Method"
+            }
+          },
+          {
+            "name": "scope",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "profile",
+              "title": "Scope"
+            }
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "State"
             }
           }
         ],
@@ -5485,30 +5344,18 @@
     "/api/v1/oauth/consent": {
       "get": {
         "tags": [
-          "oauth",
           "oauth"
         ],
         "summary": "授权确认页所需信息",
-        "operationId": "_handler_api_v1_oauth_consent_get",
+        "operationId": "consent_info_api_v1_oauth_consent_get",
         "parameters": [
           {
-            "name": "_summary",
+            "name": "client_id",
             "in": "query",
-            "required": false,
+            "required": true,
             "schema": {
               "type": "string",
-              "default": "授权确认页所需信息",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/consent",
-              "title": " Path"
+              "title": "Client Id"
             }
           }
         ],
@@ -5517,7 +5364,11 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Consent Info Api V1 Oauth Consent Get"
+                }
               }
             }
           },
@@ -5535,39 +5386,32 @@
       },
       "post": {
         "tags": [
-          "oauth",
           "oauth"
         ],
         "summary": "允许或拒绝应用，返回浏览器跳转地址",
-        "operationId": "_handler_api_v1_oauth_consent_post",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "允许或拒绝应用，返回浏览器跳转地址",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/consent",
-              "title": " Path"
+        "operationId": "consent_api_v1_oauth_consent_post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "title": "Payload"
+              }
             }
           }
-        ],
+        },
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Consent Api V1 Oauth Consent Post"
+                }
               }
             }
           },
@@ -5587,48 +5431,19 @@
     "/api/v1/oauth/token": {
       "post": {
         "tags": [
-          "oauth",
           "oauth"
         ],
         "summary": "令牌端点：授权码换令牌、刷新令牌轮换",
-        "operationId": "_handler_api_v1_oauth_token_post",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "令牌端点：授权码换令牌、刷新令牌轮换",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/token",
-              "title": " Path"
-            }
-          }
-        ],
+        "operationId": "token_api_v1_oauth_token_post",
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Token Api V1 Oauth Token Post"
                 }
               }
             }
@@ -5639,48 +5454,17 @@
     "/api/v1/oauth/revoke": {
       "post": {
         "tags": [
-          "oauth",
           "oauth"
         ],
         "summary": "令牌吊销（RFC 7009）",
-        "operationId": "_handler_api_v1_oauth_revoke_post",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "令牌吊销（RFC 7009）",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/revoke",
-              "title": " Path"
-            }
-          }
-        ],
+        "operationId": "revoke_api_v1_oauth_revoke_post",
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/OkOut"
                 }
               }
             }
@@ -5691,48 +5475,19 @@
     "/api/v1/oauth/userinfo": {
       "get": {
         "tags": [
-          "oauth",
           "oauth"
         ],
         "summary": "令牌归属（需 profile 作用域）",
-        "operationId": "_handler_api_v1_oauth_userinfo_get",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "令牌归属（需 profile 作用域）",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/userinfo",
-              "title": " Path"
-            }
-          }
-        ],
+        "operationId": "userinfo_api_v1_oauth_userinfo_get",
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Userinfo Api V1 Oauth Userinfo Get"
                 }
               }
             }
@@ -5743,48 +5498,19 @@
     "/api/v1/usage/summary": {
       "get": {
         "tags": [
-          "usage",
           "usage"
         ],
         "summary": "我的 LLM 用量汇总",
-        "operationId": "_handler_api_v1_usage_summary_get",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "我的 LLM 用量汇总",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/summary",
-              "title": " Path"
-            }
-          }
-        ],
+        "operationId": "usage_summary_api_v1_usage_summary_get",
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Usage Summary Api V1 Usage Summary Get"
                 }
               }
             }
@@ -5795,48 +5521,22 @@
     "/api/v1/usage/requests": {
       "get": {
         "tags": [
-          "usage",
           "usage"
         ],
         "summary": "我最近的 LLM 请求",
-        "operationId": "_handler_api_v1_usage_requests_get",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "我最近的 LLM 请求",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/requests",
-              "title": " Path"
-            }
-          }
-        ],
+        "operationId": "usage_requests_api_v1_usage_requests_get",
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "items": {
+                    "additionalProperties": true,
+                    "type": "object"
+                  },
+                  "type": "array",
+                  "title": "Response Usage Requests Api V1 Usage Requests Get"
                 }
               }
             }
@@ -5847,48 +5547,19 @@
     "/api/v1/usage/team": {
       "get": {
         "tags": [
-          "usage",
           "usage"
         ],
         "summary": "我公司的用量",
-        "operationId": "_handler_api_v1_usage_team_get",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "我公司的用量",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/team",
-              "title": " Path"
-            }
-          }
-        ],
+        "operationId": "usage_team_api_v1_usage_team_get",
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Usage Team Api V1 Usage Team Get"
                 }
               }
             }
@@ -5896,137 +5567,47 @@
         }
       }
     },
-    "/api/v1/usage/teams": {
+    "/api/v1/me/connected-apps": {
       "get": {
         "tags": [
-          "usage",
-          "usage"
-        ],
-        "summary": "各公司消耗排行（管理台）",
-        "operationId": "_handler_api_v1_usage_teams_get",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "各公司消耗排行（管理台）",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/teams",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/usage/users": {
-      "get": {
-        "tags": [
-          "usage",
-          "usage"
-        ],
-        "summary": "各人消耗排行（管理台）",
-        "operationId": "_handler_api_v1_usage_users_get",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "各人消耗排行（管理台）",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/users",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/.well-known/oauth-authorization-server": {
-      "get": {
-        "tags": [
-          "oauth",
           "oauth"
         ],
-        "summary": "授权服务器元数据（RFC 8414）",
-        "operationId": "_handler_api_v1__well_known_oauth_authorization_server_get",
+        "summary": "我用账号登录过的应用与设备",
+        "operationId": "list_apps_api_v1_me_connected_apps_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "additionalProperties": true,
+                    "type": "object"
+                  },
+                  "type": "array",
+                  "title": "Response List Apps Api V1 Me Connected Apps Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/me/connected-apps/{client_id}": {
+      "delete": {
+        "tags": [
+          "oauth"
+        ],
+        "summary": "吊销某个应用的全部设备",
+        "operationId": "revoke_app_api_v1_me_connected_apps__client_id__delete",
         "parameters": [
           {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
+            "name": "client_id",
+            "in": "path",
+            "required": true,
             "schema": {
               "type": "string",
-              "default": "授权服务器元数据（RFC 8414）",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/.well-known/oauth-authorization-server",
-              "title": " Path"
+              "title": "Client Id"
             }
           }
         ],
@@ -6035,7 +5616,60 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/OkOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/me/connected-apps/{client_id}/devices/{device_id}": {
+      "delete": {
+        "tags": [
+          "oauth"
+        ],
+        "summary": "登出某个应用的单个设备",
+        "operationId": "revoke_device_api_v1_me_connected_apps__client_id__devices__device_id__delete",
+        "parameters": [
+          {
+            "name": "client_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Client Id"
+            }
+          },
+          {
+            "name": "device_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Device Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkOut"
+                }
               }
             }
           },
@@ -11010,6 +10644,29 @@
             "content": {
               "application/json": {
                 "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/.well-known/oauth-authorization-server": {
+      "get": {
+        "tags": [
+          "oauth"
+        ],
+        "summary": "授权服务器元数据（RFC 8414）",
+        "operationId": "metadata__well_known_oauth_authorization_server_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Metadata  Well Known Oauth Authorization Server Get"
+                }
               }
             }
           }

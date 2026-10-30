@@ -18,6 +18,7 @@ from app.models.judging import Award, Score, ShortlistEntry
 from app.models.llm import LlmModel, LlmRoute, LlmUpstream, LlmUsage
 from app.models.media import MediaAsset
 from app.models.notify import Notification
+from app.models.oauth import AuthorizationCode, OAuthClient, OAuthConsent, OAuthToken
 from app.models.offline import OfflineRsvp, OfflineSession
 from app.models.pitch import PitchMessage, PitchSource
 from app.models.project import Project, ProjectEditSession, ProjectVersion
@@ -47,7 +48,11 @@ __all__ = [
     "LlmUpstream",
     "LlmUsage",
     "MediaAsset",
+    "AuthorizationCode",
     "Notification",
+    "OAuthClient",
+    "OAuthConsent",
+    "OAuthToken",
     "OfflineRsvp",
     "OfflineSession",
     "PitchMessage",

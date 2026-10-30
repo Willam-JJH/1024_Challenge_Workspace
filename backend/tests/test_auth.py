@@ -51,11 +51,10 @@ def test_logout_revokes_session(client: TestClient, user) -> None:
 
 
 def test_stub_returns_contract_not_implemented(client: TestClient) -> None:
-    res = client.get("/api/v1/exhibition/collaborations")
+    res = client.post("/v1/embeddings", json={})
     assert res.status_code == 501
     body = res.json()
     assert body["error"]["code"] == "not_implemented"
-    assert body["error"]["details"]["status"] == "contract_only"
 
 
 def test_unknown_route_uses_error_envelope(client: TestClient) -> None:

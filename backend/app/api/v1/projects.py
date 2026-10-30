@@ -14,7 +14,6 @@ from app.core.db import get_db
 from app.core.deps import Principal, require_auth
 from app.core.errors import Conflict, Forbidden, NotFound, Unprocessable
 from app.core.security import hash_token, new_token
-from app.core.stubs import register_stubs
 from app.models.event import Company, Membership
 from app.models.project import Project, ProjectEditSession, ProjectVersion
 from app.schemas.common import OkOut, ProjectOut
@@ -397,9 +396,18 @@ def set_attendance(
     return {"attendance": project.attendance}
 
 
-register_stubs(
-    router,
-    [("POST", "/{project_id}/agent-draft-approvals", "标记代理草稿已由人复核")],
-    tag="projects",
-    auth="authenticated",
+@router.post(
+    "/{project_id}/agent-draft-approvals",
+    response_model=OkOut,
+    summary="标记代理草稿已由人复核",
 )
+def approve_agent_draft(
+    project_id: str,
+    principal: Principal = Depends(require_auth),
+    db: DbSession = Depends(get_db),
+) -> OkOut:
+    project = _project_or_404(db, project_id)
+    _require_editor(db, project, principal)
+    project.agent_reviewed = True
+    db.flush()
+    return OkOut()

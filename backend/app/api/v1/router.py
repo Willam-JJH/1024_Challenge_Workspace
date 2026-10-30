@@ -53,7 +53,7 @@ api_router.include_router(offline.router)
 api_router.include_router(content.router)
 api_router.include_router(oauth.oauth_router)
 api_router.include_router(oauth.usage_router)
-api_router.include_router(oauth.well_known_router)
+api_router.include_router(oauth.apps_router)
 
 api_router.include_router(admin_users.router)
 api_router.include_router(admin_companies.router)

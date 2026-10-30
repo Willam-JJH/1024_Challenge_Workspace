@@ -1,8 +1,8 @@
 """initial schema
 
-Revision ID: 65bde9292ba9
+Revision ID: eae3777bb79c
 Revises: 
-Create Date: 2026-10-30 17:19:06.634795
+Create Date: 2026-10-30 17:29:40.649802
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '65bde9292ba9'
+revision: str = 'eae3777bb79c'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -68,6 +68,20 @@ def upgrade() -> None:
     sa.Column('updated_at', app.models.types.UTCDateTime(), nullable=False),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_table('oauth_clients',
+    sa.Column('name', sa.String(length=120), nullable=False),
+    sa.Column('client_id', sa.String(length=64), nullable=False),
+    sa.Column('redirect_uris', sa.Text(), nullable=False),
+    sa.Column('scopes', sa.String(length=200), nullable=False),
+    sa.Column('is_public', sa.Boolean(), nullable=False),
+    sa.Column('id', sa.String(length=32), nullable=False),
+    sa.Column('created_at', app.models.types.UTCDateTime(), nullable=False),
+    sa.Column('updated_at', app.models.types.UTCDateTime(), nullable=False),
+    sa.PrimaryKeyConstraint('id')
+    )
+    with op.batch_alter_table('oauth_clients', schema=None) as batch_op:
+        batch_op.create_index(batch_op.f('ix_oauth_clients_client_id'), ['client_id'], unique=True)
+
     op.create_table('users',
     sa.Column('email', sa.String(length=320), nullable=False),
     sa.Column('password_hash', sa.String(length=255), nullable=False),
@@ -255,6 +269,67 @@ def upgrade() -> None:
     )
     with op.batch_alter_table('notifications', schema=None) as batch_op:
         batch_op.create_index(batch_op.f('ix_notifications_user_id'), ['user_id'], unique=False)
+
+    op.create_table('oauth_codes',
+    sa.Column('client_id', sa.String(length=64), nullable=False),
+    sa.Column('user_id', sa.String(length=32), nullable=False),
+    sa.Column('redirect_uri', sa.String(length=500), nullable=False),
+    sa.Column('code_hash', sa.String(length=64), nullable=False),
+    sa.Column('code_challenge', sa.String(length=128), nullable=False),
+    sa.Column('scope', sa.String(length=200), nullable=False),
+    sa.Column('expires_at', app.models.types.UTCDateTime(), nullable=False),
+    sa.Column('consumed_at', app.models.types.UTCDateTime(), nullable=True),
+    sa.Column('id', sa.String(length=32), nullable=False),
+    sa.Column('created_at', app.models.types.UTCDateTime(), nullable=False),
+    sa.Column('updated_at', app.models.types.UTCDateTime(), nullable=False),
+    sa.ForeignKeyConstraint(['client_id'], ['oauth_clients.client_id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id')
+    )
+    with op.batch_alter_table('oauth_codes', schema=None) as batch_op:
+        batch_op.create_index(batch_op.f('ix_oauth_codes_client_id'), ['client_id'], unique=False)
+        batch_op.create_index(batch_op.f('ix_oauth_codes_code_hash'), ['code_hash'], unique=True)
+        batch_op.create_index(batch_op.f('ix_oauth_codes_user_id'), ['user_id'], unique=False)
+
+    op.create_table('oauth_consents',
+    sa.Column('user_id', sa.String(length=32), nullable=False),
+    sa.Column('client_id', sa.String(length=64), nullable=False),
+    sa.Column('scope', sa.String(length=200), nullable=False),
+    sa.Column('revoked_at', app.models.types.UTCDateTime(), nullable=True),
+    sa.Column('id', sa.String(length=32), nullable=False),
+    sa.Column('created_at', app.models.types.UTCDateTime(), nullable=False),
+    sa.Column('updated_at', app.models.types.UTCDateTime(), nullable=False),
+    sa.ForeignKeyConstraint(['client_id'], ['oauth_clients.client_id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('user_id', 'client_id', name='uq_consent')
+    )
+    with op.batch_alter_table('oauth_consents', schema=None) as batch_op:
+        batch_op.create_index(batch_op.f('ix_oauth_consents_client_id'), ['client_id'], unique=False)
+        batch_op.create_index(batch_op.f('ix_oauth_consents_user_id'), ['user_id'], unique=False)
+
+    op.create_table('oauth_tokens',
+    sa.Column('client_id', sa.String(length=64), nullable=False),
+    sa.Column('user_id', sa.String(length=32), nullable=False),
+    sa.Column('device_id', sa.String(length=64), nullable=False),
+    sa.Column('access_hash', sa.String(length=64), nullable=False),
+    sa.Column('refresh_hash', sa.String(length=64), nullable=False),
+    sa.Column('scope', sa.String(length=200), nullable=False),
+    sa.Column('expires_at', app.models.types.UTCDateTime(), nullable=False),
+    sa.Column('revoked_at', app.models.types.UTCDateTime(), nullable=True),
+    sa.Column('id', sa.String(length=32), nullable=False),
+    sa.Column('created_at', app.models.types.UTCDateTime(), nullable=False),
+    sa.Column('updated_at', app.models.types.UTCDateTime(), nullable=False),
+    sa.ForeignKeyConstraint(['client_id'], ['oauth_clients.client_id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id')
+    )
+    with op.batch_alter_table('oauth_tokens', schema=None) as batch_op:
+        batch_op.create_index(batch_op.f('ix_oauth_tokens_access_hash'), ['access_hash'], unique=True)
+        batch_op.create_index(batch_op.f('ix_oauth_tokens_client_id'), ['client_id'], unique=False)
+        batch_op.create_index(batch_op.f('ix_oauth_tokens_device_id'), ['device_id'], unique=False)
+        batch_op.create_index(batch_op.f('ix_oauth_tokens_refresh_hash'), ['refresh_hash'], unique=True)
+        batch_op.create_index(batch_op.f('ix_oauth_tokens_user_id'), ['user_id'], unique=False)
 
     op.create_table('offline_sessions',
     sa.Column('event_id', sa.String(length=32), nullable=False),
@@ -515,6 +590,7 @@ def upgrade() -> None:
     sa.Column('revision', sa.Integer(), nullable=False),
     sa.Column('live_version', sa.Integer(), nullable=True),
     sa.Column('attendance', sa.String(length=16), nullable=True),
+    sa.Column('agent_reviewed', sa.Boolean(), nullable=False),
     sa.Column('id', sa.String(length=32), nullable=False),
     sa.Column('created_at', app.models.types.UTCDateTime(), nullable=False),
     sa.Column('updated_at', app.models.types.UTCDateTime(), nullable=False),
@@ -835,6 +911,25 @@ def downgrade() -> None:
         batch_op.drop_index(batch_op.f('ix_offline_sessions_event_id'))
 
     op.drop_table('offline_sessions')
+    with op.batch_alter_table('oauth_tokens', schema=None) as batch_op:
+        batch_op.drop_index(batch_op.f('ix_oauth_tokens_user_id'))
+        batch_op.drop_index(batch_op.f('ix_oauth_tokens_refresh_hash'))
+        batch_op.drop_index(batch_op.f('ix_oauth_tokens_device_id'))
+        batch_op.drop_index(batch_op.f('ix_oauth_tokens_client_id'))
+        batch_op.drop_index(batch_op.f('ix_oauth_tokens_access_hash'))
+
+    op.drop_table('oauth_tokens')
+    with op.batch_alter_table('oauth_consents', schema=None) as batch_op:
+        batch_op.drop_index(batch_op.f('ix_oauth_consents_user_id'))
+        batch_op.drop_index(batch_op.f('ix_oauth_consents_client_id'))
+
+    op.drop_table('oauth_consents')
+    with op.batch_alter_table('oauth_codes', schema=None) as batch_op:
+        batch_op.drop_index(batch_op.f('ix_oauth_codes_user_id'))
+        batch_op.drop_index(batch_op.f('ix_oauth_codes_code_hash'))
+        batch_op.drop_index(batch_op.f('ix_oauth_codes_client_id'))
+
+    op.drop_table('oauth_codes')
     with op.batch_alter_table('notifications', schema=None) as batch_op:
         batch_op.drop_index(batch_op.f('ix_notifications_user_id'))
 
@@ -884,6 +979,10 @@ def downgrade() -> None:
         batch_op.drop_index(batch_op.f('ix_users_email'))
 
     op.drop_table('users')
+    with op.batch_alter_table('oauth_clients', schema=None) as batch_op:
+        batch_op.drop_index(batch_op.f('ix_oauth_clients_client_id'))
+
+    op.drop_table('oauth_clients')
     op.drop_table('llm_upstreams')
     with op.batch_alter_table('llm_models', schema=None) as batch_op:
         batch_op.drop_index(batch_op.f('ix_llm_models_name'))

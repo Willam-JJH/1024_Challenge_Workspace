@@ -11,7 +11,6 @@ from app.core.db import get_db
 from app.core.deps import Principal, require_auth
 from app.core.errors import NotFound
 from app.core.security import hash_token, new_token
-from app.core.stubs import register_stubs
 from app.models.event import Company
 from app.models.identity import ApiKey
 from app.schemas.auth import ApiKeyIn, ProfileUpdateIn
@@ -179,15 +178,3 @@ def withdraw_vote(
     vote_service.withdraw_vote(db, event, principal.user.id, company_id)
     db.flush()
     return _my_votes(db, principal.user.id)
-
-
-register_stubs(
-    router,
-    [
-        ("GET", "/connected-apps", "我用账号登录过的应用与设备"),
-        ("DELETE", "/connected-apps/{client_id}", "吊销某个应用的全部设备"),
-        ("DELETE", "/connected-apps/{client_id}/devices/{device_id}", "登出某个应用的单个设备"),
-    ],
-    tag="me",
-    auth="authenticated",
-)

@@ -2,7 +2,7 @@
 
 from datetime import datetime
 
-from sqlalchemy import ForeignKey, Integer, String, Text, UniqueConstraint
+from sqlalchemy import Boolean, ForeignKey, Integer, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import BaseModel
@@ -26,6 +26,8 @@ class Project(BaseModel):
     live_version: Mapped[int | None] = mapped_column(Integer, nullable=True)
     # Pitching Day 出席意向：yes | no | maybe
     attendance: Mapped[str | None] = mapped_column(String(16), nullable=True)
+    # 代理生成的草稿是否已由人复核
+    agent_reviewed: Mapped[bool] = mapped_column(Boolean, default=False)
 
     versions: Mapped[list["ProjectVersion"]] = relationship(back_populates="project")
 

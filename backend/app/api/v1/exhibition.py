@@ -9,13 +9,20 @@ from sqlalchemy.orm import Session as DbSession
 from app.core.db import get_db
 from app.core.deps import Principal, require_auth
 from app.core.errors import Conflict, Forbidden, NotFound, Unprocessable
-from app.core.stubs import register_stubs
 from app.models.event import Company
-from app.models.exhibition import Comment, CommentReport, Introduction, Promotion, Visit
+from app.models.exhibition import (
+    Collaboration,
+    Comment,
+    CommentReport,
+    Introduction,
+    Promotion,
+    Visit,
+)
 from app.models.identity import User
 from app.models.project import Project
 from app.schemas.common import OkOut
 from app.schemas.exhibition import (
+    CollaborationOut,
     CommentIn,
     CommentOut,
     FeedItem,
@@ -512,8 +519,31 @@ def delete_introduction_reply(
     return OkOut()
 
 
-register_stubs(
-    router,
-    [("GET", "/collaborations", "已公布的合作")],
-    tag="exhibition",
+@router.get(
+    "/collaborations", response_model=list[CollaborationOut], summary="已公布的合作"
 )
+def list_collaborations(db: DbSession = Depends(get_db)) -> list[CollaborationOut]:
+    event = company_service.current_event(db)
+    rows = db.scalars(
+        select(Collaboration)
+        .where(
+            Collaboration.event_id == event.id,
+            Collaboration.status == "published",
+        )
+        .order_by(Collaboration.created_at.desc())
+    ).all()
+    out = []
+    for row in rows:
+        source = db.get(Company, row.from_company_id)
+        target = db.get(Company, row.to_company_id)
+        out.append(
+            CollaborationOut(
+                id=row.id,
+                from_company=source.name if source else "",
+                to_company=target.name if target else "",
+                kind=row.kind,
+                body=row.body,
+                status=row.status,
+            )
+        )
+    return out
