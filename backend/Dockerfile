@@ -12,6 +12,7 @@ RUN uv pip install --system -r pyproject.toml
 
 COPY app ./app
 COPY migrations ./migrations
+COPY scripts ./scripts
 COPY alembic.ini ./
 
 EXPOSE 8000

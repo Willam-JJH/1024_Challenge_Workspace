@@ -19,7 +19,7 @@
 | 其余端点 | 返回 `501 not_implemented`，在 OpenAPI 中可见路径、方法与摘要，按模块逐个补齐 |
 | 数据模型 | users / sessions / api_keys / events / companies / memberships / projects / project_versions / votes / audit_log |
 | 前端 | 目录占位，等接口稳定后重新设计 |
-| 基础设施 | Docker Compose + Postgres 17 + Caddy；Cloudflare 需换成你自己的账号（见 `infra/cloudflare/README.md`） |
+| 基础设施 | Docker Compose + Postgres 17 + Caddy；国内服务器部署见 [`docs/runbooks/deploy-cn.md`](docs/runbooks/deploy-cn.md) |
 
 旧接口清单（267 个，仅作功能对照）见 [`docs/api/legacy-endpoints.md`](docs/api/legacy-endpoints.md)。
 

@@ -1,22 +1,32 @@
 {
-  "{$DOMAIN}": {
-    tls {
-      # origin = Cloudflare Origin CA 证书；acme = Let's Encrypt
-      issuer internal
-    }
-    encode zstd gzip
+	# 生产：Caddy 自动申请并续期 Let's Encrypt 证书（域名已备案、80/443 可访问）
+	{$DOMAIN} {
+		encode zstd gzip
 
-    handle /api/* {
-      reverse_proxy api:8000
-    }
+		# OAuth 元数据必须挂在站点根
+		handle /.well-known/* {
+			reverse_proxy api:8000
+		}
 
-    handle /v1/* {
-      reverse_proxy api:8000
-    }
+		handle /api/* {
+			reverse_proxy api:8000
+		}
 
-    handle {
-      # 前端重设计完成后指向静态站点或前端容器
-      respond "frontend not built yet" 200
-    }
-  }
+		handle /v1/* {
+			reverse_proxy api:8000
+		}
+
+		handle {
+			# 前端重设计完成后，换成静态目录或前端容器
+			respond "frontend not deployed yet" 404
+		}
+
+		header {
+			Strict-Transport-Security "max-age=31536000; includeSubDomains"
+			X-Content-Type-Options "nosniff"
+			X-Frame-Options "DENY"
+			Referrer-Policy "strict-origin-when-cross-origin"
+			-Server
+		}
+	}
 }
