@@ -17,7 +17,7 @@ from app.core.deps import Principal, require_auth
 from app.core.errors import ApiError, Forbidden, NotFound
 from app.models.media import MediaAsset
 from app.schemas.common import OkOut
-from app.schemas.media import AltIn, AssetCreateIn, AssetCreatedOut, AssetOut
+from app.schemas.media import AltIn, AssetCreatedOut, AssetCreateIn, AssetOut
 
 router = APIRouter(tags=["media"])
 

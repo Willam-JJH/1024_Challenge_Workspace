@@ -11,8 +11,7 @@ from sqlalchemy.orm import Session as DbSession
 from app.core.config import settings
 from app.core.db import get_db
 from app.core.errors import NotFound
-from app.models.event import Company
-from app.models.event import Event
+from app.models.event import Company, Event
 from app.models.exhibition import Comment, Visit
 from app.models.project import Project
 from app.models.vote import Vote
@@ -43,7 +42,7 @@ def get_event(event_id: str, db: DbSession = Depends(get_db)) -> EventOut:
     return EventOut.model_validate(row)
 
 
-@router.get("/{event_id}/stats", summary="公开统计：人数、公司、作品、硬币")
+@router.get("/{event_id}/stats", summary="公开统计：人数、公司、作品、票")
 def stats(event_id: str, db: DbSession = Depends(get_db)) -> dict:
     event = db.get(Event, event_id)
     if event is None:
@@ -60,7 +59,7 @@ def stats(event_id: str, db: DbSession = Depends(get_db)) -> dict:
         "projects_published": count(
             Project, Project.event_id == event.id, Project.status == "published"
         ),
-        "coins": count(Vote, Vote.event_id == event.id, Vote.status == "live"),
+        "votes": count(Vote, Vote.event_id == event.id, Vote.status == "live"),
         "comments": count(Comment, Comment.status == "visible"),
         "visits": count(Visit, Visit.event_id == event.id),
     }

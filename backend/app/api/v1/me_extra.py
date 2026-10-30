@@ -1,4 +1,4 @@
-"""个人中心：公司关系、参与方式、邀请、通知、护照、注销与介绍任务。"""
+"""个人中心：公司关系、参与方式、邀请、通知、参观记录、注销与介绍任务。"""
 
 from datetime import UTC, datetime
 
@@ -208,7 +208,7 @@ def put_digest(
     return DigestOut(comments=payload.comments)
 
 
-@router.get("/passport", summary="我的参观护照")
+@router.get("/visits", summary="我的参观参观记录")
 def passport(
     principal: Principal = Depends(require_auth), db: DbSession = Depends(get_db)
 ) -> dict:

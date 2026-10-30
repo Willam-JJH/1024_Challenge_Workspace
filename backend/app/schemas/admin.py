@@ -132,7 +132,7 @@ class DashboardOut(BaseModel):
     companies: int
     projects_published: int
     projects_draft: int
-    coins: int
+    votes: int
     comments: int
     offline_sessions: int
 

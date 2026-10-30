@@ -109,15 +109,15 @@ def test_voting_admin_and_visibility(
     login(client, "staff@example.com", "staff-password-123")
 
     state = client.get("/api/v1/admin/voting").json()
-    assert state["coins_total"] == 1
+    assert state["total_votes"] == 1
     ballots = client.get("/api/v1/admin/voting/ballots").json()
     assert ballots[0]["company_name"] == "First"
 
     res = client.put("/api/v1/admin/voting/visibility", json={"visible": False})
     assert res.status_code == 200
     public = client.get("/api/v1/votes").json()
-    assert public["total_coins"] == 0
-    assert all(row["coins"] == 0 for row in public["items"])
+    assert public["total_votes"] == 0
+    assert all(row["votes"] == 0 for row in public["items"])
 
     res = client.post("/api/v1/admin/voting/voids", json={"company_id": first.id})
     assert res.status_code == 200

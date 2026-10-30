@@ -1,4 +1,4 @@
-"""硬币投票：一人对一家公司最多一枚。"""
+"""投票：一人对一家公司最多一票。"""
 
 from sqlalchemy import ForeignKey, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column

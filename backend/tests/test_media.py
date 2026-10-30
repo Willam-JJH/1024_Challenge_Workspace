@@ -42,7 +42,9 @@ def test_upload_and_read(client: TestClient, event, user, monkeypatch, tmp_path)
     assert variant.json()["error"]["code"] == "variant_not_available"
 
 
-def test_upload_requires_owner(client: TestClient, event, user, other_user, monkeypatch, tmp_path) -> None:
+def test_upload_requires_owner(
+    client: TestClient, event, user, other_user, monkeypatch, tmp_path
+) -> None:
     _prepare(monkeypatch, tmp_path)
     login(client, "will@example.com", "correct-horse-battery")
     asset_id = client.post(
@@ -54,7 +56,9 @@ def test_upload_requires_owner(client: TestClient, event, user, other_user, monk
     assert res.status_code == 403
 
 
-def test_parts_and_admin_removal(client: TestClient, db_session, event, user, monkeypatch, tmp_path) -> None:
+def test_parts_and_admin_removal(
+    client: TestClient, db_session, event, user, monkeypatch, tmp_path
+) -> None:
     _prepare(monkeypatch, tmp_path)
     login(client, "will@example.com", "correct-horse-battery")
     asset_id = client.post(
@@ -66,10 +70,11 @@ def test_parts_and_admin_removal(client: TestClient, db_session, event, user, mo
     res = client.post(f"/api/v1/media/assets/{asset_id}/completions")
     assert res.json()["size"] == 4
 
-    from app.core.security import hash_password
     from subprocess import run  # noqa: F401  (保持导入位置稳定)
 
     from sqlalchemy import select
+
+    from app.core.security import hash_password
     from app.models.identity import User
 
     staff = User(

@@ -34,7 +34,7 @@ def get_voting(
     return VotingAdminOut(
         open=event.voting_open,
         visible=event.votes_visible,
-        coins_total=sum(row.coins for row in board),
+        total_votes=sum(row.votes for row in board),
         ballots=ballots,
         board=board,
     )
@@ -105,7 +105,7 @@ def set_visibility(
     return OkOut()
 
 
-@router.post("/voids", response_model=OkOut, summary="作废一枚硬币或一位投票人")
+@router.post("/voids", response_model=OkOut, summary="作废一枚票或一位投票人")
 def void_votes(
     payload: VoidIn,
     principal: Principal = Depends(require_staff),

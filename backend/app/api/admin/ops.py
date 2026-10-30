@@ -38,7 +38,7 @@ def dashboard(
         companies=_count(db, Company, Company.event_id == event.id),
         projects_published=_count(db, Project, Project.status == "published"),
         projects_draft=_count(db, Project, Project.status == "draft"),
-        coins=_count(db, Vote, Vote.event_id == event.id, Vote.status == "live"),
+        votes=_count(db, Vote, Vote.event_id == event.id, Vote.status == "live"),
         comments=_count(db, Comment, Comment.status == "visible"),
         offline_sessions=_count(db, OfflineSession, OfflineSession.event_id == event.id),
     )

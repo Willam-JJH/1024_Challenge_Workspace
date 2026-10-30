@@ -1,4 +1,4 @@
-"""展览：评论、广告、护照与介绍。"""
+"""展览：评论、广告、参观记录与介绍。"""
 
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session

@@ -1,4 +1,4 @@
-"""「我」相关的资源：资料、参赛身份、邀请、通知、钱包、API key。"""
+"""「我」相关的资源：资料、参赛身份、邀请、通知、投票记录、API key。"""
 
 from datetime import UTC, datetime
 
@@ -16,7 +16,7 @@ from app.models.event import Company
 from app.models.identity import ApiKey
 from app.schemas.auth import ApiKeyIn, ProfileUpdateIn
 from app.schemas.common import ApiKeyCreatedOut, ApiKeyOut, OkOut, UserOut
-from app.schemas.vote import PickOut, WalletIn, WalletOut
+from app.schemas.vote import MyVotesOut, VotePickOut, VotesIn
 from app.services import companies as company_service
 from app.services import votes as vote_service
 
@@ -112,73 +112,73 @@ def rotate_api_key(
     return _issue_key(db, principal.user.id, row.label)
 
 
-# --- 钱包（投币） -----------------------------------------------------------
+# --- 投票记录（投币） -----------------------------------------------------------
 
 
-def _wallet(db: DbSession, user_id: str) -> WalletOut:
+def _my_votes(db: DbSession, user_id: str) -> MyVotesOut:
     event = company_service.current_event(db)
-    picks = vote_service.my_picks(db, event.id, user_id)
+    votes = vote_service.my_votes(db, event.id, user_id)
     rows = []
-    for vote in picks:
+    for vote in votes:
         company = db.get(Company, vote.company_id)
         if company is None:
             continue
         rows.append(
-            PickOut(
+            VotePickOut(
                 company_id=company.id,
                 company_name=company.name,
                 company_slug=company.slug,
                 created_at=vote.created_at,
             )
         )
-    return WalletOut(picks=rows, picks_left=max(settings.wallet_max_picks - len(rows), 0))
+    return MyVotesOut(votes=rows, votes_left=max(settings.wallet_max_votes - len(rows), 0))
 
 
-@router.get("/wallet", response_model=WalletOut, summary="我的硬币：已投公司与余额")
-def get_wallet(
+@router.get("/votes", response_model=MyVotesOut, summary="我的票：已投公司与余额")
+def get_my_votes(
     principal: Principal = Depends(require_auth), db: DbSession = Depends(get_db)
-) -> WalletOut:
-    return _wallet(db, principal.user.id)
+) -> MyVotesOut:
+    return _my_votes(db, principal.user.id)
 
 
-@router.put("/wallet", response_model=WalletOut, summary="整张选票一次性保存（最多三家公司）")
-def put_wallet(
-    payload: WalletIn,
+@router.put("/votes", response_model=MyVotesOut, summary="整张选票一次性保存（最多三家公司）")
+def put_my_votes(
+    payload: VotesIn,
     principal: Principal = Depends(require_auth),
     db: DbSession = Depends(get_db),
-) -> WalletOut:
+) -> MyVotesOut:
     event = company_service.current_event(db)
-    vote_service.replace_wallet(db, event, principal.user.id, payload.company_ids)
+    vote_service.replace_my_votes(db, event, principal.user.id, payload.company_ids)
     db.flush()
-    return _wallet(db, principal.user.id)
+    return _my_votes(db, principal.user.id)
 
 
 @router.put(
-    "/wallet/coins/{company_id}", response_model=WalletOut, summary="投一枚硬币（幂等）"
+    "/votes/{company_id}", response_model=MyVotesOut, summary="投一枚票（幂等）"
 )
-def invest_coin(
+def cast_vote(
     company_id: str,
     principal: Principal = Depends(require_auth),
     db: DbSession = Depends(get_db),
-) -> WalletOut:
+) -> MyVotesOut:
     event = company_service.current_event(db)
-    vote_service.invest(db, event, principal.user.id, company_id)
+    vote_service.cast_vote(db, event, principal.user.id, company_id)
     db.flush()
-    return _wallet(db, principal.user.id)
+    return _my_votes(db, principal.user.id)
 
 
 @router.delete(
-    "/wallet/coins/{company_id}", response_model=WalletOut, summary="撤回硬币（幂等）"
+    "/votes/{company_id}", response_model=MyVotesOut, summary="撤回票（幂等）"
 )
-def withdraw_coin(
+def withdraw_vote(
     company_id: str,
     principal: Principal = Depends(require_auth),
     db: DbSession = Depends(get_db),
-) -> WalletOut:
+) -> MyVotesOut:
     event = company_service.current_event(db)
-    vote_service.withdraw(db, event, principal.user.id, company_id)
+    vote_service.withdraw_vote(db, event, principal.user.id, company_id)
     db.flush()
-    return _wallet(db, principal.user.id)
+    return _my_votes(db, principal.user.id)
 
 
 register_stubs(

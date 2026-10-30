@@ -40,7 +40,7 @@ class Settings(BaseSettings):
     public_domain: str = "example.com"
 
     # 投票：每人最多投给几家公司
-    wallet_max_picks: int = 3
+    wallet_max_votes: int = 3
 
     # 人机校验（自托管工作量证明）
     require_bot_check: bool = False

@@ -24,12 +24,12 @@ def ranks(counts: dict[str, int]) -> dict[str, int]:
     """竞赛排名：同分同名次，下一名次跳过。"""
     ordered = sorted(counts.items(), key=lambda item: (-item[1], item[0]))
     result: dict[str, int] = {}
-    previous_coins: int | None = None
+    previous_votes: int | None = None
     previous_rank = 0
-    for index, (company_id, coins) in enumerate(ordered, start=1):
-        if coins != previous_coins:
+    for index, (company_id, votes) in enumerate(ordered, start=1):
+        if votes != previous_votes:
             previous_rank = index
-            previous_coins = coins
+            previous_votes = votes
         result[company_id] = previous_rank
     return result
 
@@ -45,16 +45,16 @@ def board(db: DbSession, event: Event) -> list[dict]:
             "company_id": company.id,
             "name": company.name,
             "slug": company.slug,
-            "coins": counts.get(company.id, 0),
+            "votes": counts.get(company.id, 0),
             "rank": rank_of.get(company.id, len(counts) + 1),
         }
         for company in companies
     ]
-    rows.sort(key=lambda row: (row["coins"] * -1, row["rank"], row["name"]))
+    rows.sort(key=lambda row: (row["votes"] * -1, row["rank"], row["name"]))
     return rows
 
 
-def my_picks(db: DbSession, event_id: str, user_id: str) -> list[Vote]:
+def my_votes(db: DbSession, event_id: str, user_id: str) -> list[Vote]:
     return list(
         db.scalars(
             select(Vote)
@@ -83,7 +83,7 @@ def _assert_not_own_company(db: DbSession, company_id: str, user_id: str) -> Non
         raise Forbidden("不能投给自己所在的公司")
 
 
-def invest(db: DbSession, event: Event, user_id: str, company_id: str) -> Vote:
+def cast_vote(db: DbSession, event: Event, user_id: str, company_id: str) -> Vote:
     if not event.voting_open:
         raise Forbidden("投票已关闭")
     company = _company_of_event(db, company_id, event)
@@ -97,9 +97,9 @@ def invest(db: DbSession, event: Event, user_id: str, company_id: str) -> Vote:
     if existing is not None and existing.status == "live":
         return existing
 
-    picks = my_picks(db, event.id, user_id)
-    if len(picks) >= settings.wallet_max_picks:
-        raise Conflict(f"最多只能投给 {settings.wallet_max_picks} 家公司")
+    votes = my_votes(db, event.id, user_id)
+    if len(votes) >= settings.wallet_max_votes:
+        raise Conflict(f"最多只能投给 {settings.wallet_max_votes} 家公司")
 
     if existing is not None:
         existing.status = "live"
@@ -111,7 +111,7 @@ def invest(db: DbSession, event: Event, user_id: str, company_id: str) -> Vote:
     return vote
 
 
-def withdraw(db: DbSession, event: Event, user_id: str, company_id: str) -> None:
+def withdraw_vote(db: DbSession, event: Event, user_id: str, company_id: str) -> None:
     existing = db.scalar(
         select(Vote).where(
             Vote.event_id == event.id, Vote.voter_id == user_id, Vote.company_id == company_id
@@ -121,17 +121,17 @@ def withdraw(db: DbSession, event: Event, user_id: str, company_id: str) -> None
         existing.status = "withdrawn"
 
 
-def replace_wallet(db: DbSession, event: Event, user_id: str, company_ids: list[str]) -> None:
+def replace_my_votes(db: DbSession, event: Event, user_id: str, company_ids: list[str]) -> None:
     if not event.voting_open:
         raise Forbidden("投票已关闭")
     unique_ids = list(dict.fromkeys(company_ids))
-    if len(unique_ids) > settings.wallet_max_picks:
-        raise Conflict(f"最多只能投给 {settings.wallet_max_picks} 家公司")
+    if len(unique_ids) > settings.wallet_max_votes:
+        raise Conflict(f"最多只能投给 {settings.wallet_max_votes} 家公司")
     for company_id in unique_ids:
         _company_of_event(db, company_id, event)
         _assert_not_own_company(db, company_id, user_id)
 
-    current = {vote.company_id: vote for vote in my_picks(db, event.id, user_id)}
+    current = {vote.company_id: vote for vote in my_votes(db, event.id, user_id)}
     for company_id, vote in current.items():
         if company_id not in unique_ids:
             vote.status = "withdrawn"
@@ -146,6 +146,6 @@ def board_payload(db: DbSession, event: Event) -> dict:
     rows = board(db, event)
     return {
         "items": rows,
-        "total_coins": sum(row["coins"] for row in rows),
+        "total_votes": sum(row["votes"] for row in rows),
         "updated_at": datetime.now(UTC).isoformat(),
     }

@@ -772,20 +772,20 @@
         }
       }
     },
-    "/api/v1/me/wallet": {
+    "/api/v1/me/votes": {
       "get": {
         "tags": [
           "me"
         ],
-        "summary": "我的硬币：已投公司与余额",
-        "operationId": "get_wallet_api_v1_me_wallet_get",
+        "summary": "我的票：已投公司与余额",
+        "operationId": "get_my_votes_api_v1_me_votes_get",
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/WalletOut"
+                  "$ref": "#/components/schemas/MyVotesOut"
                 }
               }
             }
@@ -797,12 +797,12 @@
           "me"
         ],
         "summary": "整张选票一次性保存（最多三家公司）",
-        "operationId": "put_wallet_api_v1_me_wallet_put",
+        "operationId": "put_my_votes_api_v1_me_votes_put",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/WalletIn"
+                "$ref": "#/components/schemas/VotesIn"
               }
             }
           },
@@ -814,7 +814,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/WalletOut"
+                  "$ref": "#/components/schemas/MyVotesOut"
                 }
               }
             }
@@ -832,13 +832,13 @@
         }
       }
     },
-    "/api/v1/me/wallet/coins/{company_id}": {
+    "/api/v1/me/votes/{company_id}": {
       "put": {
         "tags": [
           "me"
         ],
-        "summary": "投一枚硬币（幂等）",
-        "operationId": "invest_coin_api_v1_me_wallet_coins__company_id__put",
+        "summary": "投一枚票（幂等）",
+        "operationId": "cast_vote_api_v1_me_votes__company_id__put",
         "parameters": [
           {
             "name": "company_id",
@@ -856,7 +856,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/WalletOut"
+                  "$ref": "#/components/schemas/MyVotesOut"
                 }
               }
             }
@@ -877,8 +877,8 @@
         "tags": [
           "me"
         ],
-        "summary": "撤回硬币（幂等）",
-        "operationId": "withdraw_coin_api_v1_me_wallet_coins__company_id__delete",
+        "summary": "撤回票（幂等）",
+        "operationId": "withdraw_vote_api_v1_me_votes__company_id__delete",
         "parameters": [
           {
             "name": "company_id",
@@ -896,630 +896,8 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/WalletOut"
+                  "$ref": "#/components/schemas/MyVotesOut"
                 }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/me/membership": {
-      "get": {
-        "tags": [
-          "me",
-          "me"
-        ],
-        "summary": "我在当前赛事的公司关系",
-        "operationId": "_handler_api_v1_me_membership_get",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "我在当前赛事的公司关系",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/membership",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/me/participation": {
-      "put": {
-        "tags": [
-          "me",
-          "me"
-        ],
-        "summary": "切换旁观／参赛，或报名当前赛事",
-        "operationId": "_handler_api_v1_me_participation_put",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "切换旁观／参赛，或报名当前赛事",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/participation",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/me/invitations": {
-      "get": {
-        "tags": [
-          "me",
-          "me"
-        ],
-        "summary": "发给我的邀请",
-        "operationId": "_handler_api_v1_me_invitations_get",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "发给我的邀请",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/invitations",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/me/invitations/{invite_id}/acceptance": {
-      "post": {
-        "tags": [
-          "me",
-          "me"
-        ],
-        "summary": "接受邀请",
-        "operationId": "_handler_api_v1_me_invitations__invite_id__acceptance_post",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "接受邀请",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/invitations/{invite_id}/acceptance",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/me/invitations/{invite_id}/decline": {
-      "post": {
-        "tags": [
-          "me",
-          "me"
-        ],
-        "summary": "拒绝邀请",
-        "operationId": "_handler_api_v1_me_invitations__invite_id__decline_post",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "拒绝邀请",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/invitations/{invite_id}/decline",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/me/join-requests": {
-      "get": {
-        "tags": [
-          "me",
-          "me"
-        ],
-        "summary": "我发出的入队申请",
-        "operationId": "_handler_api_v1_me_join_requests_get",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "我发出的入队申请",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/join-requests",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/me/join-requests/{request_id}": {
-      "delete": {
-        "tags": [
-          "me",
-          "me"
-        ],
-        "summary": "撤回入队申请",
-        "operationId": "_handler_api_v1_me_join_requests__request_id__delete",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "撤回入队申请",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/join-requests/{request_id}",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/me/notifications": {
-      "get": {
-        "tags": [
-          "me",
-          "me"
-        ],
-        "summary": "我的通知（最新在前）",
-        "operationId": "_handler_api_v1_me_notifications_get",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "我的通知（最新在前）",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/notifications",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/me/notifications/read": {
-      "post": {
-        "tags": [
-          "me",
-          "me"
-        ],
-        "summary": "把通知标记为已读",
-        "operationId": "_handler_api_v1_me_notifications_read_post",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "把通知标记为已读",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/notifications/read",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/me/digest-preferences": {
-      "get": {
-        "tags": [
-          "me",
-          "me"
-        ],
-        "summary": "邮件摘要偏好",
-        "operationId": "_handler_api_v1_me_digest_preferences_get",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "邮件摘要偏好",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/digest-preferences",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      },
-      "put": {
-        "tags": [
-          "me",
-          "me"
-        ],
-        "summary": "开关每日评论摘要",
-        "operationId": "_handler_api_v1_me_digest_preferences_put",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "开关每日评论摘要",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/digest-preferences",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/me/passport": {
-      "get": {
-        "tags": [
-          "me",
-          "me"
-        ],
-        "summary": "我的参观护照：印章与完成度",
-        "operationId": "_handler_api_v1_me_passport_get",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "我的参观护照：印章与完成度",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/passport",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
               }
             }
           },
@@ -1692,92 +1070,54 @@
         }
       }
     },
-    "/api/v1/me/deletion-request": {
-      "post": {
+    "/api/v1/me/membership": {
+      "get": {
         "tags": [
-          "me",
           "me"
         ],
-        "summary": "申请注销账号",
-        "operationId": "_handler_api_v1_me_deletion_request_post",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "申请注销账号",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/deletion-request",
-              "title": " Path"
-            }
-          }
-        ],
+        "summary": "我在当前赛事的公司关系",
+        "operationId": "membership_api_v1_me_membership_get",
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Membership Api V1 Me Membership Get"
                 }
               }
             }
           }
         }
-      },
-      "delete": {
+      }
+    },
+    "/api/v1/me/participation": {
+      "put": {
         "tags": [
-          "me",
           "me"
         ],
-        "summary": "撤销注销申请",
-        "operationId": "_handler_api_v1_me_deletion_request_delete",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "撤销注销申请",
-              "title": " Summary"
+        "summary": "切换旁观／参赛",
+        "operationId": "participation_api_v1_me_participation_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ParticipationIn"
+              }
             }
           },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/deletion-request",
-              "title": " Path"
-            }
-          }
-        ],
+          "required": true
+        },
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/OkOut"
+                }
               }
             }
           },
@@ -1794,33 +1134,46 @@
         }
       }
     },
-    "/api/v1/me/exhibition-assignment": {
+    "/api/v1/me/invitations": {
       "get": {
         "tags": [
-          "me",
           "me"
         ],
-        "summary": "我在展览中负责介绍的公司",
-        "operationId": "_handler_api_v1_me_exhibition_assignment_get",
+        "summary": "发给我的邀请",
+        "operationId": "my_invitations_api_v1_me_invitations_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/InvitationRow"
+                  },
+                  "type": "array",
+                  "title": "Response My Invitations Api V1 Me Invitations Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/me/invitations/{invitation_id}/acceptance": {
+      "post": {
+        "tags": [
+          "me"
+        ],
+        "summary": "接受邀请",
+        "operationId": "accept_invitation_api_v1_me_invitations__invitation_id__acceptance_post",
         "parameters": [
           {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
+            "name": "invitation_id",
+            "in": "path",
+            "required": true,
             "schema": {
               "type": "string",
-              "default": "我在展览中负责介绍的公司",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/exhibition-assignment",
-              "title": " Path"
+              "title": "Invitation Id"
             }
           }
         ],
@@ -1829,7 +1182,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/OkOut"
+                }
               }
             }
           },
@@ -1839,6 +1194,310 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/me/invitations/{invitation_id}/decline": {
+      "post": {
+        "tags": [
+          "me"
+        ],
+        "summary": "拒绝邀请",
+        "operationId": "decline_invitation_api_v1_me_invitations__invitation_id__decline_post",
+        "parameters": [
+          {
+            "name": "invitation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Invitation Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/me/join-requests": {
+      "get": {
+        "tags": [
+          "me"
+        ],
+        "summary": "我发出的入队申请",
+        "operationId": "my_join_requests_api_v1_me_join_requests_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "additionalProperties": true,
+                    "type": "object"
+                  },
+                  "type": "array",
+                  "title": "Response My Join Requests Api V1 Me Join Requests Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/me/join-requests/{request_id}": {
+      "delete": {
+        "tags": [
+          "me"
+        ],
+        "summary": "撤回入队申请",
+        "operationId": "withdraw_join_request_api_v1_me_join_requests__request_id__delete",
+        "parameters": [
+          {
+            "name": "request_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Request Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/me/notifications": {
+      "get": {
+        "tags": [
+          "me"
+        ],
+        "summary": "我的通知",
+        "operationId": "notifications_api_v1_me_notifications_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/NotificationOut"
+                  },
+                  "type": "array",
+                  "title": "Response Notifications Api V1 Me Notifications Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/me/notifications/read": {
+      "post": {
+        "tags": [
+          "me"
+        ],
+        "summary": "把通知标记为已读",
+        "operationId": "read_notifications_api_v1_me_notifications_read_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkOut"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/me/digest-preferences": {
+      "get": {
+        "tags": [
+          "me"
+        ],
+        "summary": "邮件摘要偏好",
+        "operationId": "get_digest_api_v1_me_digest_preferences_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DigestOut"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "me"
+        ],
+        "summary": "开关每日评论摘要",
+        "operationId": "put_digest_api_v1_me_digest_preferences_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DigestPatchIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DigestOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/me/visits": {
+      "get": {
+        "tags": [
+          "me"
+        ],
+        "summary": "我的参观参观记录",
+        "operationId": "passport_api_v1_me_visits_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Passport Api V1 Me Visits Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/me/deletion-request": {
+      "post": {
+        "tags": [
+          "me"
+        ],
+        "summary": "申请注销账号",
+        "operationId": "request_deletion_api_v1_me_deletion_request_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeletionOut"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "me"
+        ],
+        "summary": "撤销注销申请",
+        "operationId": "cancel_deletion_api_v1_me_deletion_request_delete",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeletionOut"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/me/exhibition-assignment": {
+      "get": {
+        "tags": [
+          "me"
+        ],
+        "summary": "与我公司相关的介绍任务",
+        "operationId": "exhibition_assignment_api_v1_me_exhibition_assignment_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/IntroductionOut"
+                  },
+                  "type": "array",
+                  "title": "Response Exhibition Assignment Api V1 Me Exhibition Assignment Get"
                 }
               }
             }
@@ -1934,508 +1593,34 @@
         }
       }
     },
-    "/api/v1/events/{event_id}/schedule": {
-      "patch": {
-        "tags": [
-          "events",
-          "events"
-        ],
-        "summary": "编辑各阶段时间（UTC 时刻，顺序校验）",
-        "operationId": "_handler_api_v1_events__event_id__schedule_patch",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "编辑各阶段时间（UTC 时刻，顺序校验）",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/{event_id}/schedule",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/events/{event_id}/switches": {
-      "get": {
-        "tags": [
-          "events",
-          "events"
-        ],
-        "summary": "赛事开关状态",
-        "operationId": "_handler_api_v1_events__event_id__switches_get",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "赛事开关状态",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/{event_id}/switches",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      },
-      "put": {
-        "tags": [
-          "events",
-          "events"
-        ],
-        "summary": "开关报名、锁定全部作品／全部名单",
-        "operationId": "_handler_api_v1_events__event_id__switches_put",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "开关报名、锁定全部作品／全部名单",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/{event_id}/switches",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/v1/events/{event_id}/stats": {
       "get": {
         "tags": [
-          "events",
           "events"
         ],
-        "summary": "落地页聚合计数",
-        "operationId": "_handler_api_v1_events__event_id__stats_get",
+        "summary": "公开统计：人数、公司、作品、票",
+        "operationId": "stats_api_v1_events__event_id__stats_get",
         "parameters": [
           {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
+            "name": "event_id",
+            "in": "path",
+            "required": true,
             "schema": {
               "type": "string",
-              "default": "落地页聚合计数",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/{event_id}/stats",
-              "title": " Path"
+              "title": "Event Id"
             }
           }
         ],
         "responses": {
           "200": {
             "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Stats Api V1 Events  Event Id  Stats Get"
                 }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/events/{event_id}/announcements": {
-      "get": {
-        "tags": [
-          "events",
-          "events"
-        ],
-        "summary": "赛事公告",
-        "operationId": "_handler_api_v1_events__event_id__announcements_get",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "赛事公告",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/{event_id}/announcements",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/events/{event_id}/sponsors": {
-      "get": {
-        "tags": [
-          "events",
-          "events"
-        ],
-        "summary": "赞助商条",
-        "operationId": "_handler_api_v1_events__event_id__sponsors_get",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "赞助商条",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/{event_id}/sponsors",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/events/{event_id}/shortlist": {
-      "get": {
-        "tags": [
-          "events",
-          "events"
-        ],
-        "summary": "已公布的入围名单",
-        "operationId": "_handler_api_v1_events__event_id__shortlist_get",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "已公布的入围名单",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/{event_id}/shortlist",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/events/{event_id}/results": {
-      "get": {
-        "tags": [
-          "events",
-          "events"
-        ],
-        "summary": "已公布的结果：奖项与最终榜",
-        "operationId": "_handler_api_v1_events__event_id__results_get",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "已公布的结果：奖项与最终榜",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/{event_id}/results",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/events/{event_id}/pitch": {
-      "get": {
-        "tags": [
-          "events",
-          "events"
-        ],
-        "summary": "Pitching Day 直播页",
-        "operationId": "_handler_api_v1_events__event_id__pitch_get",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "Pitching Day 直播页",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/{event_id}/pitch",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/events/{event_id}/pitch/stream": {
-      "get": {
-        "tags": [
-          "events",
-          "events"
-        ],
-        "summary": "直播页 SSE 推送",
-        "operationId": "_handler_api_v1_events__event_id__pitch_stream_get",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "直播页 SSE 推送",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/{event_id}/pitch/stream",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
               }
             }
           },
@@ -4306,191 +3491,28 @@
     "/api/v1/media/assets": {
       "post": {
         "tags": [
-          "media",
           "media"
         ],
-        "summary": "申请上传，换取 PUT 地址",
-        "operationId": "_handler_api_v1_media_assets_post",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "申请上传，换取 PUT 地址",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/media/assets",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
+        "summary": "申请上传",
+        "operationId": "create_asset_api_v1_media_assets_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssetCreateIn"
               }
             }
           },
-          "422": {
-            "description": "Validation Error",
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/AssetCreatedOut"
                 }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/media/assets/{asset_id}": {
-      "get": {
-        "tags": [
-          "media",
-          "media"
-        ],
-        "summary": "素材元数据",
-        "operationId": "_handler_api_v1_media_assets__asset_id__get",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "素材元数据",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/media/assets/{asset_id}",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "media",
-          "media"
-        ],
-        "summary": "删除未被引用的素材",
-        "operationId": "_handler_api_v1_media_assets__asset_id__delete",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "删除未被引用的素材",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/media/assets/{asset_id}",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      },
-      "patch": {
-        "tags": [
-          "media",
-          "media"
-        ],
-        "summary": "设置替代文本",
-        "operationId": "_handler_api_v1_media_assets__asset_id__patch",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "设置替代文本",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/media/assets/{asset_id}",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
               }
             }
           },
@@ -4510,30 +3532,18 @@
     "/api/v1/media/assets/{asset_id}/content": {
       "put": {
         "tags": [
-          "media",
           "media"
         ],
-        "summary": "上传字节（本地存储驱动）",
-        "operationId": "_handler_api_v1_media_assets__asset_id__content_put",
+        "summary": "上传字节",
+        "operationId": "upload_content_api_v1_media_assets__asset_id__content_put",
         "parameters": [
           {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
+            "name": "asset_id",
+            "in": "path",
+            "required": true,
             "schema": {
               "type": "string",
-              "default": "上传字节（本地存储驱动）",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/media/assets/{asset_id}/content",
-              "title": " Path"
+              "title": "Asset Id"
             }
           }
         ],
@@ -4542,7 +3552,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/AssetOut"
+                }
               }
             }
           },
@@ -4562,30 +3574,27 @@
     "/api/v1/media/assets/{asset_id}/parts/{part}": {
       "put": {
         "tags": [
-          "media",
           "media"
         ],
-        "summary": "分片上传（本地存储驱动）",
-        "operationId": "_handler_api_v1_media_assets__asset_id__parts__part__put",
+        "summary": "上传一个分片",
+        "operationId": "upload_part_api_v1_media_assets__asset_id__parts__part__put",
         "parameters": [
           {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
+            "name": "asset_id",
+            "in": "path",
+            "required": true,
             "schema": {
               "type": "string",
-              "default": "分片上传（本地存储驱动）",
-              "title": " Summary"
+              "title": "Asset Id"
             }
           },
           {
-            "name": "_path",
-            "in": "query",
-            "required": false,
+            "name": "part",
+            "in": "path",
+            "required": true,
             "schema": {
-              "type": "string",
-              "default": "/media/assets/{asset_id}/parts/{part}",
-              "title": " Path"
+              "type": "integer",
+              "title": "Part"
             }
           }
         ],
@@ -4594,7 +3603,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/OkOut"
+                }
               }
             }
           },
@@ -4614,30 +3625,18 @@
     "/api/v1/media/assets/{asset_id}/completions": {
       "post": {
         "tags": [
-          "media",
           "media"
         ],
-        "summary": "完成上传：嗅探类型、去除 EXIF",
-        "operationId": "_handler_api_v1_media_assets__asset_id__completions_post",
+        "summary": "完成分片上传",
+        "operationId": "complete_upload_api_v1_media_assets__asset_id__completions_post",
         "parameters": [
           {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
+            "name": "asset_id",
+            "in": "path",
+            "required": true,
             "schema": {
               "type": "string",
-              "default": "完成上传：嗅探类型、去除 EXIF",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/media/assets/{asset_id}/completions",
-              "title": " Path"
+              "title": "Asset Id"
             }
           }
         ],
@@ -4646,7 +3645,141 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/AssetOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/media/assets/{asset_id}": {
+      "get": {
+        "tags": [
+          "media"
+        ],
+        "summary": "素材元数据",
+        "operationId": "get_asset_api_v1_media_assets__asset_id__get",
+        "parameters": [
+          {
+            "name": "asset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Asset Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssetOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "media"
+        ],
+        "summary": "设置替代文本",
+        "operationId": "set_alt_api_v1_media_assets__asset_id__patch",
+        "parameters": [
+          {
+            "name": "asset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Asset Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AltIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssetOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "media"
+        ],
+        "summary": "删除素材",
+        "operationId": "delete_asset_api_v1_media_assets__asset_id__delete",
+        "parameters": [
+          {
+            "name": "asset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Asset Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkOut"
+                }
               }
             }
           },
@@ -4666,30 +3799,18 @@
     "/api/v1/files/{asset_id}": {
       "get": {
         "tags": [
-          "media",
           "media"
         ],
         "summary": "读取素材原始文件",
-        "operationId": "_handler_api_v1_files__asset_id__get",
+        "operationId": "read_file_api_v1_files__asset_id__get",
         "parameters": [
           {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
+            "name": "asset_id",
+            "in": "path",
+            "required": true,
             "schema": {
               "type": "string",
-              "default": "读取素材原始文件",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/files/{asset_id}",
-              "title": " Path"
+              "title": "Asset Id"
             }
           }
         ],
@@ -4718,30 +3839,27 @@
     "/api/v1/files/{asset_id}/{variant}": {
       "get": {
         "tags": [
-          "media",
           "media"
         ],
-        "summary": "读取素材变体（缩略图等）",
-        "operationId": "_handler_api_v1_files__asset_id___variant__get",
+        "summary": "读取素材变体",
+        "operationId": "read_variant_api_v1_files__asset_id___variant__get",
         "parameters": [
           {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
+            "name": "asset_id",
+            "in": "path",
+            "required": true,
             "schema": {
               "type": "string",
-              "default": "读取素材变体（缩略图等）",
-              "title": " Summary"
+              "title": "Asset Id"
             }
           },
           {
-            "name": "_path",
-            "in": "query",
-            "required": false,
+            "name": "variant",
+            "in": "path",
+            "required": true,
             "schema": {
               "type": "string",
-              "default": "/files/{asset_id}/{variant}",
-              "title": " Path"
+              "title": "Variant"
             }
           }
         ],
@@ -5391,7 +4509,7 @@
         "tags": [
           "exhibition"
         ],
-        "summary": "我的参观护照：印章与完成度",
+        "summary": "我的参观参观记录：印章与完成度",
         "operationId": "my_passport_api_v1_exhibition_visits_get",
         "responses": {
           "200": {
@@ -5412,7 +4530,7 @@
         "tags": [
           "exhibition"
         ],
-        "summary": "为作品盖章",
+        "summary": "为作品打卡",
         "operationId": "stamp_api_v1_exhibition_visits__project_id__put",
         "parameters": [
           {
@@ -6189,41 +5307,23 @@
     "/api/v1/csp-reports": {
       "post": {
         "tags": [
-          "content",
           "content"
         ],
         "summary": "浏览器上报 CSP 违规（只记录）",
-        "operationId": "_handler_api_v1_csp_reports_post",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "浏览器上报 CSP 违规（只记录）",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/csp-reports",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
+        "operationId": "csp_report_api_v1_csp_reports_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CspReportIn"
               }
             }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
           },
           "422": {
             "description": "Validation Error",
@@ -6241,39 +5341,28 @@
     "/api/v1/link-previews": {
       "post": {
         "tags": [
-          "content",
           "content"
         ],
         "summary": "生成链接卡片预览",
-        "operationId": "_handler_api_v1_link_previews_post",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "生成链接卡片预览",
-              "title": " Summary"
+        "operationId": "link_preview_api_v1_link_previews_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LinkPreviewIn"
+              }
             }
           },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/link-previews",
-              "title": " Path"
-            }
-          }
-        ],
+          "required": true
+        },
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/LinkPreviewOut"
+                }
               }
             }
           },
@@ -6293,30 +5382,27 @@
     "/api/v1/github/repos/{owner}/{repo}": {
       "get": {
         "tags": [
-          "content",
           "content"
         ],
-        "summary": "GitHub 仓库信息卡（带缓存）",
-        "operationId": "_handler_api_v1_github_repos__owner___repo__get",
+        "summary": "GitHub 仓库卡片",
+        "operationId": "github_repo_api_v1_github_repos__owner___repo__get",
         "parameters": [
           {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
+            "name": "owner",
+            "in": "path",
+            "required": true,
             "schema": {
               "type": "string",
-              "default": "GitHub 仓库信息卡（带缓存）",
-              "title": " Summary"
+              "title": "Owner"
             }
           },
           {
-            "name": "_path",
-            "in": "query",
-            "required": false,
+            "name": "repo",
+            "in": "path",
+            "required": true,
             "schema": {
               "type": "string",
-              "default": "/github/repos/{owner}/{repo}",
-              "title": " Path"
+              "title": "Repo"
             }
           }
         ],
@@ -6325,7 +5411,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/GithubRepoOut"
+                }
               }
             }
           },
@@ -8135,30 +7223,18 @@
     "/api/v1/admin/media/{asset_id}": {
       "delete": {
         "tags": [
-          "admin",
           "admin"
         ],
-        "summary": "下架文件（素材模块待实现）",
-        "operationId": "_handler_api_v1_admin_media__asset_id__delete",
+        "summary": "下架文件",
+        "operationId": "remove_asset_api_v1_admin_media__asset_id__delete",
         "parameters": [
           {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
+            "name": "asset_id",
+            "in": "path",
+            "required": true,
             "schema": {
               "type": "string",
-              "default": "下架文件（素材模块待实现）",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/admin/media/{asset_id}",
-              "title": " Path"
+              "title": "Asset Id"
             }
           }
         ],
@@ -8167,7 +7243,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/OkOut"
+                }
               }
             }
           },
@@ -11189,7 +10267,7 @@
         "tags": [
           "admin"
         ],
-        "summary": "作废一枚硬币或一位投票人",
+        "summary": "作废一枚票或一位投票人",
         "operationId": "void_votes_api_v1_admin_voting_voids_post",
         "requestBody": {
           "content": {
@@ -12100,6 +11178,20 @@
         "type": "object",
         "title": "AdvanceIn"
       },
+      "AltIn": {
+        "properties": {
+          "alt": {
+            "type": "string",
+            "maxLength": 300,
+            "title": "Alt"
+          }
+        },
+        "type": "object",
+        "required": [
+          "alt"
+        ],
+        "title": "AltIn"
+      },
       "AnnouncementIn": {
         "properties": {
           "title": {
@@ -12257,6 +11349,111 @@
           "created_at"
         ],
         "title": "ApiKeyOut"
+      },
+      "AssetCreateIn": {
+        "properties": {
+          "filename": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Filename"
+          },
+          "content_type": {
+            "type": "string",
+            "maxLength": 120,
+            "title": "Content Type",
+            "default": "application/octet-stream"
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Size",
+            "default": 0
+          },
+          "purpose": {
+            "type": "string",
+            "pattern": "^(submission|avatar|sponsor_logo|pitch)$",
+            "title": "Purpose",
+            "default": "submission"
+          }
+        },
+        "type": "object",
+        "required": [
+          "filename"
+        ],
+        "title": "AssetCreateIn"
+      },
+      "AssetCreatedOut": {
+        "properties": {
+          "asset": {
+            "$ref": "#/components/schemas/AssetOut"
+          },
+          "upload_url": {
+            "type": "string",
+            "title": "Upload Url"
+          }
+        },
+        "type": "object",
+        "required": [
+          "asset",
+          "upload_url"
+        ],
+        "title": "AssetCreatedOut"
+      },
+      "AssetOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "filename": {
+            "type": "string",
+            "title": "Filename"
+          },
+          "content_type": {
+            "type": "string",
+            "title": "Content Type"
+          },
+          "size": {
+            "type": "integer",
+            "title": "Size"
+          },
+          "purpose": {
+            "type": "string",
+            "title": "Purpose"
+          },
+          "alt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Alt"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "filename",
+          "content_type",
+          "size",
+          "purpose",
+          "status",
+          "created_at"
+        ],
+        "title": "AssetOut"
       },
       "AssignTargetIn": {
         "properties": {
@@ -12515,9 +11712,9 @@
             "type": "array",
             "title": "Items"
           },
-          "total_coins": {
+          "total_votes": {
             "type": "integer",
-            "title": "Total Coins"
+            "title": "Total Votes"
           },
           "updated_at": {
             "type": "string",
@@ -12528,7 +11725,7 @@
         "type": "object",
         "required": [
           "items",
-          "total_coins",
+          "total_votes",
           "updated_at"
         ],
         "title": "BoardOut"
@@ -12547,9 +11744,9 @@
             "type": "string",
             "title": "Slug"
           },
-          "coins": {
+          "votes": {
             "type": "integer",
-            "title": "Coins"
+            "title": "Votes"
           },
           "rank": {
             "type": "integer",
@@ -12561,7 +11758,7 @@
           "company_id",
           "name",
           "slug",
-          "coins",
+          "votes",
           "rank"
         ],
         "title": "BoardRow"
@@ -13194,6 +12391,20 @@
         ],
         "title": "CreateUserIn"
       },
+      "CspReportIn": {
+        "properties": {
+          "report": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Report"
+          }
+        },
+        "type": "object",
+        "required": [
+          "report"
+        ],
+        "title": "CspReportIn"
+      },
       "DashboardOut": {
         "properties": {
           "users": {
@@ -13212,9 +12423,9 @@
             "type": "integer",
             "title": "Projects Draft"
           },
-          "coins": {
+          "votes": {
             "type": "integer",
-            "title": "Coins"
+            "title": "Votes"
           },
           "comments": {
             "type": "integer",
@@ -13231,11 +12442,55 @@
           "companies",
           "projects_published",
           "projects_draft",
-          "coins",
+          "votes",
           "comments",
           "offline_sessions"
         ],
         "title": "DashboardOut"
+      },
+      "DeletionOut": {
+        "properties": {
+          "requested_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Requested At"
+          }
+        },
+        "type": "object",
+        "title": "DeletionOut"
+      },
+      "DigestOut": {
+        "properties": {
+          "comments": {
+            "type": "boolean",
+            "title": "Comments"
+          }
+        },
+        "type": "object",
+        "required": [
+          "comments"
+        ],
+        "title": "DigestOut"
+      },
+      "DigestPatchIn": {
+        "properties": {
+          "comments": {
+            "type": "boolean",
+            "title": "Comments"
+          }
+        },
+        "type": "object",
+        "required": [
+          "comments"
+        ],
+        "title": "DigestPatchIn"
       },
       "DraftSavedOut": {
         "properties": {
@@ -13581,6 +12836,51 @@
         ],
         "title": "FlagIn"
       },
+      "GithubRepoOut": {
+        "properties": {
+          "full_name": {
+            "type": "string",
+            "title": "Full Name"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "stars": {
+            "type": "integer",
+            "title": "Stars"
+          },
+          "language": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Language"
+          },
+          "url": {
+            "type": "string",
+            "title": "Url"
+          }
+        },
+        "type": "object",
+        "required": [
+          "full_name",
+          "stars",
+          "url"
+        ],
+        "title": "GithubRepoOut"
+      },
       "GivenIn": {
         "properties": {
           "given": {
@@ -13821,6 +13121,40 @@
         ],
         "title": "InvitationPreviewOut"
       },
+      "InvitationRow": {
+        "properties": {
+          "invitation_id": {
+            "type": "string",
+            "title": "Invitation Id"
+          },
+          "company_id": {
+            "type": "string",
+            "title": "Company Id"
+          },
+          "company_name": {
+            "type": "string",
+            "title": "Company Name"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "title": "Email"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          }
+        },
+        "type": "object",
+        "required": [
+          "invitation_id",
+          "company_id",
+          "company_name",
+          "email",
+          "status"
+        ],
+        "title": "InvitationRow"
+      },
       "InviteLinkOut": {
         "properties": {
           "token": {
@@ -13973,6 +13307,67 @@
           "blocked_users"
         ],
         "title": "KillSwitchOut"
+      },
+      "LinkPreviewIn": {
+        "properties": {
+          "url": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 4,
+            "title": "Url"
+          }
+        },
+        "type": "object",
+        "required": [
+          "url"
+        ],
+        "title": "LinkPreviewIn"
+      },
+      "LinkPreviewOut": {
+        "properties": {
+          "url": {
+            "type": "string",
+            "title": "Url"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "image": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Image"
+          }
+        },
+        "type": "object",
+        "required": [
+          "url"
+        ],
+        "title": "LinkPreviewOut"
       },
       "LocaleIn": {
         "properties": {
@@ -14280,6 +13675,79 @@
         ],
         "title": "ModerationIn"
       },
+      "MyVotesOut": {
+        "properties": {
+          "votes": {
+            "items": {
+              "$ref": "#/components/schemas/VotePickOut"
+            },
+            "type": "array",
+            "title": "Votes"
+          },
+          "votes_left": {
+            "type": "integer",
+            "title": "Votes Left"
+          }
+        },
+        "type": "object",
+        "required": [
+          "votes",
+          "votes_left"
+        ],
+        "title": "MyVotesOut"
+      },
+      "NotificationOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "kind": {
+            "type": "string",
+            "title": "Kind"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "body": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Body"
+          },
+          "read_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Read At"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "kind",
+          "title",
+          "created_at"
+        ],
+        "title": "NotificationOut"
+      },
       "OkOut": {
         "properties": {
           "ok": {
@@ -14333,6 +13801,20 @@
           "upstreams"
         ],
         "title": "OverviewOut"
+      },
+      "ParticipationIn": {
+        "properties": {
+          "mode": {
+            "type": "string",
+            "pattern": "^(audience|participant)$",
+            "title": "Mode"
+          }
+        },
+        "type": "object",
+        "required": [
+          "mode"
+        ],
+        "title": "ParticipationIn"
       },
       "PassportOut": {
         "properties": {
@@ -14437,35 +13919,6 @@
           "email"
         ],
         "title": "PasswordResetRequestIn"
-      },
-      "PickOut": {
-        "properties": {
-          "company_id": {
-            "type": "string",
-            "title": "Company Id"
-          },
-          "company_name": {
-            "type": "string",
-            "title": "Company Name"
-          },
-          "company_slug": {
-            "type": "string",
-            "title": "Company Slug"
-          },
-          "created_at": {
-            "type": "string",
-            "format": "date-time",
-            "title": "Created At"
-          }
-        },
-        "type": "object",
-        "required": [
-          "company_id",
-          "company_name",
-          "company_slug",
-          "created_at"
-        ],
-        "title": "PickOut"
       },
       "PitchPatchIn": {
         "properties": {
@@ -16488,6 +15941,52 @@
         "type": "object",
         "title": "VoidIn"
       },
+      "VotePickOut": {
+        "properties": {
+          "company_id": {
+            "type": "string",
+            "title": "Company Id"
+          },
+          "company_name": {
+            "type": "string",
+            "title": "Company Name"
+          },
+          "company_slug": {
+            "type": "string",
+            "title": "Company Slug"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "company_id",
+          "company_name",
+          "company_slug",
+          "created_at"
+        ],
+        "title": "VotePickOut"
+      },
+      "VotesIn": {
+        "properties": {
+          "company_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 20,
+            "title": "Company Ids"
+          }
+        },
+        "type": "object",
+        "required": [
+          "company_ids"
+        ],
+        "title": "VotesIn"
+      },
       "VotingAdminOut": {
         "properties": {
           "open": {
@@ -16498,9 +15997,9 @@
             "type": "boolean",
             "title": "Visible"
           },
-          "coins_total": {
+          "total_votes": {
             "type": "integer",
-            "title": "Coins Total"
+            "title": "Total Votes"
           },
           "ballots": {
             "type": "integer",
@@ -16518,49 +16017,11 @@
         "required": [
           "open",
           "visible",
-          "coins_total",
+          "total_votes",
           "ballots",
           "board"
         ],
         "title": "VotingAdminOut"
-      },
-      "WalletIn": {
-        "properties": {
-          "company_ids": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array",
-            "maxItems": 20,
-            "title": "Company Ids"
-          }
-        },
-        "type": "object",
-        "required": [
-          "company_ids"
-        ],
-        "title": "WalletIn"
-      },
-      "WalletOut": {
-        "properties": {
-          "picks": {
-            "items": {
-              "$ref": "#/components/schemas/PickOut"
-            },
-            "type": "array",
-            "title": "Picks"
-          },
-          "picks_left": {
-            "type": "integer",
-            "title": "Picks Left"
-          }
-        },
-        "type": "object",
-        "required": [
-          "picks",
-          "picks_left"
-        ],
-        "title": "WalletOut"
       },
       "app__schemas__admin__ScheduleIn": {
         "properties": {

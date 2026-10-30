@@ -1,6 +1,6 @@
 """投票榜单：实时榜、大屏视图与 SSE 推送。
 
-个人钱包在 ``/me/wallet``；管理端在 ``/admin/voting``。
+个人投票记录在 ``/me/votes``；管理端在 ``/admin/voting``。
 """
 
 import asyncio
@@ -22,12 +22,12 @@ def _board_out(db: DbSession, event) -> BoardOut:  # noqa: ANN001
     payload = vote_service.board_payload(db, event)
     if not event.votes_visible:
         for row in payload["items"]:
-            row["coins"] = 0
+            row["votes"] = 0
             row["rank"] = 0
-        payload["total_coins"] = 0
+        payload["total_votes"] = 0
     return BoardOut(
         items=[BoardRow(**row) for row in payload["items"]],
-        total_coins=payload["total_coins"],
+        total_votes=payload["total_votes"],
         updated_at=payload["updated_at"],
     )
 

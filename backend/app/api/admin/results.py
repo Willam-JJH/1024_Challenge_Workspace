@@ -32,11 +32,11 @@ def announce_shortlist(
         .join(Company, Company.id == Project.company_id)
         .where(Project.event_id == event.id, Project.status == "published")
     ).all()
-    coins = vote_service.live_counts(db, event.id)
+    votes = vote_service.live_counts(db, event.id)
 
     ranked = sorted(
         published,
-        key=lambda pair: (-coins.get(pair[0].company_id, 0), pair[1].name),
+        key=lambda pair: (-votes.get(pair[0].company_id, 0), pair[1].name),
     )
     # 作品数不超过席位时全部入围，否则取前 N
     chosen = ranked if len(ranked) <= payload.top_n else ranked[: payload.top_n]

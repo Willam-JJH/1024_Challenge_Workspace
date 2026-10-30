@@ -9,33 +9,33 @@ class PickIn(BaseModel):
     company_id: str
 
 
-class WalletIn(BaseModel):
+class VotesIn(BaseModel):
     company_ids: list[str] = Field(max_length=20)
 
 
-class PickOut(BaseModel):
+class VotePickOut(BaseModel):
     company_id: str
     company_name: str
     company_slug: str
     created_at: datetime
 
 
-class WalletOut(BaseModel):
-    picks: list[PickOut]
-    picks_left: int
+class MyVotesOut(BaseModel):
+    votes: list[VotePickOut]
+    votes_left: int
 
 
 class BoardRow(BaseModel):
     company_id: str
     name: str
     slug: str
-    coins: int
+    votes: int
     rank: int
 
 
 class BoardOut(BaseModel):
     items: list[BoardRow]
-    total_coins: int
+    total_votes: int
     updated_at: datetime
 
 
@@ -61,6 +61,6 @@ class VisibilityIn(BaseModel):
 class VotingAdminOut(BaseModel):
     open: bool
     visible: bool
-    coins_total: int
+    total_votes: int
     ballots: int
     board: list[BoardRow]

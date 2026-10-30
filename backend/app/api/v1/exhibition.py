@@ -1,4 +1,4 @@
-"""展览：动态流、评论、广告、护照印章与介绍任务。"""
+"""展览：动态流、评论、广告、参观记录印章与介绍任务。"""
 
 from datetime import UTC, datetime
 
@@ -305,10 +305,10 @@ def delete_promotion(
     return OkOut()
 
 
-# --- 护照印章 ---------------------------------------------------------------
+# --- 参观记录印章 ---------------------------------------------------------------
 
 
-@router.get("/visits", response_model=PassportOut, summary="我的参观护照：印章与完成度")
+@router.get("/visits", response_model=PassportOut, summary="我的参观参观记录：印章与完成度")
 def my_passport(
     principal: Principal = Depends(require_auth), db: DbSession = Depends(get_db)
 ) -> PassportOut:
@@ -338,7 +338,7 @@ def my_passport(
     )
 
 
-@router.put("/visits/{project_id}", response_model=OkOut, summary="为作品盖章")
+@router.put("/visits/{project_id}", response_model=OkOut, summary="为作品打卡")
 def stamp(
     project_id: str,
     payload: VisitIn,
@@ -349,7 +349,7 @@ def stamp(
     if project is None or project.status != "published":
         raise NotFound("作品不存在或尚未发布")
     if company_service.membership_of(db, project.company_id, principal.user.id) is not None:
-        raise Forbidden("不能给自己公司的作品盖章")
+        raise Forbidden("不能给自己公司的作品打卡")
 
     event = company_service.current_event(db)
     row = db.scalar(

@@ -34,7 +34,7 @@ def test_digest_notifications_and_deletion(client: TestClient, event, user) -> N
     res = client.delete("/api/v1/me/deletion-request")
     assert res.json()["requested_at"] is None
 
-    passport = client.get("/api/v1/me/passport").json()
+    passport = client.get("/api/v1/me/visits").json()
     assert passport["items"] == [] and passport["needed"] == 3
 
 

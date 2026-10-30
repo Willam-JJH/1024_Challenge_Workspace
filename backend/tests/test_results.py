@@ -81,7 +81,7 @@ def test_only_staff_can_judge(client: TestClient, db_session, event, user, other
     assert mine["my_score"]["creativity"] == 9
 
 
-def test_shortlist_advances_by_coins(
+def test_shortlist_advances_by_votes(
     client: TestClient, db_session, event, user, other_user
 ) -> None:
     p1, p2 = _setup(db_session, event, user, other_user)

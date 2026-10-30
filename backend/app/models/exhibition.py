@@ -1,4 +1,4 @@
-"""展览：评论、举报、广告、护照印章与介绍任务。"""
+"""展览：评论、举报、广告、参观记录印章与介绍任务。"""
 
 from datetime import datetime
 
@@ -53,7 +53,7 @@ class Promotion(BaseModel):
 
 
 class Visit(BaseModel):
-    """参观护照印章：一位访客对一家公司的一个作品最多一枚。"""
+    """参观参观记录印章：一位访客对一家公司的一个作品最多一枚。"""
 
     __tablename__ = "visits"
     __table_args__ = (
