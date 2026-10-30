@@ -51,7 +51,7 @@ def test_logout_revokes_session(client: TestClient, user) -> None:
 
 
 def test_stub_returns_contract_not_implemented(client: TestClient) -> None:
-    res = client.get("/api/v1/results")
+    res = client.get("/api/v1/exhibition/collaborations")
     assert res.status_code == 501
     body = res.json()
     assert body["error"]["code"] == "not_implemented"

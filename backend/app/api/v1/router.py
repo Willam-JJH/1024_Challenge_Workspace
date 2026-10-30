@@ -8,6 +8,7 @@ from app.api.admin import llm as admin_llm
 from app.api.admin import offline as admin_offline
 from app.api.admin import ops as admin_ops
 from app.api.admin import pitch as admin_pitch
+from app.api.admin import results as admin_results
 from app.api.admin import users as admin_users
 from app.api.v1 import (
     auth,
@@ -56,3 +57,4 @@ api_router.include_router(admin_llm.router)
 api_router.include_router(admin_ops.router)
 api_router.include_router(admin_pitch.router)
 api_router.include_router(admin_offline.router)
+api_router.include_router(admin_results.router)

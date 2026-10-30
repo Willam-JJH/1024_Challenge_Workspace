@@ -1,8 +1,8 @@
 """initial schema
 
-Revision ID: c5c7c79ce749
+Revision ID: 9e0d72162a57
 Revises: 
-Create Date: 2026-10-30 14:56:57.993566
+Create Date: 2026-10-30 15:00:19.031284
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'c5c7c79ce749'
+revision: str = '9e0d72162a57'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -354,6 +354,23 @@ def upgrade() -> None:
         batch_op.create_index(batch_op.f('ix_votes_event_id'), ['event_id'], unique=False)
         batch_op.create_index(batch_op.f('ix_votes_voter_id'), ['voter_id'], unique=False)
 
+    op.create_table('awards',
+    sa.Column('event_id', sa.String(length=32), nullable=False),
+    sa.Column('kind', sa.String(length=32), nullable=False),
+    sa.Column('title', sa.String(length=120), nullable=False),
+    sa.Column('project_id', sa.String(length=32), nullable=False),
+    sa.Column('announced_at', app.models.types.UTCDateTime(), nullable=True),
+    sa.Column('id', sa.String(length=32), nullable=False),
+    sa.Column('created_at', app.models.types.UTCDateTime(), nullable=False),
+    sa.Column('updated_at', app.models.types.UTCDateTime(), nullable=False),
+    sa.ForeignKeyConstraint(['event_id'], ['events.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['project_id'], ['projects.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id')
+    )
+    with op.batch_alter_table('awards', schema=None) as batch_op:
+        batch_op.create_index(batch_op.f('ix_awards_event_id'), ['event_id'], unique=False)
+        batch_op.create_index(batch_op.f('ix_awards_project_id'), ['project_id'], unique=False)
+
     op.create_table('comments',
     sa.Column('project_id', sa.String(length=32), nullable=False),
     sa.Column('author_id', sa.String(length=32), nullable=False),
@@ -409,6 +426,43 @@ def upgrade() -> None:
     with op.batch_alter_table('project_versions', schema=None) as batch_op:
         batch_op.create_index(batch_op.f('ix_project_versions_project_id'), ['project_id'], unique=False)
 
+    op.create_table('scores',
+    sa.Column('project_id', sa.String(length=32), nullable=False),
+    sa.Column('judge_id', sa.String(length=32), nullable=False),
+    sa.Column('creativity', sa.Integer(), nullable=False),
+    sa.Column('engineering', sa.Integer(), nullable=False),
+    sa.Column('presentation', sa.Integer(), nullable=False),
+    sa.Column('notes', sa.Text(), nullable=True),
+    sa.Column('submitted_at', app.models.types.UTCDateTime(), nullable=True),
+    sa.Column('id', sa.String(length=32), nullable=False),
+    sa.Column('created_at', app.models.types.UTCDateTime(), nullable=False),
+    sa.Column('updated_at', app.models.types.UTCDateTime(), nullable=False),
+    sa.ForeignKeyConstraint(['judge_id'], ['users.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['project_id'], ['projects.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('project_id', 'judge_id', name='uq_score')
+    )
+    with op.batch_alter_table('scores', schema=None) as batch_op:
+        batch_op.create_index(batch_op.f('ix_scores_judge_id'), ['judge_id'], unique=False)
+        batch_op.create_index(batch_op.f('ix_scores_project_id'), ['project_id'], unique=False)
+
+    op.create_table('shortlist_entries',
+    sa.Column('event_id', sa.String(length=32), nullable=False),
+    sa.Column('project_id', sa.String(length=32), nullable=False),
+    sa.Column('position', sa.Integer(), nullable=False),
+    sa.Column('announced_at', app.models.types.UTCDateTime(), nullable=True),
+    sa.Column('id', sa.String(length=32), nullable=False),
+    sa.Column('created_at', app.models.types.UTCDateTime(), nullable=False),
+    sa.Column('updated_at', app.models.types.UTCDateTime(), nullable=False),
+    sa.ForeignKeyConstraint(['event_id'], ['events.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['project_id'], ['projects.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('event_id', 'project_id', name='uq_shortlist')
+    )
+    with op.batch_alter_table('shortlist_entries', schema=None) as batch_op:
+        batch_op.create_index(batch_op.f('ix_shortlist_entries_event_id'), ['event_id'], unique=False)
+        batch_op.create_index(batch_op.f('ix_shortlist_entries_project_id'), ['project_id'], unique=False)
+
     op.create_table('visits',
     sa.Column('event_id', sa.String(length=32), nullable=False),
     sa.Column('project_id', sa.String(length=32), nullable=False),
@@ -460,6 +514,16 @@ def downgrade() -> None:
         batch_op.drop_index(batch_op.f('ix_visits_event_id'))
 
     op.drop_table('visits')
+    with op.batch_alter_table('shortlist_entries', schema=None) as batch_op:
+        batch_op.drop_index(batch_op.f('ix_shortlist_entries_project_id'))
+        batch_op.drop_index(batch_op.f('ix_shortlist_entries_event_id'))
+
+    op.drop_table('shortlist_entries')
+    with op.batch_alter_table('scores', schema=None) as batch_op:
+        batch_op.drop_index(batch_op.f('ix_scores_project_id'))
+        batch_op.drop_index(batch_op.f('ix_scores_judge_id'))
+
+    op.drop_table('scores')
     with op.batch_alter_table('project_versions', schema=None) as batch_op:
         batch_op.drop_index(batch_op.f('ix_project_versions_project_id'))
 
@@ -476,6 +540,11 @@ def downgrade() -> None:
         batch_op.drop_index(batch_op.f('ix_comments_author_id'))
 
     op.drop_table('comments')
+    with op.batch_alter_table('awards', schema=None) as batch_op:
+        batch_op.drop_index(batch_op.f('ix_awards_project_id'))
+        batch_op.drop_index(batch_op.f('ix_awards_event_id'))
+
+    op.drop_table('awards')
     with op.batch_alter_table('votes', schema=None) as batch_op:
         batch_op.drop_index(batch_op.f('ix_votes_voter_id'))
         batch_op.drop_index(batch_op.f('ix_votes_event_id'))

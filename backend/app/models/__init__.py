@@ -5,6 +5,7 @@ from app.models.base import BaseModel
 from app.models.event import Company, Event, Invitation, InviteLink, JoinRequest, Membership
 from app.models.exhibition import Comment, CommentReport, Introduction, Promotion, Visit
 from app.models.identity import ApiKey, Session, User
+from app.models.judging import Award, Score, ShortlistEntry
 from app.models.offline import OfflineRsvp, OfflineSession
 from app.models.pitch import PitchMessage, PitchSource
 from app.models.project import Project, ProjectEditSession, ProjectVersion
@@ -24,6 +25,7 @@ __all__ = [
     "Event",
     "Membership",
     "Promotion",
+    "Award",
     "OfflineRsvp",
     "OfflineSession",
     "PitchMessage",
@@ -31,7 +33,9 @@ __all__ = [
     "Project",
     "ProjectEditSession",
     "ProjectVersion",
+    "Score",
     "Session",
+    "ShortlistEntry",
     "User",
     "VerificationCode",
     "Visit",

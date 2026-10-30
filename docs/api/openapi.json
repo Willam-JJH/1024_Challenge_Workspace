@@ -4855,48 +4855,21 @@
     "/api/v1/judging/projects": {
       "get": {
         "tags": [
-          "judging",
           "judging"
         ],
-        "summary": "待我评审的作品与我的评分卡",
-        "operationId": "_handler_api_v1_judging_projects_get",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "待我评审的作品与我的评分卡",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/projects",
-              "title": " Path"
-            }
-          }
-        ],
+        "summary": "待我评审的作品",
+        "operationId": "list_projects_api_v1_judging_projects_get",
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "items": {
+                    "$ref": "#/components/schemas/JudgingProjectOut"
+                  },
+                  "type": "array",
+                  "title": "Response List Projects Api V1 Judging Projects Get"
                 }
               }
             }
@@ -4907,39 +4880,39 @@
     "/api/v1/judging/projects/{project_id}/scores": {
       "put": {
         "tags": [
-          "judging",
           "judging"
         ],
-        "summary": "保存评分（1–10）与私密备注",
-        "operationId": "_handler_api_v1_judging_projects__project_id__scores_put",
+        "summary": "保存评分（1–10）",
+        "operationId": "save_score_api_v1_judging_projects__project_id__scores_put",
         "parameters": [
           {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
+            "name": "project_id",
+            "in": "path",
+            "required": true,
             "schema": {
               "type": "string",
-              "default": "保存评分（1–10）与私密备注",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/projects/{project_id}/scores",
-              "title": " Path"
+              "title": "Project Id"
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ScoreIn"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/ScoreOut"
+                }
               }
             }
           },
@@ -4959,48 +4932,17 @@
     "/api/v1/results": {
       "get": {
         "tags": [
-          "results",
           "results"
         ],
         "summary": "已公布的结果：奖项与最终榜",
-        "operationId": "_handler_api_v1_results_get",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "已公布的结果：奖项与最终榜",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "",
-              "title": " Path"
-            }
-          }
-        ],
+        "operationId": "get_results_api_v1_results_get",
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ResultsOut"
                 }
               }
             }
@@ -5011,100 +4953,21 @@
     "/api/v1/results/shortlist": {
       "get": {
         "tags": [
-          "results",
           "results"
         ],
-        "summary": "已公布的入围名单（按组织者顺序）",
-        "operationId": "_handler_api_v1_results_shortlist_get",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "已公布的入围名单（按组织者顺序）",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/shortlist",
-              "title": " Path"
-            }
-          }
-        ],
+        "summary": "已公布的入围名单",
+        "operationId": "get_shortlist_api_v1_results_shortlist_get",
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/results/shortlist/{project_id}/attendance": {
-      "post": {
-        "tags": [
-          "results",
-          "results"
-        ],
-        "summary": "回答入围作品的出席问题",
-        "operationId": "_handler_api_v1_results_shortlist__project_id__attendance_post",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "回答入围作品的出席问题",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/shortlist/{project_id}/attendance",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "items": {
+                    "$ref": "#/components/schemas/ShortlistOut"
+                  },
+                  "type": "array",
+                  "title": "Response Get Shortlist Api V1 Results Shortlist Get"
                 }
               }
             }
@@ -13212,6 +13075,153 @@
         }
       }
     },
+    "/api/v1/admin/results/shortlist": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "按票数自动公布入围名单",
+        "operationId": "announce_shortlist_api_v1_admin_results_shortlist_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdvanceIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ShortlistOut"
+                  },
+                  "type": "array",
+                  "title": "Response Announce Shortlist Api V1 Admin Results Shortlist Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "撤回入围名单",
+        "operationId": "withdraw_shortlist_api_v1_admin_results_shortlist_delete",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkOut"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/results/awards": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "公布一个奖项",
+        "operationId": "create_award_api_v1_admin_results_awards_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AwardIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AwardOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/results/awards/{award_id}": {
+      "delete": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "撤回奖项",
+        "operationId": "delete_award_api_v1_admin_results_awards__award_id__delete",
+        "parameters": [
+          {
+            "name": "award_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Award Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/models": {
       "get": {
         "tags": [
@@ -13583,6 +13593,19 @@
         ],
         "title": "AdminRsvpOut"
       },
+      "AdvanceIn": {
+        "properties": {
+          "top_n": {
+            "type": "integer",
+            "maximum": 50.0,
+            "minimum": 1.0,
+            "title": "Top N",
+            "default": 8
+          }
+        },
+        "type": "object",
+        "title": "AdvanceIn"
+      },
       "ApiKeyCreatedOut": {
         "properties": {
           "key": {
@@ -13681,6 +13704,71 @@
           "attendance"
         ],
         "title": "AttendanceIn"
+      },
+      "AwardIn": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "maxLength": 32,
+            "minLength": 1,
+            "title": "Kind"
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Title"
+          },
+          "project_id": {
+            "type": "string",
+            "title": "Project Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "kind",
+          "title",
+          "project_id"
+        ],
+        "title": "AwardIn"
+      },
+      "AwardOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "kind": {
+            "type": "string",
+            "title": "Kind"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "project_id": {
+            "type": "string",
+            "title": "Project Id"
+          },
+          "project_title": {
+            "type": "string",
+            "title": "Project Title"
+          },
+          "company_name": {
+            "type": "string",
+            "title": "Company Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "kind",
+          "title",
+          "project_id",
+          "project_title",
+          "company_name"
+        ],
+        "title": "AwardOut"
       },
       "BoardOut": {
         "properties": {
@@ -14532,6 +14620,33 @@
         ],
         "title": "JoinRequestOut"
       },
+      "JudgingProjectOut": {
+        "properties": {
+          "project": {
+            "$ref": "#/components/schemas/ProjectOut"
+          },
+          "company_name": {
+            "type": "string",
+            "title": "Company Name"
+          },
+          "my_score": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ScoreOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "project",
+          "company_name"
+        ],
+        "title": "JudgingProjectOut"
+      },
       "LoginIn": {
         "properties": {
           "email": {
@@ -15195,6 +15310,35 @@
         ],
         "title": "ResetGrantOut"
       },
+      "ResultsOut": {
+        "properties": {
+          "announced": {
+            "type": "boolean",
+            "title": "Announced"
+          },
+          "awards": {
+            "items": {
+              "$ref": "#/components/schemas/AwardOut"
+            },
+            "type": "array",
+            "title": "Awards"
+          },
+          "board": {
+            "items": {
+              "$ref": "#/components/schemas/BoardRow"
+            },
+            "type": "array",
+            "title": "Board"
+          }
+        },
+        "type": "object",
+        "required": [
+          "announced",
+          "awards",
+          "board"
+        ],
+        "title": "ResultsOut"
+      },
       "RosterLockIn": {
         "properties": {
           "locked": {
@@ -15255,6 +15399,108 @@
           "session_id"
         ],
         "title": "RsvpOut"
+      },
+      "ScoreIn": {
+        "properties": {
+          "creativity": {
+            "type": "integer",
+            "maximum": 10.0,
+            "minimum": 1.0,
+            "title": "Creativity"
+          },
+          "engineering": {
+            "type": "integer",
+            "maximum": 10.0,
+            "minimum": 1.0,
+            "title": "Engineering"
+          },
+          "presentation": {
+            "type": "integer",
+            "maximum": 10.0,
+            "minimum": 1.0,
+            "title": "Presentation"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "submit": {
+            "type": "boolean",
+            "title": "Submit",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "creativity",
+          "engineering",
+          "presentation"
+        ],
+        "title": "ScoreIn"
+      },
+      "ScoreOut": {
+        "properties": {
+          "project_id": {
+            "type": "string",
+            "title": "Project Id"
+          },
+          "judge_id": {
+            "type": "string",
+            "title": "Judge Id"
+          },
+          "creativity": {
+            "type": "integer",
+            "title": "Creativity"
+          },
+          "engineering": {
+            "type": "integer",
+            "title": "Engineering"
+          },
+          "presentation": {
+            "type": "integer",
+            "title": "Presentation"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "submitted_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Submitted At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "project_id",
+          "judge_id",
+          "creativity",
+          "engineering",
+          "presentation"
+        ],
+        "title": "ScoreOut"
       },
       "SessionCreateIn": {
         "properties": {
@@ -15557,6 +15803,34 @@
           "status"
         ],
         "title": "SessionWithMineOut"
+      },
+      "ShortlistOut": {
+        "properties": {
+          "project_id": {
+            "type": "string",
+            "title": "Project Id"
+          },
+          "project_title": {
+            "type": "string",
+            "title": "Project Title"
+          },
+          "company_name": {
+            "type": "string",
+            "title": "Company Name"
+          },
+          "position": {
+            "type": "integer",
+            "title": "Position"
+          }
+        },
+        "type": "object",
+        "required": [
+          "project_id",
+          "project_title",
+          "company_name",
+          "position"
+        ],
+        "title": "ShortlistOut"
       },
       "SourceIn": {
         "properties": {
