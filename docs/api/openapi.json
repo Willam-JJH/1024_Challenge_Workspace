@@ -6077,48 +6077,21 @@
     "/api/v1/offline-sessions": {
       "get": {
         "tags": [
-          "offline",
           "offline"
         ],
-        "summary": "当前赛事的线下场次（带我的回答）",
-        "operationId": "_handler_api_v1_offline_sessions_get",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "当前赛事的线下场次（带我的回答）",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "",
-              "title": " Path"
-            }
-          }
-        ],
+        "summary": "线下场次（带我的回答）",
+        "operationId": "list_sessions_api_v1_offline_sessions_get",
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "items": {
+                    "$ref": "#/components/schemas/SessionWithMineOut"
+                  },
+                  "type": "array",
+                  "title": "Response List Sessions Api V1 Offline Sessions Get"
                 }
               }
             }
@@ -6129,30 +6102,18 @@
     "/api/v1/offline-sessions/{session_id}": {
       "get": {
         "tags": [
-          "offline",
           "offline"
         ],
         "summary": "单个线下场次",
-        "operationId": "_handler_api_v1_offline_sessions__session_id__get",
+        "operationId": "get_session_api_v1_offline_sessions__session_id__get",
         "parameters": [
           {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
+            "name": "session_id",
+            "in": "path",
+            "required": true,
             "schema": {
               "type": "string",
-              "default": "单个线下场次",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/{session_id}",
-              "title": " Path"
+              "title": "Session Id"
             }
           }
         ],
@@ -6161,7 +6122,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/SessionWithMineOut"
+                }
               }
             }
           },
@@ -6181,30 +6144,18 @@
     "/api/v1/offline-sessions/{session_id}/calendar.ics": {
       "get": {
         "tags": [
-          "offline",
           "offline"
         ],
         "summary": "导出为 iCalendar",
-        "operationId": "_handler_api_v1_offline_sessions__session_id__calendar_ics_get",
+        "operationId": "calendar_api_v1_offline_sessions__session_id__calendar_ics_get",
         "parameters": [
           {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
+            "name": "session_id",
+            "in": "path",
+            "required": true,
             "schema": {
               "type": "string",
-              "default": "导出为 iCalendar",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/{session_id}/calendar.ics",
-              "title": " Path"
+              "title": "Session Id"
             }
           }
         ],
@@ -6233,39 +6184,39 @@
     "/api/v1/offline-sessions/{session_id}/rsvp": {
       "put": {
         "tags": [
-          "offline",
           "offline"
         ],
-        "summary": "回答参加／待定／不参加（满员进入候补）",
-        "operationId": "_handler_api_v1_offline_sessions__session_id__rsvp_put",
+        "summary": "报名（满员进入候补）",
+        "operationId": "rsvp_api_v1_offline_sessions__session_id__rsvp_put",
         "parameters": [
           {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
+            "name": "session_id",
+            "in": "path",
+            "required": true,
             "schema": {
               "type": "string",
-              "default": "回答参加／待定／不参加（满员进入候补）",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/{session_id}/rsvp",
-              "title": " Path"
+              "title": "Session Id"
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RsvpIn"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/RsvpOut"
+                }
               }
             }
           },
@@ -6283,30 +6234,18 @@
       },
       "delete": {
         "tags": [
-          "offline",
           "offline"
         ],
         "summary": "取消报名",
-        "operationId": "_handler_api_v1_offline_sessions__session_id__rsvp_delete",
+        "operationId": "cancel_rsvp_api_v1_offline_sessions__session_id__rsvp_delete",
         "parameters": [
           {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
+            "name": "session_id",
+            "in": "path",
+            "required": true,
             "schema": {
               "type": "string",
-              "default": "取消报名",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/{session_id}/rsvp",
-              "title": " Path"
+              "title": "Session Id"
             }
           }
         ],
@@ -6315,7 +6254,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/OkOut"
+                }
               }
             }
           },
@@ -12638,366 +12579,6 @@
         }
       }
     },
-    "/api/v1/admin/offline-sessions": {
-      "get": {
-        "tags": [
-          "admin",
-          "admin"
-        ],
-        "summary": "线下场次与报名数",
-        "operationId": "_handler_api_v1_admin_offline_sessions_get",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "线下场次与报名数",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/offline-sessions",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "admin",
-          "admin"
-        ],
-        "summary": "新建线下场次",
-        "operationId": "_handler_api_v1_admin_offline_sessions_post",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "新建线下场次",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/offline-sessions",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/admin/offline-sessions/{session_id}": {
-      "patch": {
-        "tags": [
-          "admin",
-          "admin"
-        ],
-        "summary": "编辑场次（加座提升候补、改期重新提醒）",
-        "operationId": "_handler_api_v1_admin_offline_sessions__session_id__patch",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "编辑场次（加座提升候补、改期重新提醒）",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/offline-sessions/{session_id}",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "admin",
-          "admin"
-        ],
-        "summary": "删除无人报名的场次",
-        "operationId": "_handler_api_v1_admin_offline_sessions__session_id__delete",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "删除无人报名的场次",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/offline-sessions/{session_id}",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/admin/offline-sessions/{session_id}/cancellations": {
-      "post": {
-        "tags": [
-          "admin",
-          "admin"
-        ],
-        "summary": "取消场次并通知已报名者",
-        "operationId": "_handler_api_v1_admin_offline_sessions__session_id__cancellations_post",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "取消场次并通知已报名者",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/offline-sessions/{session_id}/cancellations",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/admin/offline-sessions/{session_id}/rsvps": {
-      "get": {
-        "tags": [
-          "admin",
-          "admin"
-        ],
-        "summary": "全部报名者、候补与签到",
-        "operationId": "_handler_api_v1_admin_offline_sessions__session_id__rsvps_get",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "全部报名者、候补与签到",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/offline-sessions/{session_id}/rsvps",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/admin/offline-sessions/{session_id}/rsvps/{rsvp_id}/check-in": {
-      "put": {
-        "tags": [
-          "admin",
-          "admin"
-        ],
-        "summary": "现场签到／撤销",
-        "operationId": "_handler_api_v1_admin_offline_sessions__session_id__rsvps__rsvp_id__check_in_put",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "现场签到／撤销",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/offline-sessions/{session_id}/rsvps/{rsvp_id}/check-in",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/v1/admin/pitch": {
       "patch": {
         "tags": [
@@ -13298,6 +12879,311 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/ModerationIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/offline-sessions": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "场次与报名数",
+        "operationId": "list_sessions_api_v1_admin_offline_sessions_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/SessionWithMineOut"
+                  },
+                  "type": "array",
+                  "title": "Response List Sessions Api V1 Admin Offline Sessions Get"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "新建场次",
+        "operationId": "create_session_api_v1_admin_offline_sessions_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SessionCreateIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionWithMineOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/offline-sessions/{session_id}": {
+      "patch": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "编辑场次",
+        "operationId": "patch_session_api_v1_admin_offline_sessions__session_id__patch",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Session Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SessionPatchIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionWithMineOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "删除无人报名的场次",
+        "operationId": "delete_session_api_v1_admin_offline_sessions__session_id__delete",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Session Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/offline-sessions/{session_id}/cancellations": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "取消场次并通知",
+        "operationId": "cancel_session_api_v1_admin_offline_sessions__session_id__cancellations_post",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Session Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/offline-sessions/{session_id}/rsvps": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "报名名单",
+        "operationId": "list_rsvps_api_v1_admin_offline_sessions__session_id__rsvps_get",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Session Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AdminRsvpOut"
+                  },
+                  "title": "Response List Rsvps Api V1 Admin Offline Sessions  Session Id  Rsvps Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/offline-sessions/{session_id}/rsvps/{rsvp_id}/check-in": {
+      "put": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "现场签到／撤销",
+        "operationId": "check_in_api_v1_admin_offline_sessions__session_id__rsvps__rsvp_id__check_in_put",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Session Id"
+            }
+          },
+          {
+            "name": "rsvp_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Rsvp Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CheckInIn"
               }
             }
           }
@@ -13646,6 +13532,57 @@
         ],
         "title": "ActivationPreviewOut"
       },
+      "AdminRsvpOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "user_id": {
+            "type": "string",
+            "title": "User Id"
+          },
+          "user_name": {
+            "type": "string",
+            "title": "User Name"
+          },
+          "answer": {
+            "type": "string",
+            "title": "Answer"
+          },
+          "waitlisted": {
+            "type": "boolean",
+            "title": "Waitlisted"
+          },
+          "checked_in_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Checked In At"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "user_id",
+          "user_name",
+          "answer",
+          "waitlisted",
+          "created_at"
+        ],
+        "title": "AdminRsvpOut"
+      },
       "ApiKeyCreatedOut": {
         "properties": {
           "key": {
@@ -13827,6 +13764,17 @@
           "expires_at"
         ],
         "title": "BotChallengeOut"
+      },
+      "CheckInIn": {
+        "properties": {
+          "checked_in": {
+            "type": "boolean",
+            "title": "Checked In",
+            "default": true
+          }
+        },
+        "type": "object",
+        "title": "CheckInIn"
       },
       "CodeSentOut": {
         "properties": {
@@ -15260,6 +15208,118 @@
         ],
         "title": "RosterLockIn"
       },
+      "RsvpIn": {
+        "properties": {
+          "answer": {
+            "type": "string",
+            "pattern": "^(going|maybe|no)$",
+            "title": "Answer"
+          }
+        },
+        "type": "object",
+        "required": [
+          "answer"
+        ],
+        "title": "RsvpIn"
+      },
+      "RsvpOut": {
+        "properties": {
+          "session_id": {
+            "type": "string",
+            "title": "Session Id"
+          },
+          "answer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Answer"
+          },
+          "waitlisted": {
+            "type": "boolean",
+            "title": "Waitlisted",
+            "default": false
+          },
+          "checked_in": {
+            "type": "boolean",
+            "title": "Checked In",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "session_id"
+        ],
+        "title": "RsvpOut"
+      },
+      "SessionCreateIn": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Title"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "location": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Location"
+          },
+          "starts_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Starts At"
+          },
+          "ends_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ends At"
+          },
+          "seats": {
+            "type": "integer",
+            "maximum": 500.0,
+            "minimum": 1.0,
+            "title": "Seats",
+            "default": 30
+          }
+        },
+        "type": "object",
+        "required": [
+          "title",
+          "starts_at"
+        ],
+        "title": "SessionCreateIn"
+      },
       "SessionOut": {
         "properties": {
           "id": {
@@ -15307,6 +15367,85 @@
         ],
         "title": "SessionOut"
       },
+      "SessionPatchIn": {
+        "properties": {
+          "title": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 160
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "location": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Location"
+          },
+          "starts_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Starts At"
+          },
+          "ends_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ends At"
+          },
+          "seats": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 500.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Seats"
+          }
+        },
+        "type": "object",
+        "title": "SessionPatchIn"
+      },
       "SessionResponse": {
         "properties": {
           "user": {
@@ -15330,6 +15469,94 @@
         ],
         "title": "SessionResponse",
         "description": "登录成功后返回；会话令牌同时写入 ``sid`` cookie。"
+      },
+      "SessionWithMineOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "location": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Location"
+          },
+          "starts_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Starts At"
+          },
+          "ends_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ends At"
+          },
+          "seats": {
+            "type": "integer",
+            "title": "Seats"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "mine": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RsvpOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "going_count": {
+            "type": "integer",
+            "title": "Going Count",
+            "default": 0
+          },
+          "seats_left": {
+            "type": "integer",
+            "title": "Seats Left",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "starts_at",
+          "seats",
+          "status"
+        ],
+        "title": "SessionWithMineOut"
       },
       "SourceIn": {
         "properties": {

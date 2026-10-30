@@ -1,8 +1,8 @@
 """initial schema
 
-Revision ID: 75bf1b163d42
+Revision ID: c5c7c79ce749
 Revises: 
-Create Date: 2026-10-30 14:54:25.455733
+Create Date: 2026-10-30 14:56:57.993566
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '75bf1b163d42'
+revision: str = 'c5c7c79ce749'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -122,6 +122,24 @@ def upgrade() -> None:
     )
     with op.batch_alter_table('companies', schema=None) as batch_op:
         batch_op.create_index(batch_op.f('ix_companies_event_id'), ['event_id'], unique=False)
+
+    op.create_table('offline_sessions',
+    sa.Column('event_id', sa.String(length=32), nullable=False),
+    sa.Column('title', sa.String(length=160), nullable=False),
+    sa.Column('description', sa.Text(), nullable=True),
+    sa.Column('location', sa.String(length=200), nullable=True),
+    sa.Column('starts_at', app.models.types.UTCDateTime(), nullable=False),
+    sa.Column('ends_at', app.models.types.UTCDateTime(), nullable=True),
+    sa.Column('seats', sa.Integer(), nullable=False),
+    sa.Column('status', sa.String(length=16), nullable=False),
+    sa.Column('id', sa.String(length=32), nullable=False),
+    sa.Column('created_at', app.models.types.UTCDateTime(), nullable=False),
+    sa.Column('updated_at', app.models.types.UTCDateTime(), nullable=False),
+    sa.ForeignKeyConstraint(['event_id'], ['events.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id')
+    )
+    with op.batch_alter_table('offline_sessions', schema=None) as batch_op:
+        batch_op.create_index(batch_op.f('ix_offline_sessions_event_id'), ['event_id'], unique=False)
 
     op.create_table('pitch_messages',
     sa.Column('event_id', sa.String(length=32), nullable=False),
@@ -261,6 +279,24 @@ def upgrade() -> None:
     with op.batch_alter_table('memberships', schema=None) as batch_op:
         batch_op.create_index(batch_op.f('ix_memberships_company_id'), ['company_id'], unique=False)
         batch_op.create_index(batch_op.f('ix_memberships_user_id'), ['user_id'], unique=False)
+
+    op.create_table('offline_rsvps',
+    sa.Column('session_id', sa.String(length=32), nullable=False),
+    sa.Column('user_id', sa.String(length=32), nullable=False),
+    sa.Column('answer', sa.String(length=8), nullable=False),
+    sa.Column('waitlisted', sa.Boolean(), nullable=False),
+    sa.Column('checked_in_at', app.models.types.UTCDateTime(), nullable=True),
+    sa.Column('id', sa.String(length=32), nullable=False),
+    sa.Column('created_at', app.models.types.UTCDateTime(), nullable=False),
+    sa.Column('updated_at', app.models.types.UTCDateTime(), nullable=False),
+    sa.ForeignKeyConstraint(['session_id'], ['offline_sessions.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('session_id', 'user_id', name='uq_offline_rsvp')
+    )
+    with op.batch_alter_table('offline_rsvps', schema=None) as batch_op:
+        batch_op.create_index(batch_op.f('ix_offline_rsvps_session_id'), ['session_id'], unique=False)
+        batch_op.create_index(batch_op.f('ix_offline_rsvps_user_id'), ['user_id'], unique=False)
 
     op.create_table('projects',
     sa.Column('event_id', sa.String(length=32), nullable=False),
@@ -455,6 +491,11 @@ def downgrade() -> None:
         batch_op.drop_index(batch_op.f('ix_projects_company_id'))
 
     op.drop_table('projects')
+    with op.batch_alter_table('offline_rsvps', schema=None) as batch_op:
+        batch_op.drop_index(batch_op.f('ix_offline_rsvps_user_id'))
+        batch_op.drop_index(batch_op.f('ix_offline_rsvps_session_id'))
+
+    op.drop_table('offline_rsvps')
     with op.batch_alter_table('memberships', schema=None) as batch_op:
         batch_op.drop_index(batch_op.f('ix_memberships_user_id'))
         batch_op.drop_index(batch_op.f('ix_memberships_company_id'))
@@ -495,6 +536,10 @@ def downgrade() -> None:
         batch_op.drop_index(batch_op.f('ix_pitch_messages_author_id'))
 
     op.drop_table('pitch_messages')
+    with op.batch_alter_table('offline_sessions', schema=None) as batch_op:
+        batch_op.drop_index(batch_op.f('ix_offline_sessions_event_id'))
+
+    op.drop_table('offline_sessions')
     with op.batch_alter_table('companies', schema=None) as batch_op:
         batch_op.drop_index(batch_op.f('ix_companies_event_id'))
 
