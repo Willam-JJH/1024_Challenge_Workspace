@@ -6,14 +6,19 @@ from fastapi import APIRouter, Depends
 from sqlalchemy import select
 from sqlalchemy.orm import Session as DbSession
 
+from app.core.config import settings
 from app.core.db import get_db
 from app.core.deps import Principal, require_auth
 from app.core.errors import NotFound
 from app.core.security import hash_token, new_token
 from app.core.stubs import register_stubs
+from app.models.event import Company
 from app.models.identity import ApiKey
 from app.schemas.auth import ApiKeyIn, ProfileUpdateIn
 from app.schemas.common import ApiKeyCreatedOut, ApiKeyOut, OkOut, UserOut
+from app.schemas.vote import PickOut, WalletIn, WalletOut
+from app.services import companies as company_service
+from app.services import votes as vote_service
 
 router = APIRouter(prefix="/me", tags=["me"])
 
@@ -107,6 +112,75 @@ def rotate_api_key(
     return _issue_key(db, principal.user.id, row.label)
 
 
+# --- 钱包（投币） -----------------------------------------------------------
+
+
+def _wallet(db: DbSession, user_id: str) -> WalletOut:
+    event = company_service.current_event(db)
+    picks = vote_service.my_picks(db, event.id, user_id)
+    rows = []
+    for vote in picks:
+        company = db.get(Company, vote.company_id)
+        if company is None:
+            continue
+        rows.append(
+            PickOut(
+                company_id=company.id,
+                company_name=company.name,
+                company_slug=company.slug,
+                created_at=vote.created_at,
+            )
+        )
+    return WalletOut(picks=rows, picks_left=max(settings.wallet_max_picks - len(rows), 0))
+
+
+@router.get("/wallet", response_model=WalletOut, summary="我的硬币：已投公司与余额")
+def get_wallet(
+    principal: Principal = Depends(require_auth), db: DbSession = Depends(get_db)
+) -> WalletOut:
+    return _wallet(db, principal.user.id)
+
+
+@router.put("/wallet", response_model=WalletOut, summary="整张选票一次性保存（最多三家公司）")
+def put_wallet(
+    payload: WalletIn,
+    principal: Principal = Depends(require_auth),
+    db: DbSession = Depends(get_db),
+) -> WalletOut:
+    event = company_service.current_event(db)
+    vote_service.replace_wallet(db, event, principal.user.id, payload.company_ids)
+    db.flush()
+    return _wallet(db, principal.user.id)
+
+
+@router.put(
+    "/wallet/coins/{company_id}", response_model=WalletOut, summary="投一枚硬币（幂等）"
+)
+def invest_coin(
+    company_id: str,
+    principal: Principal = Depends(require_auth),
+    db: DbSession = Depends(get_db),
+) -> WalletOut:
+    event = company_service.current_event(db)
+    vote_service.invest(db, event, principal.user.id, company_id)
+    db.flush()
+    return _wallet(db, principal.user.id)
+
+
+@router.delete(
+    "/wallet/coins/{company_id}", response_model=WalletOut, summary="撤回硬币（幂等）"
+)
+def withdraw_coin(
+    company_id: str,
+    principal: Principal = Depends(require_auth),
+    db: DbSession = Depends(get_db),
+) -> WalletOut:
+    event = company_service.current_event(db)
+    vote_service.withdraw(db, event, principal.user.id, company_id)
+    db.flush()
+    return _wallet(db, principal.user.id)
+
+
 register_stubs(
     router,
     [
@@ -122,10 +196,6 @@ register_stubs(
         ("GET", "/digest-preferences", "邮件摘要偏好"),
         ("PUT", "/digest-preferences", "开关每日评论摘要"),
         ("GET", "/passport", "我的参观护照：印章与完成度"),
-        ("GET", "/wallet", "我的硬币：已投公司与余额"),
-        ("PUT", "/wallet", "整张选票一次性保存（最多三家公司）"),
-        ("PUT", "/wallet/coins/{company_id}", "投一枚硬币（幂等）"),
-        ("DELETE", "/wallet/coins/{company_id}", "撤回投给某公司的硬币（幂等）"),
         ("GET", "/connected-apps", "我用账号登录过的应用与设备"),
         ("DELETE", "/connected-apps/{client_id}", "吊销某个应用的全部设备"),
         ("DELETE", "/connected-apps/{client_id}/devices/{device_id}", "登出某个应用的单个设备"),

@@ -39,6 +39,9 @@ class Settings(BaseSettings):
     trusted_proxies: list[str] = []
     public_domain: str = "example.com"
 
+    # 投票：每人最多投给几家公司
+    wallet_max_picks: int = 3
+
     # 人机校验（自托管工作量证明）
     require_bot_check: bool = False
     bot_check_secret: str = "dev-only-change-me"

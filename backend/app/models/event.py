@@ -19,6 +19,7 @@ class Event(BaseModel):
     starts_at: Mapped[datetime | None] = mapped_column(UTCDateTime(), nullable=True)
     ends_at: Mapped[datetime | None] = mapped_column(UTCDateTime(), nullable=True)
     registration_open: Mapped[bool] = mapped_column(default=True)
+    voting_open: Mapped[bool] = mapped_column(default=True)
     company_seats: Mapped[int] = mapped_column(Integer, default=4)
 
     companies: Mapped[list["Company"]] = relationship(back_populates="event")

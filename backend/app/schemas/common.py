@@ -35,7 +35,8 @@ class EventOut(ORMModel):
     starts_at: datetime | None = None
     ends_at: datetime | None = None
     registration_open: bool
-    project_seats: int
+    voting_open: bool
+    company_seats: int
 
 
 class CompanyOut(ORMModel):
