@@ -1,13 +1,19 @@
 """「我」相关的资源：资料、参赛身份、邀请、通知、钱包、API key。"""
 
+from datetime import UTC, datetime
+
 from fastapi import APIRouter, Depends
+from sqlalchemy import select
 from sqlalchemy.orm import Session as DbSession
 
 from app.core.db import get_db
 from app.core.deps import Principal, require_auth
+from app.core.errors import NotFound
+from app.core.security import hash_token, new_token
 from app.core.stubs import register_stubs
-from app.schemas.auth import ProfileUpdateIn
-from app.schemas.common import UserOut
+from app.models.identity import ApiKey
+from app.schemas.auth import ApiKeyIn, ProfileUpdateIn
+from app.schemas.common import ApiKeyCreatedOut, ApiKeyOut, OkOut, UserOut
 
 router = APIRouter(prefix="/me", tags=["me"])
 
@@ -33,6 +39,74 @@ def update_me(
     return UserOut.model_validate(user)
 
 
+# --- API key ----------------------------------------------------------------
+
+
+@router.get("/api-keys", response_model=list[ApiKeyOut], summary="我的 API key 列表")
+def list_api_keys(
+    principal: Principal = Depends(require_auth), db: DbSession = Depends(get_db)
+) -> list[ApiKeyOut]:
+    rows = db.scalars(
+        select(ApiKey)
+        .where(ApiKey.user_id == principal.user.id, ApiKey.revoked_at.is_(None))
+        .order_by(ApiKey.created_at.desc())
+    ).all()
+    return [ApiKeyOut.model_validate(row) for row in rows]
+
+
+def _issue_key(db: DbSession, user_id: str, label: str) -> ApiKeyCreatedOut:
+    token = "sk_" + new_token()
+    row = ApiKey(user_id=user_id, label=label, prefix=token[:11], key_hash=hash_token(token))
+    db.add(row)
+    db.flush()
+    return ApiKeyCreatedOut(key=ApiKeyOut.model_validate(row), token=token)
+
+
+@router.post(
+    "/api-keys",
+    response_model=ApiKeyCreatedOut,
+    status_code=201,
+    summary="创建 API key（完整密钥只返回一次）",
+)
+def create_api_key(
+    payload: ApiKeyIn,
+    principal: Principal = Depends(require_auth),
+    db: DbSession = Depends(get_db),
+) -> ApiKeyCreatedOut:
+    return _issue_key(db, principal.user.id, payload.label)
+
+
+@router.delete("/api-keys/{key_id}", response_model=OkOut, summary="吊销 API key")
+def revoke_api_key(
+    key_id: str,
+    principal: Principal = Depends(require_auth),
+    db: DbSession = Depends(get_db),
+) -> OkOut:
+    row = db.get(ApiKey, key_id)
+    if row is None or row.user_id != principal.user.id:
+        raise NotFound("API key 不存在")
+    if row.revoked_at is None:
+        row.revoked_at = datetime.now(UTC)
+    return OkOut()
+
+
+@router.post(
+    "/api-keys/{key_id}/rotations",
+    response_model=ApiKeyCreatedOut,
+    summary="轮换 API key（旧密钥立即失效）",
+)
+def rotate_api_key(
+    key_id: str,
+    principal: Principal = Depends(require_auth),
+    db: DbSession = Depends(get_db),
+) -> ApiKeyCreatedOut:
+    row = db.get(ApiKey, key_id)
+    if row is None or row.user_id != principal.user.id:
+        raise NotFound("API key 不存在")
+    row.revoked_at = datetime.now(UTC)
+    return _issue_key(db, principal.user.id, row.label)
+
+
 register_stubs(
     router,
     [
@@ -52,10 +126,6 @@ register_stubs(
         ("PUT", "/wallet", "整张选票一次性保存（最多三家公司）"),
         ("PUT", "/wallet/coins/{company_id}", "投一枚硬币（幂等）"),
         ("DELETE", "/wallet/coins/{company_id}", "撤回投给某公司的硬币（幂等）"),
-        ("GET", "/api-keys", "我的 API key 列表"),
-        ("POST", "/api-keys", "创建 API key（完整密钥只返回一次）"),
-        ("DELETE", "/api-keys/{key_id}", "吊销 API key"),
-        ("POST", "/api-keys/{key_id}/rotations", "轮换 API key"),
         ("GET", "/connected-apps", "我用账号登录过的应用与设备"),
         ("DELETE", "/connected-apps/{client_id}", "吊销某个应用的全部设备"),
         ("DELETE", "/connected-apps/{client_id}/devices/{device_id}", "登出某个应用的单个设备"),
@@ -63,8 +133,6 @@ register_stubs(
         ("DELETE", "/deletion-request", "撤销注销申请"),
         ("GET", "/exhibition-assignment", "我在展览中负责介绍的公司"),
         ("GET", "/projects", "我公司的作品草稿"),
-        ("GET", "/usage/summary", "我的 LLM 用量汇总"),
-        ("GET", "/usage/requests", "我最近的 LLM 请求（仅数字）"),
     ],
     tag="me",
     auth="authenticated",

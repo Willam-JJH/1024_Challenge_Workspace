@@ -39,6 +39,10 @@ class Settings(BaseSettings):
     trusted_proxies: list[str] = []
     public_domain: str = "example.com"
 
+    # 人机校验（自托管工作量证明）
+    require_bot_check: bool = False
+    bot_check_secret: str = "dev-only-change-me"
+
     # 分页
     default_page_size: int = 20
     max_page_size: int = 100

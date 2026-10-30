@@ -27,6 +27,7 @@ class RegisterIn(BaseModel):
     display_name: str = Field(min_length=1, max_length=120)
     locale: str = Field(default="zh", max_length=8)
     bot_challenge: str | None = None
+    bot_nonce: str | None = None
 
 
 class VerifyRegistrationIn(BaseModel):
@@ -56,3 +57,29 @@ class PasswordResetIn(BaseModel):
 class ProfileUpdateIn(BaseModel):
     display_name: str | None = Field(default=None, min_length=1, max_length=120)
     locale: str | None = Field(default=None, max_length=8)
+
+
+class CodeSentOut(BaseModel):
+    status: str = "code_sent"
+    expires_in: int
+
+
+class ResetGrantOut(BaseModel):
+    token: str
+    expires_in: int
+
+
+class BotChallengeOut(BaseModel):
+    challenge: str
+    difficulty: int
+    expires_at: int
+
+
+class ActivationIn(BaseModel):
+    token: str = Field(min_length=16)
+    password: str = Field(min_length=8, max_length=200)
+    display_name: str | None = Field(default=None, max_length=120)
+
+
+class ApiKeyIn(BaseModel):
+    label: str = Field(min_length=1, max_length=80)

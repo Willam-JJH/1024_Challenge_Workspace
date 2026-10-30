@@ -66,3 +66,22 @@ class HealthOut(BaseModel):
     status: str
     version: str
     database: str
+
+
+class ApiKeyOut(ORMModel):
+    id: str
+    label: str
+    prefix: str
+    created_at: datetime
+    last_used_at: datetime | None = None
+    revoked_at: datetime | None = None
+
+
+class ApiKeyCreatedOut(BaseModel):
+    key: ApiKeyOut
+    token: str
+
+
+class UserLiteOut(BaseModel):
+    id: str
+    display_name: str
