@@ -1,8 +1,8 @@
 """initial schema
 
-Revision ID: 9e0d72162a57
+Revision ID: 62b3f1e40118
 Revises: 
-Create Date: 2026-10-30 15:00:19.031284
+Create Date: 2026-10-30 15:21:51.190826
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '9e0d72162a57'
+revision: str = '62b3f1e40118'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -47,6 +47,7 @@ def upgrade() -> None:
     sa.Column('locale', sa.String(length=8), nullable=False),
     sa.Column('role', sa.String(length=32), nullable=False),
     sa.Column('status', sa.String(length=32), nullable=False),
+    sa.Column('mode', sa.String(length=16), nullable=False),
     sa.Column('id', sa.String(length=32), nullable=False),
     sa.Column('created_at', app.models.types.UTCDateTime(), nullable=False),
     sa.Column('updated_at', app.models.types.UTCDateTime(), nullable=False),
@@ -71,6 +72,21 @@ def upgrade() -> None:
         batch_op.create_index(batch_op.f('ix_verification_codes_code_hash'), ['code_hash'], unique=False)
         batch_op.create_index(batch_op.f('ix_verification_codes_email'), ['email'], unique=False)
         batch_op.create_index(batch_op.f('ix_verification_codes_purpose'), ['purpose'], unique=False)
+
+    op.create_table('announcements',
+    sa.Column('event_id', sa.String(length=32), nullable=False),
+    sa.Column('title', sa.String(length=160), nullable=False),
+    sa.Column('body', sa.Text(), nullable=False),
+    sa.Column('status', sa.String(length=16), nullable=False),
+    sa.Column('published_at', app.models.types.UTCDateTime(), nullable=True),
+    sa.Column('id', sa.String(length=32), nullable=False),
+    sa.Column('created_at', app.models.types.UTCDateTime(), nullable=False),
+    sa.Column('updated_at', app.models.types.UTCDateTime(), nullable=False),
+    sa.ForeignKeyConstraint(['event_id'], ['events.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id')
+    )
+    with op.batch_alter_table('announcements', schema=None) as batch_op:
+        batch_op.create_index(batch_op.f('ix_announcements_event_id'), ['event_id'], unique=False)
 
     op.create_table('api_keys',
     sa.Column('user_id', sa.String(length=32), nullable=False),
@@ -122,6 +138,21 @@ def upgrade() -> None:
     )
     with op.batch_alter_table('companies', schema=None) as batch_op:
         batch_op.create_index(batch_op.f('ix_companies_event_id'), ['event_id'], unique=False)
+
+    op.create_table('feature_flags',
+    sa.Column('event_id', sa.String(length=32), nullable=False),
+    sa.Column('key', sa.String(length=80), nullable=False),
+    sa.Column('description', sa.Text(), nullable=True),
+    sa.Column('enabled', sa.Boolean(), nullable=False),
+    sa.Column('id', sa.String(length=32), nullable=False),
+    sa.Column('created_at', app.models.types.UTCDateTime(), nullable=False),
+    sa.Column('updated_at', app.models.types.UTCDateTime(), nullable=False),
+    sa.ForeignKeyConstraint(['event_id'], ['events.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('event_id', 'key', name='uq_feature_flag')
+    )
+    with op.batch_alter_table('feature_flags', schema=None) as batch_op:
+        batch_op.create_index(batch_op.f('ix_feature_flags_event_id'), ['event_id'], unique=False)
 
     op.create_table('offline_sessions',
     sa.Column('event_id', sa.String(length=32), nullable=False),
@@ -190,6 +221,21 @@ def upgrade() -> None:
     with op.batch_alter_table('sessions', schema=None) as batch_op:
         batch_op.create_index(batch_op.f('ix_sessions_token_hash'), ['token_hash'], unique=True)
         batch_op.create_index(batch_op.f('ix_sessions_user_id'), ['user_id'], unique=False)
+
+    op.create_table('sponsors',
+    sa.Column('event_id', sa.String(length=32), nullable=False),
+    sa.Column('name', sa.String(length=120), nullable=False),
+    sa.Column('logo_url', sa.String(length=500), nullable=True),
+    sa.Column('website', sa.String(length=500), nullable=True),
+    sa.Column('position', sa.Integer(), nullable=False),
+    sa.Column('id', sa.String(length=32), nullable=False),
+    sa.Column('created_at', app.models.types.UTCDateTime(), nullable=False),
+    sa.Column('updated_at', app.models.types.UTCDateTime(), nullable=False),
+    sa.ForeignKeyConstraint(['event_id'], ['events.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id')
+    )
+    with op.batch_alter_table('sponsors', schema=None) as batch_op:
+        batch_op.create_index(batch_op.f('ix_sponsors_event_id'), ['event_id'], unique=False)
 
     op.create_table('introductions',
     sa.Column('event_id', sa.String(length=32), nullable=False),
@@ -591,6 +637,10 @@ def downgrade() -> None:
         batch_op.drop_index(batch_op.f('ix_introductions_event_id'))
 
     op.drop_table('introductions')
+    with op.batch_alter_table('sponsors', schema=None) as batch_op:
+        batch_op.drop_index(batch_op.f('ix_sponsors_event_id'))
+
+    op.drop_table('sponsors')
     with op.batch_alter_table('sessions', schema=None) as batch_op:
         batch_op.drop_index(batch_op.f('ix_sessions_user_id'))
         batch_op.drop_index(batch_op.f('ix_sessions_token_hash'))
@@ -609,6 +659,10 @@ def downgrade() -> None:
         batch_op.drop_index(batch_op.f('ix_offline_sessions_event_id'))
 
     op.drop_table('offline_sessions')
+    with op.batch_alter_table('feature_flags', schema=None) as batch_op:
+        batch_op.drop_index(batch_op.f('ix_feature_flags_event_id'))
+
+    op.drop_table('feature_flags')
     with op.batch_alter_table('companies', schema=None) as batch_op:
         batch_op.drop_index(batch_op.f('ix_companies_event_id'))
 
@@ -622,6 +676,10 @@ def downgrade() -> None:
         batch_op.drop_index(batch_op.f('ix_api_keys_user_id'))
 
     op.drop_table('api_keys')
+    with op.batch_alter_table('announcements', schema=None) as batch_op:
+        batch_op.drop_index(batch_op.f('ix_announcements_event_id'))
+
+    op.drop_table('announcements')
     with op.batch_alter_table('verification_codes', schema=None) as batch_op:
         batch_op.drop_index(batch_op.f('ix_verification_codes_purpose'))
         batch_op.drop_index(batch_op.f('ix_verification_codes_email'))

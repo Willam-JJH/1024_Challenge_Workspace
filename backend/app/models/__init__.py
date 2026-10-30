@@ -1,5 +1,6 @@
 """全部 ORM 模型的汇总导入（建表与 Alembic 自动生成依赖它）。"""
 
+from app.models.admin import Announcement, FeatureFlag, Sponsor
 from app.models.audit import AuditLog
 from app.models.base import BaseModel
 from app.models.event import Company, Event, Invitation, InviteLink, JoinRequest, Membership
@@ -13,11 +14,13 @@ from app.models.verification import VerificationCode
 from app.models.vote import Vote
 
 __all__ = [
+    "Announcement",
     "ApiKey",
     "AuditLog",
     "BaseModel",
     "Company",
     "Comment",
+    "FeatureFlag",
     "Invitation",
     "Introduction",
     "InviteLink",
@@ -34,6 +37,7 @@ __all__ = [
     "ProjectEditSession",
     "ProjectVersion",
     "Score",
+    "Sponsor",
     "Session",
     "ShortlistEntry",
     "User",

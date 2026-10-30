@@ -3,6 +3,7 @@
 from fastapi import APIRouter
 
 from app.api.admin import companies as admin_companies
+from app.api.admin import content as admin_content
 from app.api.admin import email as admin_email
 from app.api.admin import llm as admin_llm
 from app.api.admin import offline as admin_offline
@@ -58,3 +59,4 @@ api_router.include_router(admin_ops.router)
 api_router.include_router(admin_pitch.router)
 api_router.include_router(admin_offline.router)
 api_router.include_router(admin_results.router)
+api_router.include_router(admin_content.router)

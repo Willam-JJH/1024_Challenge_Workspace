@@ -20,6 +20,8 @@ class User(BaseModel):
     role: Mapped[str] = mapped_column(String(32), default="participant")
     # active | pending | suspended
     status: Mapped[str] = mapped_column(String(32), default="active")
+    # online | in_person | both
+    mode: Mapped[str] = mapped_column(String(16), default="both")
 
     sessions: Mapped[list["Session"]] = relationship(back_populates="user")
     api_keys: Mapped[list["ApiKey"]] = relationship(back_populates="user")
