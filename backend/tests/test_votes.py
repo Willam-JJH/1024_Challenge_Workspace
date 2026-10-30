@@ -74,7 +74,7 @@ def test_replace_wallet(client: TestClient, db_session, event, user, other_user)
 def test_board_ranks_with_ties(client: TestClient, db_session, event, user, other_user) -> None:
     first = _company(db_session, event, "First", "first")
     second = _company(db_session, event, "Second", "second")
-    third = _company(db_session, event, "Third", "third")
+    _company(db_session, event, "Third", "third")
 
     carl = User(
         email="carl@example.com",
