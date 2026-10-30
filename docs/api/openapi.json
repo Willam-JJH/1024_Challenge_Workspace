@@ -1908,58 +1908,6 @@
         }
       }
     },
-    "/api/v1/me/projects": {
-      "get": {
-        "tags": [
-          "me",
-          "me"
-        ],
-        "summary": "我公司的作品草稿",
-        "operationId": "_handler_api_v1_me_projects_get",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "我公司的作品草稿",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/projects",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/v1/events": {
       "get": {
         "tags": [
@@ -3870,51 +3818,20 @@
         }
       }
     },
-    "/api/v1/projects": {
+    "/api/v1/projects/mine": {
       "get": {
         "tags": [
-          "projects",
           "projects"
         ],
-        "summary": "已发布作品画廊（格式、标签、搜索、排序）",
-        "operationId": "_handler_api_v1_projects_get",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "已发布作品画廊（格式、标签、搜索、排序）",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "",
-              "title": " Path"
-            }
-          }
-        ],
+        "summary": "我公司的作品草稿（首次访问自动创建）",
+        "operationId": "my_project_api_v1_projects_mine_get",
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ProjectOut"
                 }
               }
             }
@@ -3925,48 +3842,44 @@
     "/api/v1/projects/draft-schema": {
       "get": {
         "tags": [
-          "projects",
           "projects"
         ],
         "summary": "草稿字段的 JSON Schema（供代理使用）",
-        "operationId": "_handler_api_v1_projects_draft_schema_get",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "草稿字段的 JSON Schema（供代理使用）",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/draft-schema",
-              "title": " Path"
-            }
-          }
-        ],
+        "operationId": "draft_schema_api_v1_projects_draft_schema_get",
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Draft Schema Api V1 Projects Draft Schema Get"
+                }
               }
             }
-          },
-          "422": {
-            "description": "Validation Error",
+          }
+        }
+      }
+    },
+    "/api/v1/projects": {
+      "get": {
+        "tags": [
+          "projects"
+        ],
+        "summary": "已发布作品画廊",
+        "operationId": "gallery_api_v1_projects_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "items": {
+                    "$ref": "#/components/schemas/ProjectCardOut"
+                  },
+                  "type": "array",
+                  "title": "Response Gallery Api V1 Projects Get"
                 }
               }
             }
@@ -3977,91 +3890,29 @@
     "/api/v1/projects/{project_id}": {
       "get": {
         "tags": [
-          "projects",
           "projects"
         ],
         "summary": "草稿视图（成员与管理员）",
-        "operationId": "_handler_api_v1_projects__project_id__get",
+        "operationId": "get_project_api_v1_projects__project_id__get",
         "parameters": [
           {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
+            "name": "project_id",
+            "in": "path",
+            "required": true,
             "schema": {
               "type": "string",
-              "default": "草稿视图（成员与管理员）",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/{project_id}",
-              "title": " Path"
+              "title": "Project Id"
             }
           }
         ],
         "responses": {
           "200": {
             "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ProjectOut"
                 }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/projects/{project_id}/draft": {
-      "patch": {
-        "tags": [
-          "projects",
-          "projects"
-        ],
-        "summary": "自动保存草稿（需持有编辑锁与当前修订号）",
-        "operationId": "_handler_api_v1_projects__project_id__draft_patch",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "自动保存草稿（需持有编辑锁与当前修订号）",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/{project_id}/draft",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
               }
             }
           },
@@ -4081,39 +3932,39 @@
     "/api/v1/projects/{project_id}/edit-sessions": {
       "post": {
         "tags": [
-          "projects",
           "projects"
         ],
-        "summary": "获取编辑锁（他人持有时返回 409）",
-        "operationId": "_handler_api_v1_projects__project_id__edit_sessions_post",
+        "summary": "获取编辑锁",
+        "operationId": "acquire_lock_api_v1_projects__project_id__edit_sessions_post",
         "parameters": [
           {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
+            "name": "project_id",
+            "in": "path",
+            "required": true,
             "schema": {
               "type": "string",
-              "default": "获取编辑锁（他人持有时返回 409）",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/{project_id}/edit-sessions",
-              "title": " Path"
+              "title": "Project Id"
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EditSessionIn"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/EditSessionOut"
+                }
               }
             }
           },
@@ -4133,30 +3984,43 @@
     "/api/v1/projects/{project_id}/edit-sessions/{session_id}/heartbeats": {
       "post": {
         "tags": [
-          "projects",
           "projects"
         ],
         "summary": "续租编辑锁",
-        "operationId": "_handler_api_v1_projects__project_id__edit_sessions__session_id__heartbeats_post",
+        "operationId": "heartbeat_lock_api_v1_projects__project_id__edit_sessions__session_id__heartbeats_post",
         "parameters": [
           {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
+            "name": "project_id",
+            "in": "path",
+            "required": true,
             "schema": {
               "type": "string",
-              "default": "续租编辑锁",
-              "title": " Summary"
+              "title": "Project Id"
             }
           },
           {
-            "name": "_path",
-            "in": "query",
-            "required": false,
+            "name": "session_id",
+            "in": "path",
+            "required": true,
             "schema": {
               "type": "string",
-              "default": "/{project_id}/edit-sessions/{session_id}/heartbeats",
-              "title": " Path"
+              "title": "Session Id"
+            }
+          },
+          {
+            "name": "x-edit-token",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Edit-Token"
             }
           }
         ],
@@ -4165,7 +4029,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/EditSessionOut"
+                }
               }
             }
           },
@@ -4185,30 +4051,43 @@
     "/api/v1/projects/{project_id}/edit-sessions/{session_id}": {
       "delete": {
         "tags": [
-          "projects",
           "projects"
         ],
         "summary": "释放编辑锁",
-        "operationId": "_handler_api_v1_projects__project_id__edit_sessions__session_id__delete",
+        "operationId": "release_lock_api_v1_projects__project_id__edit_sessions__session_id__delete",
         "parameters": [
           {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
+            "name": "project_id",
+            "in": "path",
+            "required": true,
             "schema": {
               "type": "string",
-              "default": "释放编辑锁",
-              "title": " Summary"
+              "title": "Project Id"
             }
           },
           {
-            "name": "_path",
-            "in": "query",
-            "required": false,
+            "name": "session_id",
+            "in": "path",
+            "required": true,
             "schema": {
               "type": "string",
-              "default": "/{project_id}/edit-sessions/{session_id}",
-              "title": " Path"
+              "title": "Session Id"
+            }
+          },
+          {
+            "name": "x-edit-token",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Edit-Token"
             }
           }
         ],
@@ -4217,7 +4096,77 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/OkOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/draft": {
+      "patch": {
+        "tags": [
+          "projects"
+        ],
+        "summary": "自动保存草稿",
+        "operationId": "save_draft_api_v1_projects__project_id__draft_patch",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Project Id"
+            }
+          },
+          {
+            "name": "x-edit-token",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Edit-Token"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectDraftIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftSavedOut"
+                }
               }
             }
           },
@@ -4237,30 +4186,18 @@
     "/api/v1/projects/{project_id}/publications": {
       "post": {
         "tags": [
-          "projects",
           "projects"
         ],
-        "summary": "提交／更新作品（快照为新版本）",
-        "operationId": "_handler_api_v1_projects__project_id__publications_post",
+        "summary": "提交／更新作品",
+        "operationId": "publish_api_v1_projects__project_id__publications_post",
         "parameters": [
           {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
+            "name": "project_id",
+            "in": "path",
+            "required": true,
             "schema": {
               "type": "string",
-              "default": "提交／更新作品（快照为新版本）",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/{project_id}/publications",
-              "title": " Path"
+              "title": "Project Id"
             }
           }
         ],
@@ -4269,7 +4206,253 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/PublishOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/versions": {
+      "get": {
+        "tags": [
+          "projects"
+        ],
+        "summary": "已发布版本（最新在前）",
+        "operationId": "list_versions_api_v1_projects__project_id__versions_get",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/VersionOut"
+                  },
+                  "title": "Response List Versions Api V1 Projects  Project Id  Versions Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/versions/{version}": {
+      "get": {
+        "tags": [
+          "projects"
+        ],
+        "summary": "单个已发布版本",
+        "operationId": "get_version_api_v1_projects__project_id__versions__version__get",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Project Id"
+            }
+          },
+          {
+            "name": "version",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Version"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VersionOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/versions/{version}/restorations": {
+      "post": {
+        "tags": [
+          "projects"
+        ],
+        "summary": "把某个版本复制回草稿",
+        "operationId": "restore_version_api_v1_projects__project_id__versions__version__restorations_post",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Project Id"
+            }
+          },
+          {
+            "name": "version",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Version"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DraftSavedOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/attendance": {
+      "get": {
+        "tags": [
+          "projects"
+        ],
+        "summary": "Pitching Day 出席意向",
+        "operationId": "get_attendance_api_v1_projects__project_id__attendance_get",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Get Attendance Api V1 Projects  Project Id  Attendance Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "projects"
+        ],
+        "summary": "回答出席问题（提交人或队长）",
+        "operationId": "set_attendance_api_v1_projects__project_id__attendance_put",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AttendanceIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Set Attendance Api V1 Projects  Project Id  Attendance Put"
+                }
               }
             }
           },
@@ -4312,264 +4495,6 @@
             "schema": {
               "type": "string",
               "default": "/{project_id}/agent-draft-approvals",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/projects/{project_id}/versions": {
-      "get": {
-        "tags": [
-          "projects",
-          "projects"
-        ],
-        "summary": "已发布版本（最新在前）",
-        "operationId": "_handler_api_v1_projects__project_id__versions_get",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "已发布版本（最新在前）",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/{project_id}/versions",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/projects/{project_id}/versions/{version}": {
-      "get": {
-        "tags": [
-          "projects",
-          "projects"
-        ],
-        "summary": "单个已发布版本",
-        "operationId": "_handler_api_v1_projects__project_id__versions__version__get",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "单个已发布版本",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/{project_id}/versions/{version}",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/projects/{project_id}/versions/{version}/restorations": {
-      "post": {
-        "tags": [
-          "projects",
-          "projects"
-        ],
-        "summary": "把某个版本复制回草稿",
-        "operationId": "_handler_api_v1_projects__project_id__versions__version__restorations_post",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "把某个版本复制回草稿",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/{project_id}/versions/{version}/restorations",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/projects/{project_id}/attendance": {
-      "get": {
-        "tags": [
-          "projects",
-          "projects"
-        ],
-        "summary": "Pitching Day 出席意向",
-        "operationId": "_handler_api_v1_projects__project_id__attendance_get",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "Pitching Day 出席意向",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/{project_id}/attendance",
-              "title": " Path"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      },
-      "put": {
-        "tags": [
-          "projects",
-          "projects"
-        ],
-        "summary": "回答出席问题（提交人或队长）",
-        "operationId": "_handler_api_v1_projects__project_id__attendance_put",
-        "parameters": [
-          {
-            "name": "_summary",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "回答出席问题（提交人或队长）",
-              "title": " Summary"
-            }
-          },
-          {
-            "name": "_path",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "/{project_id}/attendance",
               "title": " Path"
             }
           }
@@ -14503,6 +14428,20 @@
         ],
         "title": "ApiKeyOut"
       },
+      "AttendanceIn": {
+        "properties": {
+          "attendance": {
+            "type": "string",
+            "pattern": "^(yes|no|maybe)$",
+            "title": "Attendance"
+          }
+        },
+        "type": "object",
+        "required": [
+          "attendance"
+        ],
+        "title": "AttendanceIn"
+      },
       "BotChallengeOut": {
         "properties": {
           "challenge": {
@@ -14724,6 +14663,65 @@
         },
         "type": "object",
         "title": "CompanyUpdateIn"
+      },
+      "DraftSavedOut": {
+        "properties": {
+          "revision": {
+            "type": "integer",
+            "title": "Revision"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "revision",
+          "updated_at"
+        ],
+        "title": "DraftSavedOut"
+      },
+      "EditSessionIn": {
+        "properties": {
+          "take_over": {
+            "type": "boolean",
+            "title": "Take Over",
+            "default": false
+          }
+        },
+        "type": "object",
+        "title": "EditSessionIn"
+      },
+      "EditSessionOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "token": {
+            "type": "string",
+            "title": "Token"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Expires At"
+          },
+          "heartbeat_seconds": {
+            "type": "integer",
+            "title": "Heartbeat Seconds",
+            "default": 30
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "token",
+          "expires_at"
+        ],
+        "title": "EditSessionOut"
       },
       "EventOut": {
         "properties": {
@@ -15197,6 +15195,172 @@
         "type": "object",
         "title": "ProfileUpdateIn"
       },
+      "ProjectCardOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "company_id": {
+            "type": "string",
+            "title": "Company Id"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "summary": {
+            "type": "string",
+            "title": "Summary"
+          },
+          "content": {
+            "type": "string",
+            "title": "Content"
+          },
+          "revision": {
+            "type": "integer",
+            "title": "Revision"
+          },
+          "live_version": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Live Version"
+          },
+          "company_name": {
+            "type": "string",
+            "title": "Company Name"
+          },
+          "company_slug": {
+            "type": "string",
+            "title": "Company Slug"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "company_id",
+          "status",
+          "title",
+          "summary",
+          "content",
+          "revision",
+          "company_name",
+          "company_slug"
+        ],
+        "title": "ProjectCardOut"
+      },
+      "ProjectDraftIn": {
+        "properties": {
+          "base_revision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Base Revision"
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 160,
+            "title": "Title",
+            "default": ""
+          },
+          "summary": {
+            "type": "string",
+            "maxLength": 2000,
+            "title": "Summary",
+            "default": ""
+          },
+          "content": {
+            "type": "string",
+            "maxLength": 200000,
+            "title": "Content",
+            "default": ""
+          }
+        },
+        "type": "object",
+        "required": [
+          "base_revision"
+        ],
+        "title": "ProjectDraftIn"
+      },
+      "ProjectOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "company_id": {
+            "type": "string",
+            "title": "Company Id"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "summary": {
+            "type": "string",
+            "title": "Summary"
+          },
+          "content": {
+            "type": "string",
+            "title": "Content"
+          },
+          "revision": {
+            "type": "integer",
+            "title": "Revision"
+          },
+          "live_version": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Live Version"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "company_id",
+          "status",
+          "title",
+          "summary",
+          "content",
+          "revision"
+        ],
+        "title": "ProjectOut"
+      },
+      "PublishOut": {
+        "properties": {
+          "project": {
+            "$ref": "#/components/schemas/ProjectOut"
+          },
+          "version": {
+            "$ref": "#/components/schemas/VersionOut"
+          }
+        },
+        "type": "object",
+        "required": [
+          "project",
+          "version"
+        ],
+        "title": "PublishOut"
+      },
       "RegisterIn": {
         "properties": {
           "email": {
@@ -15491,6 +15655,40 @@
           "code"
         ],
         "title": "VerifyRegistrationIn"
+      },
+      "VersionOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "version": {
+            "type": "integer",
+            "title": "Version"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "summary": {
+            "type": "string",
+            "title": "Summary"
+          },
+          "published_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Published At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "version",
+          "title",
+          "summary",
+          "published_at"
+        ],
+        "title": "VersionOut"
       }
     }
   }

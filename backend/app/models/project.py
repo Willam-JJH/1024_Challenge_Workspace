@@ -24,6 +24,8 @@ class Project(BaseModel):
     content: Mapped[str] = mapped_column(Text, default="")
     revision: Mapped[int] = mapped_column(Integer, default=0)
     live_version: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    # Pitching Day 出席意向：yes | no | maybe
+    attendance: Mapped[str | None] = mapped_column(String(16), nullable=True)
 
     versions: Mapped[list["ProjectVersion"]] = relationship(back_populates="project")
 

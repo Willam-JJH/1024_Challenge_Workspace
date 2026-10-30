@@ -132,7 +132,6 @@ register_stubs(
         ("POST", "/deletion-request", "申请注销账号"),
         ("DELETE", "/deletion-request", "撤销注销申请"),
         ("GET", "/exhibition-assignment", "我在展览中负责介绍的公司"),
-        ("GET", "/projects", "我公司的作品草稿"),
     ],
     tag="me",
     auth="authenticated",

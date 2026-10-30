@@ -1,8 +1,8 @@
 """initial schema
 
-Revision ID: 9f2d9927c0d2
+Revision ID: 45888ce6b0e8
 Revises: 
-Create Date: 2026-10-30 14:35:20.877879
+Create Date: 2026-10-30 14:38:39.948582
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '9f2d9927c0d2'
+revision: str = '45888ce6b0e8'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -25,13 +25,13 @@ def upgrade() -> None:
     sa.Column('slug', sa.String(length=80), nullable=False),
     sa.Column('name', sa.String(length=160), nullable=False),
     sa.Column('stage', sa.String(length=32), nullable=False),
-    sa.Column('starts_at', sa.DateTime(timezone=True), nullable=True),
-    sa.Column('ends_at', sa.DateTime(timezone=True), nullable=True),
+    sa.Column('starts_at', app.models.types.UTCDateTime(), nullable=True),
+    sa.Column('ends_at', app.models.types.UTCDateTime(), nullable=True),
     sa.Column('registration_open', sa.Boolean(), nullable=False),
     sa.Column('company_seats', sa.Integer(), nullable=False),
     sa.Column('id', sa.String(length=32), nullable=False),
-    sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
-    sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
+    sa.Column('created_at', app.models.types.UTCDateTime(), nullable=False),
+    sa.Column('updated_at', app.models.types.UTCDateTime(), nullable=False),
     sa.PrimaryKeyConstraint('id')
     )
     with op.batch_alter_table('events', schema=None) as batch_op:
@@ -45,8 +45,8 @@ def upgrade() -> None:
     sa.Column('role', sa.String(length=32), nullable=False),
     sa.Column('status', sa.String(length=32), nullable=False),
     sa.Column('id', sa.String(length=32), nullable=False),
-    sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
-    sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
+    sa.Column('created_at', app.models.types.UTCDateTime(), nullable=False),
+    sa.Column('updated_at', app.models.types.UTCDateTime(), nullable=False),
     sa.PrimaryKeyConstraint('id')
     )
     with op.batch_alter_table('users', schema=None) as batch_op:
@@ -56,12 +56,12 @@ def upgrade() -> None:
     sa.Column('email', sa.String(length=320), nullable=False),
     sa.Column('purpose', sa.String(length=32), nullable=False),
     sa.Column('code_hash', sa.String(length=64), nullable=False),
-    sa.Column('expires_at', sa.DateTime(timezone=True), nullable=False),
-    sa.Column('consumed_at', sa.DateTime(timezone=True), nullable=True),
+    sa.Column('expires_at', app.models.types.UTCDateTime(), nullable=False),
+    sa.Column('consumed_at', app.models.types.UTCDateTime(), nullable=True),
     sa.Column('attempts', sa.Integer(), nullable=False),
     sa.Column('id', sa.String(length=32), nullable=False),
-    sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
-    sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
+    sa.Column('created_at', app.models.types.UTCDateTime(), nullable=False),
+    sa.Column('updated_at', app.models.types.UTCDateTime(), nullable=False),
     sa.PrimaryKeyConstraint('id')
     )
     with op.batch_alter_table('verification_codes', schema=None) as batch_op:
@@ -74,11 +74,11 @@ def upgrade() -> None:
     sa.Column('label', sa.String(length=80), nullable=False),
     sa.Column('prefix', sa.String(length=16), nullable=False),
     sa.Column('key_hash', sa.String(length=64), nullable=False),
-    sa.Column('last_used_at', sa.DateTime(timezone=True), nullable=True),
-    sa.Column('revoked_at', sa.DateTime(timezone=True), nullable=True),
+    sa.Column('last_used_at', app.models.types.UTCDateTime(), nullable=True),
+    sa.Column('revoked_at', app.models.types.UTCDateTime(), nullable=True),
     sa.Column('id', sa.String(length=32), nullable=False),
-    sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
-    sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
+    sa.Column('created_at', app.models.types.UTCDateTime(), nullable=False),
+    sa.Column('updated_at', app.models.types.UTCDateTime(), nullable=False),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('key_hash', name='uq_api_keys_key_hash')
@@ -93,8 +93,8 @@ def upgrade() -> None:
     sa.Column('target_id', sa.String(length=64), nullable=True),
     sa.Column('note', sa.Text(), nullable=True),
     sa.Column('id', sa.String(length=32), nullable=False),
-    sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
-    sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
+    sa.Column('created_at', app.models.types.UTCDateTime(), nullable=False),
+    sa.Column('updated_at', app.models.types.UTCDateTime(), nullable=False),
     sa.ForeignKeyConstraint(['actor_id'], ['users.id'], ondelete='SET NULL'),
     sa.PrimaryKeyConstraint('id')
     )
@@ -110,8 +110,8 @@ def upgrade() -> None:
     sa.Column('captain_id', sa.String(length=32), nullable=True),
     sa.Column('roster_locked', sa.Boolean(), nullable=False),
     sa.Column('id', sa.String(length=32), nullable=False),
-    sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
-    sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
+    sa.Column('created_at', app.models.types.UTCDateTime(), nullable=False),
+    sa.Column('updated_at', app.models.types.UTCDateTime(), nullable=False),
     sa.ForeignKeyConstraint(['captain_id'], ['users.id'], ondelete='SET NULL'),
     sa.ForeignKeyConstraint(['event_id'], ['events.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id'),
@@ -125,11 +125,11 @@ def upgrade() -> None:
     sa.Column('token_hash', sa.String(length=64), nullable=False),
     sa.Column('user_agent', sa.String(length=400), nullable=True),
     sa.Column('client_ip', sa.String(length=64), nullable=True),
-    sa.Column('last_seen_at', sa.DateTime(timezone=True), nullable=False),
-    sa.Column('revoked_at', sa.DateTime(timezone=True), nullable=True),
+    sa.Column('last_seen_at', app.models.types.UTCDateTime(), nullable=False),
+    sa.Column('revoked_at', app.models.types.UTCDateTime(), nullable=True),
     sa.Column('id', sa.String(length=32), nullable=False),
-    sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
-    sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
+    sa.Column('created_at', app.models.types.UTCDateTime(), nullable=False),
+    sa.Column('updated_at', app.models.types.UTCDateTime(), nullable=False),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
@@ -143,10 +143,10 @@ def upgrade() -> None:
     sa.Column('token_hash', sa.String(length=64), nullable=False),
     sa.Column('invited_by', sa.String(length=32), nullable=True),
     sa.Column('status', sa.String(length=16), nullable=False),
-    sa.Column('expires_at', sa.DateTime(timezone=True), nullable=True),
+    sa.Column('expires_at', app.models.types.UTCDateTime(), nullable=True),
     sa.Column('id', sa.String(length=32), nullable=False),
-    sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
-    sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
+    sa.Column('created_at', app.models.types.UTCDateTime(), nullable=False),
+    sa.Column('updated_at', app.models.types.UTCDateTime(), nullable=False),
     sa.ForeignKeyConstraint(['company_id'], ['companies.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['invited_by'], ['users.id'], ondelete='SET NULL'),
     sa.PrimaryKeyConstraint('id'),
@@ -160,10 +160,10 @@ def upgrade() -> None:
     sa.Column('company_id', sa.String(length=32), nullable=False),
     sa.Column('token_hash', sa.String(length=64), nullable=False),
     sa.Column('created_by', sa.String(length=32), nullable=True),
-    sa.Column('disabled_at', sa.DateTime(timezone=True), nullable=True),
+    sa.Column('disabled_at', app.models.types.UTCDateTime(), nullable=True),
     sa.Column('id', sa.String(length=32), nullable=False),
-    sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
-    sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
+    sa.Column('created_at', app.models.types.UTCDateTime(), nullable=False),
+    sa.Column('updated_at', app.models.types.UTCDateTime(), nullable=False),
     sa.ForeignKeyConstraint(['company_id'], ['companies.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['created_by'], ['users.id'], ondelete='SET NULL'),
     sa.PrimaryKeyConstraint('id')
@@ -178,8 +178,8 @@ def upgrade() -> None:
     sa.Column('message', sa.Text(), nullable=True),
     sa.Column('status', sa.String(length=16), nullable=False),
     sa.Column('id', sa.String(length=32), nullable=False),
-    sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
-    sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
+    sa.Column('created_at', app.models.types.UTCDateTime(), nullable=False),
+    sa.Column('updated_at', app.models.types.UTCDateTime(), nullable=False),
     sa.ForeignKeyConstraint(['company_id'], ['companies.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id'),
@@ -194,8 +194,8 @@ def upgrade() -> None:
     sa.Column('user_id', sa.String(length=32), nullable=False),
     sa.Column('role', sa.String(length=32), nullable=False),
     sa.Column('id', sa.String(length=32), nullable=False),
-    sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
-    sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
+    sa.Column('created_at', app.models.types.UTCDateTime(), nullable=False),
+    sa.Column('updated_at', app.models.types.UTCDateTime(), nullable=False),
     sa.ForeignKeyConstraint(['company_id'], ['companies.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id'),
@@ -214,9 +214,10 @@ def upgrade() -> None:
     sa.Column('content', sa.Text(), nullable=False),
     sa.Column('revision', sa.Integer(), nullable=False),
     sa.Column('live_version', sa.Integer(), nullable=True),
+    sa.Column('attendance', sa.String(length=16), nullable=True),
     sa.Column('id', sa.String(length=32), nullable=False),
-    sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
-    sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
+    sa.Column('created_at', app.models.types.UTCDateTime(), nullable=False),
+    sa.Column('updated_at', app.models.types.UTCDateTime(), nullable=False),
     sa.ForeignKeyConstraint(['company_id'], ['companies.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['event_id'], ['events.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id'),
@@ -232,8 +233,8 @@ def upgrade() -> None:
     sa.Column('company_id', sa.String(length=32), nullable=False),
     sa.Column('status', sa.String(length=16), nullable=False),
     sa.Column('id', sa.String(length=32), nullable=False),
-    sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
-    sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
+    sa.Column('created_at', app.models.types.UTCDateTime(), nullable=False),
+    sa.Column('updated_at', app.models.types.UTCDateTime(), nullable=False),
     sa.ForeignKeyConstraint(['company_id'], ['companies.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['event_id'], ['events.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['voter_id'], ['users.id'], ondelete='CASCADE'),
@@ -249,10 +250,10 @@ def upgrade() -> None:
     sa.Column('project_id', sa.String(length=32), nullable=False),
     sa.Column('user_id', sa.String(length=32), nullable=False),
     sa.Column('token_hash', sa.String(length=64), nullable=False),
-    sa.Column('expires_at', sa.DateTime(timezone=True), nullable=False),
+    sa.Column('expires_at', app.models.types.UTCDateTime(), nullable=False),
     sa.Column('id', sa.String(length=32), nullable=False),
-    sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
-    sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
+    sa.Column('created_at', app.models.types.UTCDateTime(), nullable=False),
+    sa.Column('updated_at', app.models.types.UTCDateTime(), nullable=False),
     sa.ForeignKeyConstraint(['project_id'], ['projects.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
@@ -268,11 +269,11 @@ def upgrade() -> None:
     sa.Column('title', sa.String(length=160), nullable=False),
     sa.Column('summary', sa.Text(), nullable=False),
     sa.Column('content', sa.Text(), nullable=False),
-    sa.Column('published_at', sa.DateTime(timezone=True), nullable=False),
+    sa.Column('published_at', app.models.types.UTCDateTime(), nullable=False),
     sa.Column('published_by', sa.String(length=32), nullable=True),
     sa.Column('id', sa.String(length=32), nullable=False),
-    sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
-    sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
+    sa.Column('created_at', app.models.types.UTCDateTime(), nullable=False),
+    sa.Column('updated_at', app.models.types.UTCDateTime(), nullable=False),
     sa.ForeignKeyConstraint(['project_id'], ['projects.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['published_by'], ['users.id'], ondelete='SET NULL'),
     sa.PrimaryKeyConstraint('id'),
