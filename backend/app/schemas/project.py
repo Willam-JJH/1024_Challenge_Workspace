@@ -47,6 +47,15 @@ class AttendanceIn(BaseModel):
     attendance: str = Field(pattern="^(yes|no|maybe)$")
 
 
-class ProjectCardOut(ProjectOut):
+class ProjectCardOut(ORMModel):
+    """画廊卡片：刻意不含正文 ``content``，列表接口只传展示所需字段。"""
+
+    id: str
+    company_id: str
+    status: str
+    title: str
+    summary: str
+    revision: int
+    live_version: int | None = None
     company_name: str
     company_slug: str

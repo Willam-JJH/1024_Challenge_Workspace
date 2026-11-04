@@ -44,17 +44,22 @@ PASSPORT_NEEDED = 3
 MAX_LIVE_PROMOTIONS = 3
 
 
-def _comment_out(db: DbSession, comment: Comment) -> CommentOut:
-    author = db.get(User, comment.author_id)
+def _render_comment(comment: Comment, author_name: str) -> CommentOut:
     return CommentOut(
         id=comment.id,
         project_id=comment.project_id,
         author_id=comment.author_id,
-        author_name=author.display_name if author else "已注销",
+        author_name=author_name,
         parent_id=comment.parent_id,
         body=comment.body,
         created_at=comment.created_at,
     )
+
+
+def _comment_out(db: DbSession, comment: Comment) -> CommentOut:
+    """单条评论：作者名一次查询即可。"""
+    author = db.get(User, comment.author_id)
+    return _render_comment(comment, author.display_name if author else "已注销")
 
 
 def _my_company_id(db: DbSession, user_id: str) -> str:
@@ -123,7 +128,13 @@ def list_comments(project_id: str, db: DbSession = Depends(get_db)) -> list[Comm
         .where(Comment.project_id == project_id, Comment.status == "visible")
         .order_by(Comment.created_at)
     ).all()
-    return [_comment_out(db, row) for row in rows]
+    author_ids = {row.author_id for row in rows}
+    names: dict[str, str] = {}
+    if author_ids:
+        names = dict(
+            db.execute(select(User.id, User.display_name).where(User.id.in_(author_ids))).all()
+        )
+    return [_render_comment(row, names.get(row.author_id, "已注销")) for row in rows]
 
 
 @router.post(

@@ -12,6 +12,8 @@ dependencies = [
   "alembic>=1.16",
   "psycopg[binary]>=3.2",
   "python-multipart>=0.0.20",
+  # 运行时依赖：LLM 网关转发与链接预览直接 import httpx
+  "httpx>=0.28",
 ]
 
 [dependency-groups]

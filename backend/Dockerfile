@@ -16,4 +16,5 @@ COPY scripts ./scripts
 COPY alembic.ini ./
 
 EXPOSE 8000
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# 两个 worker 各带自己的连接池；WEB_CONCURRENCY 可按机器规格覆盖。
+CMD ["sh", "-c", "exec uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers ${WEB_CONCURRENCY:-2}"]

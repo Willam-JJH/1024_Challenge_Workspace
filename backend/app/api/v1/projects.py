@@ -122,7 +122,17 @@ def draft_schema() -> dict:
 @router.get("", response_model=list[ProjectCardOut], summary="已发布作品画廊")
 def gallery(db: DbSession = Depends(get_db)) -> list[ProjectCardOut]:
     rows = db.execute(
-        select(Project, Company)
+        select(
+            Project.id,
+            Project.company_id,
+            Project.status,
+            Project.title,
+            Project.summary,
+            Project.revision,
+            Project.live_version,
+            Company.name,
+            Company.slug,
+        )
         .join(Company, Company.id == Project.company_id)
         .where(Project.status == "published")
         .order_by(Project.updated_at.desc())
@@ -130,11 +140,17 @@ def gallery(db: DbSession = Depends(get_db)) -> list[ProjectCardOut]:
     ).all()
     return [
         ProjectCardOut(
-            **ProjectOut.model_validate(project).model_dump(),
-            company_name=company.name,
-            company_slug=company.slug,
+            id=row.id,
+            company_id=row.company_id,
+            status=row.status,
+            title=row.title,
+            summary=row.summary,
+            revision=row.revision,
+            live_version=row.live_version,
+            company_name=row.name,
+            company_slug=row.slug,
         )
-        for project, company in rows
+        for row in rows
     ]
 
 

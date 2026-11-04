@@ -9,6 +9,7 @@
 """
 
 from dataclasses import dataclass
+from datetime import timedelta
 
 from fastapi import Depends, Request
 from sqlalchemy import select
@@ -22,6 +23,7 @@ from app.models.base import utcnow
 from app.models.identity import ApiKey, Session, User
 
 ROLE_RANK = {"participant": 0, "member": 1, "captain": 2, "staff": 3, "admin": 4}
+LAST_SEEN_TOUCH = timedelta(seconds=60)
 
 
 @dataclass(slots=True)
@@ -42,7 +44,10 @@ def _session_by_token(db: DbSession, token: str) -> Session | None:
     row = db.scalar(select(Session).where(Session.token_hash == hash_token(token)))
     if row is None or row.revoked_at is not None:
         return None
-    row.last_seen_at = utcnow()
+    now = utcnow()
+    # 每个认证请求都写一次会造成写放大；一分钟内只落库一次。
+    if row.last_seen_at is None or now - row.last_seen_at >= LAST_SEEN_TOUCH:
+        row.last_seen_at = now
     return row
 
 
@@ -53,7 +58,9 @@ def get_principal_optional(request: Request, db: DbSession = Depends(get_db)) ->
             key = db.scalar(select(ApiKey).where(ApiKey.key_hash == hash_token(token)))
             if key is None or key.revoked_at is not None:
                 raise Unauthorized("API key 无效或已吊销")
-            key.last_used_at = utcnow()
+            now = utcnow()
+            if key.last_used_at is None or now - key.last_used_at >= LAST_SEEN_TOUCH:
+                key.last_used_at = now
             user = db.get(User, key.user_id)
             if user is None or user.status != "active":
                 raise Unauthorized("账号不可用")

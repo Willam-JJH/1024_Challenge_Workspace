@@ -9,6 +9,7 @@ from typing import Sequence, Union
 
 from alembic import op
 import sqlalchemy as sa
+import app.models.types  # noqa: F401 - 列类型引用 app.models.types.UTCDateTime
 
 
 # revision identifiers, used by Alembic.

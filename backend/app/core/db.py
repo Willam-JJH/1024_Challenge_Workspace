@@ -8,12 +8,16 @@ from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 from app.core.config import settings
 
 connect_args = {"check_same_thread": False} if settings.database_url.startswith("sqlite") else {}
+pool_kwargs: dict[str, int] = {}
+if not settings.database_url.startswith("sqlite"):
+    pool_kwargs = {"pool_size": 10, "max_overflow": 10}
 
 engine = create_engine(
     settings.database_url,
     connect_args=connect_args,
     pool_pre_ping=True,
     future=True,
+    **pool_kwargs,
 )
 SessionLocal = sessionmaker(bind=engine, autoflush=False, expire_on_commit=False)
 
