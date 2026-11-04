@@ -58,7 +58,8 @@ Go 版后端，目标是在不中断服务的前提下逐模块替换 `backend/`
   （Python 的 `add_member` 一直是这样，Go 侧此前漏了）。
 - 跨实现兼容已验证：Python 签发的 cookie 在 Go 侧可用，反之亦然；退出登录互通。
 - 压测工具：`go run ./tools/loadgen -url <url> -n 3000 -c 20`。
-- 尚未接入 `infra/docker-compose.prod.yml` 与 Caddy。
+- 已接入 `infra/docker-compose.prod.yml`（`go-api` 服务）与 Caddy 灰度规则；
+  尚未在正式环境开放入口。
 
 ## 命令
 
@@ -75,6 +76,9 @@ go vet ./...
 # 本地运行（可以直接沿用 Python 侧的 APP_DATABASE_URL）
 APP_DATABASE_URL='postgresql+psycopg://app:app@127.0.0.1:5432/challenge' \
 APP_PORT=18080 ./bin/api.exe
+
+# 邮件自检：用当前 APP_* 配置真实发一封（部署后验证 SMTP 用）
+go run ./tools/mailprobe -to you@example.com
 ```
 
 ## 迁移约定
@@ -138,9 +142,14 @@ PYTHONPATH=. .venv/Scripts/python.exe -m uvicorn app.main:app --host 127.0.0.1 -
 
 ## 迁移完成，上线前检查清单
 
-279 个 operation 全部实现，对照测试累计 477 项断言。**尚未部署、尚未切流。**
+279 个 operation 全部实现，对照测试累计 477 项断言；本机全量回归、隔离测试实例的
+冒烟与持续压测均已通过。**尚未开放公网入口，尚未正式上线。**
 
-上线前仍需要：
+完整的测试与上线清单见
+[`docs/runbooks/go-live-checklist.md`](../docs/runbooks/go-live-checklist.md)，
+P0 阻塞项是：空库冷启动、素材上传、真实邮件通道、反向代理与回滚演练。
+
+旧版简要清单（保留备查）：
 
 1. 一次全量回归：把 `%TEMP%\ubench\e2e_*.py` 全部跑一遍，确认没有跨套件干扰。
 2. 用 `tools/loadgen` 在接近生产的并发下压一遍关键路径（画廊、榜单、SSE、聊天转发）。

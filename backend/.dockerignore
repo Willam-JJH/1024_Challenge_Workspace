@@ -1,0 +1,11 @@
+# 构建上下文只保留运行需要的文件（.venv 约 95 MB）
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+tests/
+dev.db
+uploads/
+.env
+.env.local

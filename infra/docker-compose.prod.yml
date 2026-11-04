@@ -37,11 +37,26 @@ services:
       APP_PUBLIC_DOMAIN: ${DOMAIN}
       APP_BOT_CHECK_SECRET: ${APP_BOT_CHECK_SECRET}
       APP_UPLOAD_DIR: /data/uploads
+      # 邮件：console（默认）或 smtp；密码来自 .env.prod，不写进仓库
+      APP_MAIL_DRIVER: ${APP_MAIL_DRIVER:-console}
+      APP_MAIL_FROM: ${APP_MAIL_FROM:-}
+      APP_MAIL_FROM_NAME: "${APP_MAIL_FROM_NAME:-1024 Challenge}"
+      APP_SMTP_HOST: ${APP_SMTP_HOST:-}
+      APP_SMTP_PORT: ${APP_SMTP_PORT:-465}
+      APP_SMTP_USER: ${APP_SMTP_USER:-}
+      APP_SMTP_PASSWORD: ${APP_SMTP_PASSWORD:-}
+      APP_SMTP_TLS: ${APP_SMTP_TLS:-ssl}
     volumes:
       - uploads:/data/uploads
     depends_on:
       db:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/v1/health', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
 
   go-api:
     build:
@@ -63,11 +78,25 @@ services:
       APP_CURRENT_EVENT_SLUG: ${APP_CURRENT_EVENT_SLUG:-1024-challenge}
       APP_DB_MAX_CONNS: "20"
       APP_UPLOAD_DIR: /data/uploads
+      APP_MAIL_DRIVER: ${APP_MAIL_DRIVER:-console}
+      APP_MAIL_FROM: ${APP_MAIL_FROM:-}
+      APP_MAIL_FROM_NAME: "${APP_MAIL_FROM_NAME:-1024 Challenge}"
+      APP_SMTP_HOST: ${APP_SMTP_HOST:-}
+      APP_SMTP_PORT: ${APP_SMTP_PORT:-465}
+      APP_SMTP_USER: ${APP_SMTP_USER:-}
+      APP_SMTP_PASSWORD: ${APP_SMTP_PASSWORD:-}
+      APP_SMTP_TLS: ${APP_SMTP_TLS:-ssl}
     volumes:
       - uploads:/data/uploads
     depends_on:
       db:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8000/api/v1/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
 
   caddy:
     image: caddy:2-alpine
@@ -87,7 +116,10 @@ services:
       - caddy_data:/data
       - caddy_config:/config
     depends_on:
-      - api
+      api:
+        condition: service_healthy
+      go-api:
+        condition: service_healthy
 
 volumes:
   pgdata:
