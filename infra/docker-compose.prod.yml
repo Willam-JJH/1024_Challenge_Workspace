@@ -43,6 +43,32 @@ services:
       db:
         condition: service_healthy
 
+  go-api:
+    build:
+      context: ../backend-go
+    restart: always
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    environment:
+      APP_ENVIRONMENT: prod
+      # 与 api 共用同一个地址；Go 侧会把 postgresql+psycopg:// 归一化成 postgres://
+      APP_DATABASE_URL: postgresql+psycopg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      APP_SESSION_COOKIE: sid
+      APP_COOKIE_SECURE: "true"
+      APP_CORS_ORIGINS: '["https://${DOMAIN}"]'
+      APP_PUBLIC_DOMAIN: ${DOMAIN}
+      APP_CURRENT_EVENT_SLUG: ${APP_CURRENT_EVENT_SLUG:-1024-challenge}
+      APP_DB_MAX_CONNS: "20"
+      APP_UPLOAD_DIR: /data/uploads
+    volumes:
+      - uploads:/data/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+
   caddy:
     image: caddy:2-alpine
     restart: always

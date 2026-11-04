@@ -1,11 +1,17 @@
-{
-	# 生产：Caddy 自动申请并续期 Let's Encrypt 证书（域名已备案、80/443 可访问）
-	{$DOMAIN} {
+# 生产：Caddy 自动申请并续期 Let's Encrypt 证书（域名已备案、80/443 可访问）
+{$DOMAIN} {
 		encode zstd gzip
 
 		# OAuth 元数据必须挂在站点根
 		handle /.well-known/* {
 			reverse_proxy api:8000
+		}
+
+		# 灰度：这两个前缀已由 Go 实现（含 /votes/stream 的 SSE）。
+		# 回滚：删掉 @goapi 与下面的 handle @goapi，流量会落回 /api/* 交给 Python。
+		@goapi path /api/v1/events /api/v1/events/* /api/v1/votes /api/v1/votes/*
+		handle @goapi {
+			reverse_proxy go-api:8000
 		}
 
 		handle /api/* {
@@ -29,4 +35,3 @@
 			-Server
 		}
 	}
-}
