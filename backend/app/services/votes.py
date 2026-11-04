@@ -8,7 +8,16 @@ from sqlalchemy.orm import Session as DbSession
 from app.core.config import settings
 from app.core.errors import Conflict, Forbidden, NotFound
 from app.models.event import Company, Event, Membership
+from app.models.identity import User
 from app.models.vote import Vote
+
+
+def _lock_voter(db: DbSession, user_id: str) -> None:
+    """锁住用户行，让同一用户的并发投票串行化，避免绕过钱包上限。
+
+    SQLite 会忽略 FOR UPDATE；生产用的 PostgreSQL 走行锁。
+    """
+    db.execute(select(User.id).where(User.id == user_id).with_for_update())
 
 
 def live_counts(db: DbSession, event_id: str) -> dict[str, int]:
@@ -86,6 +95,7 @@ def _assert_not_own_company(db: DbSession, company_id: str, user_id: str) -> Non
 def cast_vote(db: DbSession, event: Event, user_id: str, company_id: str) -> Vote:
     if not event.voting_open:
         raise Forbidden("投票已关闭")
+    _lock_voter(db, user_id)
     company = _company_of_event(db, company_id, event)
     _assert_not_own_company(db, company.id, user_id)
 
@@ -124,6 +134,7 @@ def withdraw_vote(db: DbSession, event: Event, user_id: str, company_id: str) ->
 def replace_my_votes(db: DbSession, event: Event, user_id: str, company_ids: list[str]) -> None:
     if not event.voting_open:
         raise Forbidden("投票已关闭")
+    _lock_voter(db, user_id)
     unique_ids = list(dict.fromkeys(company_ids))
     if len(unique_ids) > settings.wallet_max_votes:
         raise Conflict(f"最多只能投给 {settings.wallet_max_votes} 家公司")

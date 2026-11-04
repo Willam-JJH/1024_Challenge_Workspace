@@ -25,12 +25,27 @@ type Server struct {
 
 // New 组装路由：先注册已实现的 handler，其余 OpenAPI operation 一律 501，
 // 保证契约先行的约定在 Go 侧同样成立。
-func New(cfg config.Config, pools *db.Pools, logger *slog.Logger) http.Handler {
+func New(cfg config.Config, pools *db.Pools, logger *slog.Logger) (http.Handler, error) {
+	mailer, err := auth.NewMailer(auth.MailOptions{
+		Driver:   cfg.MailDriver,
+		Host:     cfg.SMTPHost,
+		Port:     cfg.SMTPPort,
+		User:     cfg.SMTPUser,
+		Password: cfg.SMTPPassword,
+		TLS:      cfg.SMTPTLS,
+		From:     cfg.MailFrom,
+		FromName: cfg.MailFromName,
+		Timeout:  cfg.SMTPTimeout,
+	}, logger)
+	if err != nil {
+		return nil, err
+	}
+
 	s := &Server{
 		cfg:            cfg,
 		pools:          pools,
 		logger:         logger,
-		mailer:         auth.LogMailer{Logger: logger},
+		mailer:         mailer,
 		trustedProxies: parsePrefixes(cfg.TrustedProxies),
 	}
 	if pools != nil && pools.Write != nil {
@@ -56,7 +71,7 @@ func New(cfg config.Config, pools *db.Pools, logger *slog.Logger) http.Handler {
 	handler = withAccessLog(logger, handler)
 	handler = withRequestID(handler)
 	handler = withRecover(logger, handler)
-	return handler
+	return handler, nil
 }
 
 func (s *Server) implemented() map[string]http.HandlerFunc {

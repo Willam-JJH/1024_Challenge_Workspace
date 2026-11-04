@@ -50,6 +50,18 @@ class Settings(BaseSettings):
     upload_dir: str = "uploads"
     max_upload_bytes: int = 100 * 1024 * 1024
 
+    # 邮件：console 只写日志；smtp 走真实投递
+    mail_driver: str = "console"
+    mail_from: str = ""
+    mail_from_name: str = "1024 Challenge"
+    smtp_host: str = ""
+    smtp_port: int = 465
+    smtp_user: str = ""
+    smtp_password: str = ""
+    # ssl（465，隐式 TLS）| starttls（587）| none（本地假服务）
+    smtp_tls: str = "ssl"
+    smtp_timeout: float = 10.0
+
     # 分页
     default_page_size: int = 20
     max_page_size: int = 100

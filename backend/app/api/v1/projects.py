@@ -180,6 +180,9 @@ def acquire_lock(
     project = _project_or_404(db, project_id)
     _require_editor(db, project, principal)
 
+    # 锁住作品行：两人同时请求时只有一个能建出会话，另一个随后读到后会收到 409
+    db.execute(select(Project.id).where(Project.id == project.id).with_for_update())
+
     now = datetime.now(UTC)
     db.execute(
         delete(ProjectEditSession).where(

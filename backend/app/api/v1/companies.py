@@ -4,6 +4,7 @@ from datetime import UTC, datetime, timedelta
 
 from fastapi import APIRouter, Depends
 from sqlalchemy import func, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session as DbSession
 
 from app.core.config import settings
@@ -84,22 +85,35 @@ def create_company(
     event = svc.current_event(db)
     if not event.registration_open:
         raise Forbidden("报名已关闭")
-    if svc.my_membership(db, principal.user.id) is not None:
+    user_id = principal.user.id
+    if svc.my_membership(db, user_id) is not None:
         raise Conflict("你已经在公司中")
 
-    company = Company(
-        event_id=event.id,
-        slug=_unique_slug(db, event.id, payload.name),
-        name=payload.name,
-        blurb=payload.blurb,
-        captain_id=principal.user.id,
-    )
-    db.add(company)
-    db.flush()
-    db.add(Membership(company_id=company.id, user_id=principal.user.id, role="captain"))
-    principal.user.role = "captain"
-    db.flush()
-    return _detail(db, company)
+    # 并发创建同名公司时 slug 可能撞车：回滚后重新取号，最多试三次
+    for _ in range(3):
+        company = Company(
+            event_id=event.id,
+            slug=_unique_slug(db, event.id, payload.name),
+            name=payload.name,
+            blurb=payload.blurb,
+            captain_id=user_id,
+        )
+        db.add(company)
+        try:
+            db.flush()
+        except IntegrityError:
+            db.rollback()
+            event = svc.current_event(db)
+            if svc.my_membership(db, user_id) is not None:
+                raise Conflict("你已经在公司中") from None
+            continue
+        db.add(Membership(company_id=company.id, user_id=user_id, role="captain"))
+        user = db.get(User, user_id)
+        if user is not None:
+            user.role = "captain"
+        db.flush()
+        return _detail(db, company)
+    raise Conflict("并发创建冲突，请重试")
 
 
 @router.get("", response_model=list[CompanySummaryOut], summary="招募中的公司")

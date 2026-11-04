@@ -27,9 +27,15 @@ func main() {
 	}
 	defer pools.Close()
 
+	handler, err := api.New(cfg, pools, logger)
+	if err != nil {
+		logger.Error("server setup failed", "error", err)
+		os.Exit(1)
+	}
+
 	server := &http.Server{
 		Addr:              ":" + cfg.Port,
-		Handler:           api.New(cfg, pools, logger),
+		Handler:           handler,
 		ReadHeaderTimeout: 5 * time.Second,
 		IdleTimeout:       120 * time.Second,
 	}

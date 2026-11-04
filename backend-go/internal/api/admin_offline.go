@@ -270,8 +270,11 @@ func (s *Server) adminCancelOfflineSession(w http.ResponseWriter, r *http.Reques
 		return
 	}
 	for _, email := range emails {
-		s.mailer.SendNotice(email, session.Title+" 已取消",
-			"这场线下活动已取消，请留意后续通知。")
+		if err := s.mailer.SendNotice(email, session.Title+" 已取消",
+			"这场线下活动已取消，请留意后续通知。"); err != nil {
+			s.writeQueryError(w, r, err)
+			return
+		}
 	}
 	writeJSON(w, http.StatusOK, okOut{OK: true})
 }

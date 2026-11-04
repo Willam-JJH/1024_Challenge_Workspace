@@ -357,9 +357,9 @@ func (s *Server) votingEvent(r *http.Request) (*votingEvent, error) {
 	return &event, nil
 }
 
-func (s *Server) companyInEvent(r *http.Request, companyID, eventID string) (bool, error) {
+func (s *Server) companyInEvent(ctx context.Context, q queryer, companyID, eventID string) (bool, error) {
 	var companyEvent string
-	err := s.writePool().QueryRow(r.Context(),
+	err := q.QueryRow(ctx,
 		`SELECT event_id FROM companies WHERE id = $1`, companyID).Scan(&companyEvent)
 	if err != nil {
 		if isNoRows(err) {
@@ -370,8 +370,8 @@ func (s *Server) companyInEvent(r *http.Request, companyID, eventID string) (boo
 	return companyEvent == eventID, nil
 }
 
-func (s *Server) votesOfUser(r *http.Request, eventID, userID string) (map[string]string, error) {
-	rows, err := s.writePool().Query(r.Context(), `
+func (s *Server) votesOfUser(ctx context.Context, q queryer, eventID, userID string) (map[string]string, error) {
+	rows, err := q.Query(ctx, `
 		SELECT id, company_id FROM votes
 		WHERE event_id = $1 AND voter_id = $2 AND status = 'live'`, eventID, userID)
 	if err != nil {
@@ -389,9 +389,9 @@ func (s *Server) votesOfUser(r *http.Request, eventID, userID string) (map[strin
 	return out, rows.Err()
 }
 
-func (s *Server) assertVotable(w http.ResponseWriter, r *http.Request, event *votingEvent,
-	companyID, userID string) (bool, error) {
-	ok, err := s.companyInEvent(r, companyID, event.ID)
+func (s *Server) assertVotable(ctx context.Context, q queryer, w http.ResponseWriter,
+	r *http.Request, event *votingEvent, companyID, userID string) (bool, error) {
+	ok, err := s.companyInEvent(ctx, q, companyID, event.ID)
 	if err != nil {
 		return false, err
 	}
@@ -400,7 +400,7 @@ func (s *Server) assertVotable(w http.ResponseWriter, r *http.Request, event *vo
 		return false, nil
 	}
 	var one int
-	err = s.writePool().QueryRow(r.Context(), `
+	err = q.QueryRow(ctx, `
 		SELECT 1 FROM memberships WHERE company_id = $1 AND user_id = $2 LIMIT 1`,
 		companyID, userID).Scan(&one)
 	if err == nil {
@@ -456,8 +456,21 @@ func (s *Server) replaceMyVotes(w http.ResponseWriter, r *http.Request) {
 			"最多只能投给 "+strconvItoa(s.cfg.WalletMaxVotes)+" 家公司")
 		return
 	}
+	tx, err := s.writePool().Begin(r.Context())
+	if err != nil {
+		s.writeQueryError(w, r, err)
+		return
+	}
+	defer tx.Rollback(r.Context())
+	// 锁住用户行，让同一用户的并发投票串行化，避免绕过钱包上限
+	if _, err := tx.Exec(r.Context(),
+		`SELECT 1 FROM users WHERE id = $1 FOR UPDATE`, principal.User.ID); err != nil {
+		s.writeQueryError(w, r, err)
+		return
+	}
+
 	for _, companyID := range unique {
-		ok, err := s.assertVotable(w, r, event, companyID, principal.User.ID)
+		ok, err := s.assertVotable(r.Context(), tx, w, r, event, companyID, principal.User.ID)
 		if err != nil {
 			s.writeQueryError(w, r, err)
 			return
@@ -467,7 +480,7 @@ func (s *Server) replaceMyVotes(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	current, err := s.votesOfUser(r, event.ID, principal.User.ID)
+	current, err := s.votesOfUser(r.Context(), tx, event.ID, principal.User.ID)
 	if err != nil {
 		s.writeQueryError(w, r, err)
 		return
@@ -477,7 +490,7 @@ func (s *Server) replaceMyVotes(w http.ResponseWriter, r *http.Request) {
 		if seen[companyID] {
 			continue
 		}
-		if _, err := s.writePool().Exec(r.Context(), `
+		if _, err := tx.Exec(r.Context(), `
 			UPDATE votes SET status = 'withdrawn', updated_at = $2 WHERE id = $1`,
 			voteID, now); err != nil {
 			s.writeQueryError(w, r, err)
@@ -493,13 +506,17 @@ func (s *Server) replaceMyVotes(w http.ResponseWriter, r *http.Request) {
 			WriteError(w, r, errInternal)
 			return
 		}
-		if _, err := s.writePool().Exec(r.Context(), `
+		if _, err := tx.Exec(r.Context(), `
 			INSERT INTO votes (id, event_id, voter_id, company_id, status, created_at, updated_at)
 			VALUES ($1, $2, $3, $4, 'live', $5, $5)`,
 			id, event.ID, principal.User.ID, companyID, now); err != nil {
 			s.writeQueryError(w, r, err)
 			return
 		}
+	}
+	if err := tx.Commit(r.Context()); err != nil {
+		s.writeQueryError(w, r, err)
+		return
 	}
 	s.writeMyVotes(w, r, principal.User.ID)
 }
@@ -523,7 +540,19 @@ func (s *Server) castVote(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	companyID := r.PathValue("company_id")
-	ok, err = s.assertVotable(w, r, event, companyID, principal.User.ID)
+	tx, err := s.writePool().Begin(r.Context())
+	if err != nil {
+		s.writeQueryError(w, r, err)
+		return
+	}
+	defer tx.Rollback(r.Context())
+	// 锁住用户行，让同一用户的并发投票串行化，避免绕过钱包上限
+	if _, err := tx.Exec(r.Context(),
+		`SELECT 1 FROM users WHERE id = $1 FOR UPDATE`, principal.User.ID); err != nil {
+		s.writeQueryError(w, r, err)
+		return
+	}
+	ok, err = s.assertVotable(r.Context(), tx, w, r, event, companyID, principal.User.ID)
 	if err != nil {
 		s.writeQueryError(w, r, err)
 		return
@@ -533,7 +562,7 @@ func (s *Server) castVote(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var existingID, existingStatus string
-	existingErr := s.writePool().QueryRow(r.Context(), `
+	existingErr := tx.QueryRow(r.Context(), `
 		SELECT id, status FROM votes
 		WHERE event_id = $1 AND voter_id = $2 AND company_id = $3 LIMIT 1`,
 		event.ID, principal.User.ID, companyID).Scan(&existingID, &existingStatus)
@@ -546,7 +575,7 @@ func (s *Server) castVote(w http.ResponseWriter, r *http.Request) {
 		s.writeMyVotes(w, r, principal.User.ID)
 		return
 	}
-	live, err := s.votesOfUser(r, event.ID, principal.User.ID)
+	live, err := s.votesOfUser(r.Context(), tx, event.ID, principal.User.ID)
 	if err != nil {
 		s.writeQueryError(w, r, err)
 		return
@@ -558,7 +587,7 @@ func (s *Server) castVote(w http.ResponseWriter, r *http.Request) {
 	}
 	now := time.Now().UTC()
 	if hasExisting {
-		if _, err := s.writePool().Exec(r.Context(), `
+		if _, err := tx.Exec(r.Context(), `
 			UPDATE votes SET status = 'live', updated_at = $2 WHERE id = $1`,
 			existingID, now); err != nil {
 			s.writeQueryError(w, r, err)
@@ -570,13 +599,17 @@ func (s *Server) castVote(w http.ResponseWriter, r *http.Request) {
 			WriteError(w, r, errInternal)
 			return
 		}
-		if _, err := s.writePool().Exec(r.Context(), `
+		if _, err := tx.Exec(r.Context(), `
 			INSERT INTO votes (id, event_id, voter_id, company_id, status, created_at, updated_at)
 			VALUES ($1, $2, $3, $4, 'live', $5, $5)`,
 			id, event.ID, principal.User.ID, companyID, now); err != nil {
 			s.writeQueryError(w, r, err)
 			return
 		}
+	}
+	if err := tx.Commit(r.Context()); err != nil {
+		s.writeQueryError(w, r, err)
+		return
 	}
 	s.writeMyVotes(w, r, principal.User.ID)
 }

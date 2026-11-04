@@ -348,7 +348,14 @@ func (s *Server) sendEmail(r *http.Request, users []emailRecipient, subject, bod
 		status := "sent"
 		var sentAt any = now
 		var failure any
-		s.mailer.SendNotice(user.Email, subject, rendered)
+		if err := s.mailer.SendNotice(user.Email, subject, rendered); err != nil {
+			status = "failed"
+			sentAt = nil
+			failure = truncateError(err)
+			failed++
+		} else {
+			sent++
+		}
 		if _, err := s.writePool().Exec(r.Context(), `
 			INSERT INTO email_messages (id, broadcast_id, to_email, subject, body, status,
 				error, sent_at, created_at, updated_at)
@@ -357,9 +364,18 @@ func (s *Server) sendEmail(r *http.Request, users []emailRecipient, subject, bod
 			now); err != nil {
 			return sent, failed, err
 		}
-		sent++
 	}
 	return sent, failed, nil
+}
+
+// truncateError 与 Python 的 str(exc)[:500] 对齐；按 rune 截断避免切坏 UTF-8。
+func truncateError(err error) string {
+	text := err.Error()
+	runes := []rune(text)
+	if len(runes) > 500 {
+		text = string(runes[:500])
+	}
+	return text
 }
 
 func (s *Server) adminEmailSchedule(w http.ResponseWriter, r *http.Request) {
@@ -626,7 +642,10 @@ func (s *Server) adminEmailResend(w http.ResponseWriter, r *http.Request) {
 		writeError(w, r, http.StatusConflict, "conflict", "只有失败的邮件可以重发")
 		return
 	}
-	s.mailer.SendNotice(toEmail, subject, body)
+	if err := s.mailer.SendNotice(toEmail, subject, body); err != nil {
+		s.writeQueryError(w, r, err)
+		return
+	}
 	if _, err := s.writePool().Exec(r.Context(), `
 		UPDATE email_messages SET status = 'sent', sent_at = $2, error = NULL, updated_at = $2
 		WHERE id = $1`, messageID, time.Now().UTC()); err != nil {
@@ -768,7 +787,7 @@ func (s *Server) adminEmailSetup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	writeJSON(w, http.StatusOK, emailSetupOut{
-		Driver:    "console",
+		Driver:    auth.DriverName(s.mailer),
 		SentToday: sentToday,
 	})
 }
@@ -783,7 +802,7 @@ func (s *Server) adminEmailQuota(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	writeJSON(w, http.StatusOK, emailSetupOut{
-		Driver:    "console",
+		Driver:    auth.DriverName(s.mailer),
 		SentToday: sentToday,
 	})
 }

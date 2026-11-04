@@ -6,6 +6,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type Config struct {
@@ -29,6 +30,15 @@ type Config struct {
 	WalletMaxVotes   int
 	UploadDir        string
 	MaxUploadBytes   int64
+	MailDriver       string
+	MailFrom         string
+	MailFromName     string
+	SMTPHost         string
+	SMTPPort         int
+	SMTPUser         string
+	SMTPPassword     string
+	SMTPTLS          string
+	SMTPTimeout      time.Duration
 }
 
 func Load() Config {
@@ -53,6 +63,15 @@ func Load() Config {
 		WalletMaxVotes:   envInt("APP_WALLET_MAX_VOTES", 3),
 		UploadDir:        env("APP_UPLOAD_DIR", "uploads"),
 		MaxUploadBytes:   envInt64("APP_MAX_UPLOAD_BYTES", 100*1024*1024),
+		MailDriver:       env("APP_MAIL_DRIVER", "console"),
+		MailFrom:         env("APP_MAIL_FROM", ""),
+		MailFromName:     env("APP_MAIL_FROM_NAME", "1024 Challenge"),
+		SMTPHost:         env("APP_SMTP_HOST", ""),
+		SMTPPort:         envInt("APP_SMTP_PORT", 465),
+		SMTPUser:         env("APP_SMTP_USER", ""),
+		SMTPPassword:     env("APP_SMTP_PASSWORD", ""),
+		SMTPTLS:          env("APP_SMTP_TLS", "ssl"),
+		SMTPTimeout:      time.Duration(envInt("APP_SMTP_TIMEOUT", 10)) * time.Second,
 	}
 }
 

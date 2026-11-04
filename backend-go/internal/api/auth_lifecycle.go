@@ -166,7 +166,10 @@ func (s *Server) requestPasswordReset(w http.ResponseWriter, r *http.Request) {
 			s.writeQueryError(w, r, err)
 			return
 		}
-		s.mailer.SendCode(user.Email, code, "password_reset", user.Locale)
+		if err := s.mailer.SendCode(user.Email, code, "password_reset", user.Locale); err != nil {
+			s.writeQueryError(w, r, err)
+			return
+		}
 	}
 	// 不透露邮箱是否存在。
 	writeJSON(w, http.StatusOK, codeSentOut{
@@ -312,6 +315,13 @@ func (s *Server) register(w http.ResponseWriter, r *http.Request) {
 	if user == nil {
 		user, err = s.store.CreateUser(r.Context(), email, hash, name, locale, "pending",
 			"participant", now)
+		if err != nil && isUniqueViolation(err) {
+			// 并发注册同一邮箱：另一个请求先插入成功，改为更新已有 pending 账号
+			user, err = s.store.UserByEmail(r.Context(), email)
+			if err == nil && user != nil {
+				err = s.store.UpdateRegistration(r.Context(), user.ID, hash, name, locale, now)
+			}
+		}
 	} else {
 		err = s.store.UpdateRegistration(r.Context(), user.ID, hash, name, locale, now)
 	}
@@ -325,7 +335,10 @@ func (s *Server) register(w http.ResponseWriter, r *http.Request) {
 		s.writeQueryError(w, r, err)
 		return
 	}
-	s.mailer.SendCode(email, code, "register", locale)
+	if err := s.mailer.SendCode(email, code, "register", locale); err != nil {
+		s.writeQueryError(w, r, err)
+		return
+	}
 	writeJSON(w, http.StatusAccepted, codeSentOut{
 		Status:    "code_sent",
 		ExpiresIn: int(auth.CodeTTL.Seconds()),
@@ -353,7 +366,10 @@ func (s *Server) resendRegistration(w http.ResponseWriter, r *http.Request) {
 			s.writeQueryError(w, r, err)
 			return
 		}
-		s.mailer.SendCode(user.Email, code, "register", user.Locale)
+		if err := s.mailer.SendCode(user.Email, code, "register", user.Locale); err != nil {
+			s.writeQueryError(w, r, err)
+			return
+		}
 	}
 	writeJSON(w, http.StatusOK, codeSentOut{
 		Status:    "code_sent",

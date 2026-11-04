@@ -13,6 +13,7 @@ from datetime import UTC, datetime, timedelta
 
 from fastapi import APIRouter, Depends, Request, Response
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session as DbSession
 
 from app.core.config import settings
@@ -255,11 +256,23 @@ def register(
             status="pending",
         )
         db.add(user)
+        try:
+            db.flush()
+        except IntegrityError:
+            # 并发注册同一邮箱：另一个请求先插入成功，回滚后按“已存在”处理
+            db.rollback()
+            user = db.scalar(select(User).where(User.email == email))
+            if user is None:
+                raise
+            user.password_hash = hash_password(payload.password)
+            user.display_name = payload.display_name
+            user.locale = payload.locale
+            db.flush()
     else:
         user.password_hash = hash_password(payload.password)
         user.display_name = payload.display_name
         user.locale = payload.locale
-    db.flush()
+        db.flush()
 
     codes.issue_code(db, email=email, purpose="register", locale=payload.locale)
     return CodeSentOut(expires_in=codes.CODE_TTL_MINUTES * 60)

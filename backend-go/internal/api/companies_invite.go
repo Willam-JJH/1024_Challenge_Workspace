@@ -111,8 +111,10 @@ func (s *Server) deliverInvitation(ctx context.Context, invitationID, email,
 	if err != nil {
 		return "", err
 	}
-	s.mailer.SendNotice(email, "邀请你加入 "+companyName,
-		"用这个链接激活并加入：/auth/activations/"+token)
+	if err := s.mailer.SendNotice(email, "邀请你加入 "+companyName,
+		"用这个链接激活并加入：/auth/activations/"+token); err != nil {
+		return "", err
+	}
 	return token, nil
 }
 

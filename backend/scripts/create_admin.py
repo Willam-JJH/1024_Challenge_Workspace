@@ -26,13 +26,23 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--email", required=True)
     parser.add_argument("--name", required=True)
+    parser.add_argument(
+        "--password-stdin",
+        action="store_true",
+        help="从标准输入读取口令（首次部署脚本化用；不落在命令行参数里）",
+    )
     args = parser.parse_args()
 
     email = args.email.lower()
     with SessionLocal() as db:
         user = db.scalar(select(User).where(User.email == email))
         if user is None:
-            password = getpass.getpass("口令（至少 8 位）：")
+            if args.password_stdin:
+                password = sys.stdin.readline().rstrip("\r\n")
+                if not password:
+                    raise SystemExit("标准输入没有读到口令")
+            else:
+                password = getpass.getpass("口令（至少 8 位）：")
             if len(password) < 8:
                 raise SystemExit("口令太短")
             user = User(

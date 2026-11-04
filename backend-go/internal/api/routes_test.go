@@ -27,7 +27,11 @@ func testHandler(t *testing.T) http.Handler {
 		CORSOrigins:   []string{"http://localhost:5173"},
 		SessionCookie: "sid",
 	}
-	return New(cfg, nil, slog.New(slog.NewTextHandler(io.Discard, nil)))
+	handler, err := New(cfg, nil, slog.New(slog.NewTextHandler(io.Discard, nil)))
+	if err != nil {
+		t.Fatalf("build handler: %v", err)
+	}
+	return handler
 }
 
 func loadSpec(t *testing.T) openapiSpec {

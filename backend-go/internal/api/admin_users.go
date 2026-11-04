@@ -232,7 +232,10 @@ func (s *Server) adminCreateUser(w http.ResponseWriter, r *http.Request) {
 		s.writeQueryError(w, r, err)
 		return
 	}
-	s.mailer.SendCode(email, code, "register", locale)
+	if err := s.mailer.SendCode(email, code, "register", locale); err != nil {
+		s.writeQueryError(w, r, err)
+		return
+	}
 	if err := s.recordAudit(ctx, principal.User.ID, "user.create", "user", id, nil); err != nil {
 		s.writeQueryError(w, r, err)
 		return
@@ -463,7 +466,10 @@ func (s *Server) adminResendActivation(w http.ResponseWriter, r *http.Request) {
 		s.writeQueryError(w, r, err)
 		return
 	}
-	s.mailer.SendCode(email, code, "register", locale)
+	if err := s.mailer.SendCode(email, code, "register", locale); err != nil {
+		s.writeQueryError(w, r, err)
+		return
+	}
 	writeJSON(w, http.StatusOK, okOut{OK: true})
 }
 

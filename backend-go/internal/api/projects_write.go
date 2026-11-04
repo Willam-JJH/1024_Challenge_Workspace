@@ -294,6 +294,13 @@ func (s *Server) acquireEditSession(w http.ResponseWriter, r *http.Request) {
 	}
 	defer tx.Rollback(ctx) //nolint:errcheck
 
+	// 锁住作品行，让两个并发请求串行：后到的那个会读到刚提交的会话并返回 409
+	if _, err := tx.Exec(ctx,
+		`SELECT 1 FROM projects WHERE id = $1 FOR UPDATE`, project.ID); err != nil {
+		s.writeQueryError(w, r, err)
+		return
+	}
+
 	now := time.Now().UTC()
 	if _, err := tx.Exec(ctx,
 		`DELETE FROM project_edit_sessions WHERE project_id = $1 AND expires_at < $2`,

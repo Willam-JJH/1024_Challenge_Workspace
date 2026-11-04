@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"net/http"
 	"regexp"
 	"strconv"
@@ -65,6 +66,42 @@ type companyCreateIn struct {
 	Blurb *string `json:"blurb"`
 }
 
+// insertCompany 在一个事务里建公司、加队长成员并提升角色；
+// slug 撞车时返回 conflict=true，让调用方换后缀重试。
+func (s *Server) insertCompany(ctx context.Context, companyID, membershipID, eventID, slug,
+	name string, blurb *string, userID string, now time.Time) (bool, error) {
+	tx, err := s.writePool().Begin(ctx)
+	if err != nil {
+		return false, err
+	}
+	defer tx.Rollback(ctx) //nolint:errcheck
+	if _, err := tx.Exec(ctx, `
+		INSERT INTO companies (id, event_id, slug, name, blurb, captain_id, roster_locked,
+			present, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, $6, false, false, $7, $7)`,
+		companyID, eventID, slug, name, blurb, userID, now); err != nil {
+		if isUniqueViolation(err) {
+			return true, nil
+		}
+		return false, err
+	}
+	if _, err := tx.Exec(ctx, `
+		INSERT INTO memberships (id, company_id, user_id, role, created_at, updated_at)
+		VALUES ($1, $2, $3, 'captain', $4, $4)`,
+		membershipID, companyID, userID, now); err != nil {
+		return false, err
+	}
+	if _, err := tx.Exec(ctx,
+		`UPDATE users SET role = 'captain', updated_at = $2 WHERE id = $1`,
+		userID, now); err != nil {
+		return false, err
+	}
+	if err := tx.Commit(ctx); err != nil {
+		return false, err
+	}
+	return false, nil
+}
+
 func (s *Server) createCompany(w http.ResponseWriter, r *http.Request) {
 	principal, ok := s.requireAuth(w, r)
 	if !ok {
@@ -107,61 +144,50 @@ func (s *Server) createCompany(w http.ResponseWriter, r *http.Request) {
 	}
 
 	base := slugify(name)
-	slug := base
-	for n := 1; ; n++ {
-		var taken int
-		if err := s.writePool().QueryRow(ctx, `
-			SELECT count(*) FROM companies WHERE event_id = $1 AND slug = $2`,
-			eventID, slug).Scan(&taken); err != nil {
+	now := time.Now().UTC()
+
+	// 并发同名建队时 slug 可能撞车：重算后缀后重试，最多三次
+	var companyID, slug string
+	created := false
+	for attempt := 0; attempt < 3 && !created; attempt++ {
+		slug = base
+		for n := 1; ; n++ {
+			var taken int
+			if err := s.writePool().QueryRow(ctx, `
+				SELECT count(*) FROM companies WHERE event_id = $1 AND slug = $2`,
+				eventID, slug).Scan(&taken); err != nil {
+				s.writeQueryError(w, r, err)
+				return
+			}
+			if taken == 0 {
+				break
+			}
+			slug = base + "-" + strconv.Itoa(n+1)
+		}
+
+		companyID, err = auth.NewID()
+		if err != nil {
+			WriteError(w, r, errInternal)
+			return
+		}
+		membershipID, err := auth.NewID()
+		if err != nil {
+			WriteError(w, r, errInternal)
+			return
+		}
+		conflict, err := s.insertCompany(ctx, companyID, membershipID, eventID, slug, name,
+			in.Blurb, principal.User.ID, now)
+		if err != nil {
 			s.writeQueryError(w, r, err)
 			return
 		}
-		if taken == 0 {
-			break
+		if conflict {
+			continue
 		}
-		slug = base + "-" + strconv.Itoa(n+1)
+		created = true
 	}
-
-	companyID, err := auth.NewID()
-	if err != nil {
-		WriteError(w, r, errInternal)
-		return
-	}
-	membershipID, err := auth.NewID()
-	if err != nil {
-		WriteError(w, r, errInternal)
-		return
-	}
-	now := time.Now().UTC()
-	tx, err := s.writePool().Begin(ctx)
-	if err != nil {
-		s.writeQueryError(w, r, err)
-		return
-	}
-	defer tx.Rollback(ctx) //nolint:errcheck
-	if _, err := tx.Exec(ctx, `
-		INSERT INTO companies (id, event_id, slug, name, blurb, captain_id, roster_locked,
-			present, created_at, updated_at)
-		VALUES ($1, $2, $3, $4, $5, $6, false, false, $7, $7)`,
-		companyID, eventID, slug, name, in.Blurb, principal.User.ID, now); err != nil {
-		s.writeQueryError(w, r, err)
-		return
-	}
-	if _, err := tx.Exec(ctx, `
-		INSERT INTO memberships (id, company_id, user_id, role, created_at, updated_at)
-		VALUES ($1, $2, $3, 'captain', $4, $4)`,
-		membershipID, companyID, principal.User.ID, now); err != nil {
-		s.writeQueryError(w, r, err)
-		return
-	}
-	if _, err := tx.Exec(ctx,
-		`UPDATE users SET role = 'captain', updated_at = $2 WHERE id = $1`,
-		principal.User.ID, now); err != nil {
-		s.writeQueryError(w, r, err)
-		return
-	}
-	if err := tx.Commit(ctx); err != nil {
-		s.writeQueryError(w, r, err)
+	if !created {
+		writeError(w, r, http.StatusConflict, "conflict", "并发创建冲突，请重试")
 		return
 	}
 	s.writeCompanyDetail(w, r, companyBase{
