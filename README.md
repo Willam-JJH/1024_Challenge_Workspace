@@ -36,7 +36,7 @@ backend/     FastAPI + SQLAlchemy 2.0 + Alembic
   tests/       pytest
 frontend/    占位（重设计后填充）
 infra/       docker-compose、Caddyfile、Cloudflare 说明
-docs/        api/（规范、OpenAPI、旧清单）、adr/
+docs/        api/（规范、OpenAPI、旧清单）、adr/、design/（Intern 重设计）
 scripts/     导出 OpenAPI、生成旧接口清单
 ```
 
