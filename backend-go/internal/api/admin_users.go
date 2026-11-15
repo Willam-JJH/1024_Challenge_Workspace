@@ -12,21 +12,21 @@ import (
 )
 
 const (
-	adminCreateUserPattern   = "POST /api/v1/admin/users"
-	adminUserGetPattern      = "GET /api/v1/admin/users/{user_id}"
-	adminUserTeamsPattern    = "GET /api/v1/admin/users/{user_id}/teams"
-	adminUserRolePattern     = "PUT /api/v1/admin/users/{user_id}/role"
-	adminUserModePattern     = "PUT /api/v1/admin/users/{user_id}/mode"
-	adminUserLocalePattern   = "PUT /api/v1/admin/users/{user_id}/locale"
-	adminUserSuspendPattern  = "POST /api/v1/admin/users/{user_id}/suspensions"
-	adminUserResumePattern   = "DELETE /api/v1/admin/users/{user_id}/suspensions"
-	adminUserSignOutPattern  = "POST /api/v1/admin/users/{user_id}/sign-outs"
-	adminUserResendPattern   = "POST /api/v1/admin/users/{user_id}/activation-deliveries"
-	adminUserDeletePattern   = "DELETE /api/v1/admin/users/{user_id}"
-	adminBulkRolePattern     = "PUT /api/v1/admin/users/roles"
-	adminBulkLocalePattern   = "PUT /api/v1/admin/users/locales"
-	adminBulkDeletePattern   = "DELETE /api/v1/admin/users"
-	adminExportCSVPattern    = "GET /api/v1/admin/users/export.csv"
+	adminCreateUserPattern  = "POST /api/v1/admin/users"
+	adminUserGetPattern     = "GET /api/v1/admin/users/{user_id}"
+	adminUserTeamsPattern   = "GET /api/v1/admin/users/{user_id}/teams"
+	adminUserRolePattern    = "PUT /api/v1/admin/users/{user_id}/role"
+	adminUserModePattern    = "PUT /api/v1/admin/users/{user_id}/mode"
+	adminUserLocalePattern  = "PUT /api/v1/admin/users/{user_id}/locale"
+	adminUserSuspendPattern = "POST /api/v1/admin/users/{user_id}/suspensions"
+	adminUserResumePattern  = "DELETE /api/v1/admin/users/{user_id}/suspensions"
+	adminUserSignOutPattern = "POST /api/v1/admin/users/{user_id}/sign-outs"
+	adminUserResendPattern  = "POST /api/v1/admin/users/{user_id}/activation-deliveries"
+	adminUserDeletePattern  = "DELETE /api/v1/admin/users/{user_id}"
+	adminBulkRolePattern    = "PUT /api/v1/admin/users/roles"
+	adminBulkLocalePattern  = "PUT /api/v1/admin/users/locales"
+	adminBulkDeletePattern  = "DELETE /api/v1/admin/users"
+	adminExportCSVPattern   = "GET /api/v1/admin/users/export.csv"
 )
 
 var adminRoles = map[string]bool{

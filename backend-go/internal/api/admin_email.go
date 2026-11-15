@@ -2,6 +2,7 @@ package api
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"net/http"
 	"strconv"
@@ -298,7 +299,7 @@ type emailRecipient struct {
 }
 
 // emailRecipients 复刻 _recipients：活跃用户 + 受众/语言过滤。
-func (s *Server) emailRecipients(r *http.Request, audience, locale string) ([]emailRecipient, error) {
+func (s *Server) emailRecipients(ctx context.Context, audience, locale string) ([]emailRecipient, error) {
 	query := `SELECT id, email, display_name, locale FROM users WHERE status = 'active'`
 	switch audience {
 	case "participants":
@@ -313,7 +314,7 @@ func (s *Server) emailRecipients(r *http.Request, audience, locale string) ([]em
 		query += ` AND locale = $1`
 		args = append(args, locale)
 	}
-	rows, err := s.writePool().Query(r.Context(), query, args...)
+	rows, err := s.writePool().Query(ctx, query, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -335,7 +336,7 @@ func renderEmail(text string, user emailRecipient) string {
 }
 
 // sendEmail 复刻 _send：逐个写日志并调用驱动。
-func (s *Server) sendEmail(r *http.Request, users []emailRecipient, subject, body string,
+func (s *Server) sendEmail(ctx context.Context, users []emailRecipient, subject, body string,
 	broadcastID *string) (int, int, error) {
 	sent, failed := 0, 0
 	now := time.Now().UTC()
@@ -356,7 +357,7 @@ func (s *Server) sendEmail(r *http.Request, users []emailRecipient, subject, bod
 		} else {
 			sent++
 		}
-		if _, err := s.writePool().Exec(r.Context(), `
+		if _, err := s.writePool().Exec(ctx, `
 			INSERT INTO email_messages (id, broadcast_id, to_email, subject, body, status,
 				error, sent_at, created_at, updated_at)
 			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $9)`,
@@ -421,7 +422,7 @@ func (s *Server) adminEmailSchedule(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	users, err := s.emailRecipients(r, row.Audience, row.Locale)
+	users, err := s.emailRecipients(r.Context(), row.Audience, row.Locale)
 	if err != nil {
 		s.writeQueryError(w, r, err)
 		return
@@ -430,7 +431,7 @@ func (s *Server) adminEmailSchedule(w http.ResponseWriter, r *http.Request) {
 		writeError(w, r, http.StatusUnprocessableEntity, "unprocessable", "这个受众没有人")
 		return
 	}
-	if _, _, err := s.sendEmail(r, users, row.Title, row.Body, &row.ID); err != nil {
+	if _, _, err := s.sendEmail(r.Context(), users, row.Title, row.Body, &row.ID); err != nil {
 		s.writeQueryError(w, r, err)
 		return
 	}
@@ -467,7 +468,7 @@ func (s *Server) adminEmailTestBroadcast(w http.ResponseWriter, r *http.Request)
 		DisplayName: principal.User.DisplayName,
 		Locale:      principal.User.Locale,
 	}}
-	if _, _, err := s.sendEmail(r, self, "[测试] "+row.Title, row.Body, &row.ID); err != nil {
+	if _, _, err := s.sendEmail(r.Context(), self, "[测试] "+row.Title, row.Body, &row.ID); err != nil {
 		s.writeQueryError(w, r, err)
 		return
 	}
@@ -523,7 +524,7 @@ func (s *Server) adminEmailEstimate(w http.ResponseWriter, r *http.Request) {
 	if in.Locale != nil {
 		locale = *in.Locale
 	}
-	users, err := s.emailRecipients(r, audience, locale)
+	users, err := s.emailRecipients(r.Context(), audience, locale)
 	if err != nil {
 		s.writeQueryError(w, r, err)
 		return

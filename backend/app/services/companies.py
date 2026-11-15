@@ -76,6 +76,18 @@ def seats_taken(db: DbSession, company_id: str) -> int:
     )
 
 
+def seats_taken_many(db: DbSession, company_ids: list[str]) -> dict[str, int]:
+    """批量统计每家公司已占用名额；列表接口用它避免逐条 count（N+1）。"""
+    if not company_ids:
+        return {}
+    rows = db.execute(
+        select(Membership.company_id, func.count(Membership.id))
+        .where(Membership.company_id.in_(company_ids))
+        .group_by(Membership.company_id)
+    ).all()
+    return {company_id: int(count) for company_id, count in rows}
+
+
 def seats_left(db: DbSession, company: Company, event: Event) -> int:
     return max(event.company_seats - seats_taken(db, company.id), 0)
 

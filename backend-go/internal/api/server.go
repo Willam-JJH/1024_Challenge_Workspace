@@ -1,13 +1,17 @@
 package api
 
 import (
+	"context"
+	"encoding/json"
 	"log/slog"
 	"net/http"
 	"net/netip"
+	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"challenge-api/internal/auth"
+	"challenge-api/internal/broker"
 	"challenge-api/internal/config"
 	"challenge-api/internal/db"
 )
@@ -20,12 +24,18 @@ type Server struct {
 	logger         *slog.Logger
 	store          *auth.Store
 	mailer         auth.Mailer
+	limiter        *slidingWindow
 	trustedProxies []netip.Prefix
+	// streamUsage 记住哪些上游不返回 token 用量，流式请求据此拒绝。
+	streamUsage *streamCapability
+	// 实时数据：一个轮询器推给所有连接，而不是每条连接各查一次库。
+	boardBroker *broker.Broker
+	pitchBroker *broker.Broker
 }
 
 // New 组装路由：先注册已实现的 handler，其余 OpenAPI operation 一律 501，
-// 保证契约先行的约定在 Go 侧同样成立。
-func New(cfg config.Config, pools *db.Pools, logger *slog.Logger) (http.Handler, error) {
+// 保证契约先行的约定在 Go 侧同样成立。返回的 *Server 用来启动后台任务。
+func New(cfg config.Config, pools *db.Pools, logger *slog.Logger) (http.Handler, *Server, error) {
 	mailer, err := auth.NewMailer(auth.MailOptions{
 		Driver:   cfg.MailDriver,
 		Host:     cfg.SMTPHost,
@@ -38,7 +48,7 @@ func New(cfg config.Config, pools *db.Pools, logger *slog.Logger) (http.Handler,
 		Timeout:  cfg.SMTPTimeout,
 	}, logger)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	s := &Server{
@@ -46,11 +56,28 @@ func New(cfg config.Config, pools *db.Pools, logger *slog.Logger) (http.Handler,
 		pools:          pools,
 		logger:         logger,
 		mailer:         mailer,
+		limiter:        newSlidingWindow(),
 		trustedProxies: parsePrefixes(cfg.TrustedProxies),
+		streamUsage:    newStreamCapability(),
 	}
 	if pools != nil && pools.Write != nil {
 		s.store = auth.NewStore(pools.Write)
 	}
+
+	s.boardBroker = broker.New(2*time.Second, func(ctx context.Context) ([]byte, error) {
+		board, err := s.buildBoard(ctx, true)
+		if err != nil {
+			return nil, err
+		}
+		return json.Marshal(board)
+	})
+	s.pitchBroker = broker.New(3*time.Second, func(ctx context.Context) ([]byte, error) {
+		state, err := s.buildPitchState(ctx, true)
+		if err != nil {
+			return nil, err
+		}
+		return json.Marshal(state)
+	})
 
 	mux := http.NewServeMux()
 	implemented := s.implemented()
@@ -66,12 +93,13 @@ func New(cfg config.Config, pools *db.Pools, logger *slog.Logger) (http.Handler,
 
 	var handler http.Handler = mux
 	handler = withErrorEnvelope(handler)
+	handler = withRateLimit(s, handler)
 	handler = withCORS(cfg.CORSOrigins, handler)
 	handler = withBodyBuffer(1<<20, handler)
 	handler = withAccessLog(logger, handler)
 	handler = withRequestID(handler)
 	handler = withRecover(logger, handler)
-	return handler, nil
+	return handler, s, nil
 }
 
 func (s *Server) implemented() map[string]http.HandlerFunc {

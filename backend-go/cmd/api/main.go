@@ -27,11 +27,15 @@ func main() {
 	}
 	defer pools.Close()
 
-	handler, err := api.New(cfg, pools, logger)
+	handler, appServer, err := api.New(cfg, pools, logger)
 	if err != nil {
 		logger.Error("server setup failed", "error", err)
 		os.Exit(1)
 	}
+
+	workerCtx, stopWorkers := context.WithCancel(context.Background())
+	defer stopWorkers()
+	appServer.StartWorkers(workerCtx)
 
 	server := &http.Server{
 		Addr:              ":" + cfg.Port,

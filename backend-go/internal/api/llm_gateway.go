@@ -8,8 +8,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
-	"challenge-api/internal/auth"
 )
 
 const (
@@ -254,11 +252,6 @@ func (s *Server) chatCompletions(w http.ResponseWriter, r *http.Request) {
 		writeError(w, r, http.StatusUnprocessableEntity, "unprocessable", "请求不合法")
 		return
 	}
-	if value, present := payload["stream"]; present && pyTruthy(value) {
-		writeError(w, r, http.StatusNotImplemented, "stream_unsupported",
-			"流式转发尚未实现，请先使用 stream=false")
-		return
-	}
 	modelValue, present := payload["model"]
 	if !present || !pyTruthy(modelValue) {
 		writeError(w, r, http.StatusUnprocessableEntity, "invalid_request", "缺少 model 字段")
@@ -270,6 +263,12 @@ func (s *Server) chatCompletions(w http.ResponseWriter, r *http.Request) {
 	}
 	model, route, ok := s.resolveLLMRoute(w, r, jsonStr(payload, "model", ""))
 	if !ok {
+		return
+	}
+
+	// 流式要边转发边解析用量，后置记账；非流式一次性处理。
+	if value, present := payload["stream"]; present && pyTruthy(value) {
+		s.chatStream(w, r, principal, model, route, payload)
 		return
 	}
 
@@ -306,46 +305,7 @@ func (s *Server) chatCompletions(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var data map[string]any
-	decoder = json.NewDecoder(bytes.NewReader(responseBody))
-	decoder.UseNumber()
-	if err := decoder.Decode(&data); err != nil || data == nil {
-		data = map[string]any{"error": map[string]any{
-			"message": truncateRunes(string(responseBody), 500),
-		}}
-	}
-
-	if response.StatusCode >= 400 {
-		writeError(w, r, http.StatusBadGateway, "upstream_failed",
-			upstreamErrorMessage(data)+"（HTTP "+strconv.Itoa(response.StatusCode)+"）")
-		return
-	}
-
-	var promptTokens, completionTokens int
-	if usage, ok := data["usage"].(map[string]any); ok {
-		promptTokens = pyInt(usage["prompt_tokens"])
-		completionTokens = pyInt(usage["completion_tokens"])
-	}
-	cost := (promptTokens*model.InputPriceMicro + completionTokens*model.OutputPriceMicro) / 1_000_000
-	id, err := auth.NewID()
-	if err != nil {
-		WriteError(w, r, errInternal)
-		return
-	}
-	now := time.Now().UTC()
-	if _, err := s.writePool().Exec(r.Context(), `
-		INSERT INTO llm_usage (id, user_id, model_id, prompt_tokens, completion_tokens,
-			cost_micro, created_at, updated_at)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $7)`,
-		id, principal.User.ID, model.ID, promptTokens, completionTokens, cost, now); err != nil {
-		s.writeQueryError(w, r, err)
-		return
-	}
-
-	if _, present := data["created"]; !present {
-		data["created"] = now.Unix()
-	}
-	writeJSON(w, http.StatusOK, data)
+	s.relayCompletion(w, r, principal, model, response.StatusCode, responseBody)
 }
 
 // llmNotImplemented 对应 Python 侧预留的三个 OpenAI 兼容端点。

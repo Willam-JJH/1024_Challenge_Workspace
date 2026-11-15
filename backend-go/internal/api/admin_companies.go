@@ -10,15 +10,15 @@ import (
 )
 
 const (
-	adminCompaniesPattern   = "GET /api/v1/admin/companies"
-	adminCompanyPattern     = "GET /api/v1/admin/companies/{company_id}"
-	adminDissolvePattern    = "POST /api/v1/admin/companies/{company_id}/dissolutions"
-	adminRosterLockPattern  = "PUT /api/v1/admin/companies/{company_id}/roster-lock"
-	adminCaptainPattern     = "POST /api/v1/admin/companies/{company_id}/captain-transfers"
-	adminSubmitterPattern   = "POST /api/v1/admin/companies/{company_id}/submitter-appointments"
-	adminMemberMovePattern  = "POST /api/v1/admin/members/moves"
-	adminProjectsPattern    = "GET /api/v1/admin/projects"
-	adminProjectPattern     = "GET /api/v1/admin/projects/{project_id}"
+	adminCompaniesPattern       = "GET /api/v1/admin/companies"
+	adminCompanyPattern         = "GET /api/v1/admin/companies/{company_id}"
+	adminDissolvePattern        = "POST /api/v1/admin/companies/{company_id}/dissolutions"
+	adminRosterLockPattern      = "PUT /api/v1/admin/companies/{company_id}/roster-lock"
+	adminCaptainPattern         = "POST /api/v1/admin/companies/{company_id}/captain-transfers"
+	adminSubmitterPattern       = "POST /api/v1/admin/companies/{company_id}/submitter-appointments"
+	adminMemberMovePattern      = "POST /api/v1/admin/members/moves"
+	adminProjectsPattern        = "GET /api/v1/admin/projects"
+	adminProjectPattern         = "GET /api/v1/admin/projects/{project_id}"
 	adminProjectVersionsPattern = "GET /api/v1/admin/projects/{project_id}/versions"
 	adminProjectVersionPattern  = "GET /api/v1/admin/projects/{project_id}/versions/{version}"
 )
@@ -36,12 +36,12 @@ type adminCompanyProjectRef struct {
 }
 
 type adminCompanyRow struct {
-	ID           string                 `json:"id"`
-	Name         string                 `json:"name"`
-	Slug         string                 `json:"slug"`
-	CaptainID    *string                `json:"captain_id"`
-	RosterLocked bool                   `json:"roster_locked"`
-	Members      []adminCompanyMember   `json:"members"`
+	ID           string                  `json:"id"`
+	Name         string                  `json:"name"`
+	Slug         string                  `json:"slug"`
+	CaptainID    *string                 `json:"captain_id"`
+	RosterLocked bool                    `json:"roster_locked"`
+	Members      []adminCompanyMember    `json:"members"`
 	Project      *adminCompanyProjectRef `json:"project"`
 }
 
@@ -694,4 +694,3 @@ func (s *Server) adminProjectVersion(w http.ResponseWriter, r *http.Request) {
 	version.PublishedAt = formatTime(publishedAt)
 	writeJSON(w, http.StatusOK, version)
 }
-

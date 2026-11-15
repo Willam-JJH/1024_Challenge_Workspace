@@ -1,10 +1,12 @@
 package api
 
 import (
+	"encoding/json"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
 	"time"
@@ -12,6 +14,7 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 
 	"challenge-api/internal/auth"
+	"challenge-api/internal/media"
 )
 
 const (
@@ -44,6 +47,94 @@ type assetCreatedOut struct {
 
 var allowedPurposes = map[string]bool{
 	"submission": true, "avatar": true, "sponsor_logo": true, "pitch": true,
+}
+
+// 一个素材最多允许的分片数，避免用海量小文件占满磁盘 inode
+const maxAssetParts = 1000
+
+// 允许原样下发的类型：其余一律按 application/octet-stream 处理，
+// 避免把客户端声明的 text/html、image/svg+xml 之类的主动内容当网页给浏览器
+var safeContentTypes = map[string]bool{
+	"image/png":                true,
+	"image/jpeg":               true,
+	"image/gif":                true,
+	"image/webp":               true,
+	"application/pdf":          true,
+	"application/zip":          true,
+	"application/octet-stream": true,
+	"text/plain":               true,
+	"video/mp4":                true,
+	"video/webm":               true,
+	"video/quicktime":          true,
+	"audio/mpeg":               true,
+	"audio/ogg":                true,
+	"audio/wav":                true,
+}
+
+func servedType(contentType string) string {
+	base := strings.ToLower(strings.TrimSpace(strings.SplitN(contentType, ";", 2)[0]))
+	if safeContentTypes[base] {
+		return base
+	}
+	return "application/octet-stream"
+}
+
+// collectParts 按分片序号排序；字典序会把 part10 排到 part2 前面。
+func collectParts(base string) ([]string, error) {
+	dir := filepath.Dir(base)
+	prefix := filepath.Base(base) + ".part"
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return nil, err
+	}
+	type indexed struct {
+		index int
+		path  string
+	}
+	found := make([]indexed, 0, 8)
+	for _, entry := range entries {
+		if entry.IsDir() {
+			continue
+		}
+		name := entry.Name()
+		if !strings.HasPrefix(name, prefix) {
+			continue
+		}
+		index, err := strconvAtoi(name[len(prefix):])
+		if err != nil {
+			continue
+		}
+		found = append(found, indexed{index, filepath.Join(dir, name)})
+	}
+	sort.Slice(found, func(left, right int) bool { return found[left].index < found[right].index })
+	out := make([]string, len(found))
+	for index, item := range found {
+		out[index] = item.path
+	}
+	return out, nil
+}
+
+// partsSize 汇总已有分片大小（exclude 用来忽略正在覆盖写入的那一片）。
+func partsSize(base, exclude string) int64 {
+	dir := filepath.Dir(base)
+	prefix := filepath.Base(base) + ".part"
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return 0
+	}
+	var total int64
+	for _, entry := range entries {
+		if entry.IsDir() || entry.Name() == exclude {
+			continue
+		}
+		if !strings.HasPrefix(entry.Name(), prefix) {
+			continue
+		}
+		if info, err := entry.Info(); err == nil {
+			total += info.Size()
+		}
+	}
+	return total
 }
 
 type assetRow struct {
@@ -182,6 +273,21 @@ func (s *Server) createAsset(w http.ResponseWriter, r *http.Request) {
 		writeError(w, r, http.StatusUnprocessableEntity, "unprocessable", "请求不合法")
 		return
 	}
+	// 配额按「总占用」算，在创建时就挡住，而不是等写盘失败才发现。
+	if quota := s.cfg.UploadQuotaBytes; quota > 0 {
+		var used int64
+		if err := s.writePool().QueryRow(r.Context(),
+			`SELECT COALESCE(sum(size), 0)::bigint FROM media_assets WHERE status <> 'removed'`).
+			Scan(&used); err != nil {
+			s.writeQueryError(w, r, err)
+			return
+		}
+		if used+int64(in.Size) > quota {
+			writeError(w, r, http.StatusInsufficientStorage, "quota_exceeded", "素材存储空间已满")
+			return
+		}
+	}
+
 	id, err := auth.NewID()
 	if err != nil {
 		WriteError(w, r, errInternal)
@@ -224,6 +330,39 @@ func (s *Server) storeBytes(w http.ResponseWriter, r *http.Request, row *assetRo
 		writeError(w, r, http.StatusRequestEntityTooLarge, "too_large", "文件过大")
 		return false
 	}
+	head := data
+	if len(head) > 16 {
+		head = head[:16]
+	}
+	contentType := sniffType(head, row.ContentType)
+
+	// 图片先过派生管线：解不出来就直接拒绝，不要把坏图存进库。
+	var (
+		variantsJSON *string
+		imageWidth   *int
+		imageHeight  *int
+	)
+	if media.Processable(contentType) {
+		result, err := media.Process(data)
+		if err != nil {
+			writeError(w, r, http.StatusUnprocessableEntity, "image_undecodable",
+				"图片无法解析："+err.Error())
+			return false
+		}
+		imageWidth, imageHeight = &result.Width, &result.Height
+		if len(result.Renditions) > 0 {
+			encoded, err := encodeVariants(row.ID, result.Renditions)
+			if err != nil {
+				WriteError(w, r, errInternal)
+				return false
+			}
+			variantsJSON = &encoded
+			if !s.writeRenditions(w, r, row.ID, result.Renditions) {
+				return false
+			}
+		}
+	}
+
 	path := filepath.Join(s.uploadRoot(), filepath.FromSlash(row.StorageKey))
 	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
 		s.writeQueryError(w, r, err)
@@ -234,17 +373,59 @@ func (s *Server) storeBytes(w http.ResponseWriter, r *http.Request, row *assetRo
 		return false
 	}
 	row.Size = len(data)
-	head := data
-	if len(head) > 16 {
-		head = head[:16]
-	}
-	row.ContentType = sniffType(head, row.ContentType)
+	row.ContentType = contentType
 	row.Status = "ready"
 	if _, err := s.writePool().Exec(r.Context(), `
-		UPDATE media_assets SET size = $2, content_type = $3, status = 'ready', updated_at = $4
-		WHERE id = $1`, row.ID, row.Size, row.ContentType, time.Now().UTC()); err != nil {
+		UPDATE media_assets SET size = $2, content_type = $3, status = 'ready',
+			width = COALESCE($4, width), height = COALESCE($5, height),
+			variants = COALESCE($6::jsonb, variants), updated_at = $7
+		WHERE id = $1`,
+		row.ID, row.Size, row.ContentType, imageWidth, imageHeight, variantsJSON,
+		time.Now().UTC()); err != nil {
 		s.writeQueryError(w, r, err)
 		return false
+	}
+	return true
+}
+
+// encodeVariants 生成 media_assets.variants 的 JSON，形状与 Python 侧一致。
+func encodeVariants(assetID string, renditions []media.Rendition) (string, error) {
+	type variant struct {
+		Key       string `json:"key"`
+		Name      string `json:"name"`
+		Width     int    `json:"width"`
+		Height    int    `json:"height"`
+		SizeBytes int    `json:"sizeBytes"`
+	}
+	list := make([]variant, 0, len(renditions))
+	for _, rendition := range renditions {
+		list = append(list, variant{
+			Key:       assetID + "/" + rendition.Name + ".webp",
+			Name:      rendition.Name,
+			Width:     rendition.Width,
+			Height:    rendition.Height,
+			SizeBytes: len(rendition.Data),
+		})
+	}
+	raw, err := json.Marshal(list)
+	return string(raw), err
+}
+
+// writeRenditions 把各档派生图写到原文件所在目录。
+func (s *Server) writeRenditions(w http.ResponseWriter, r *http.Request,
+	assetID string, renditions []media.Rendition) bool {
+
+	dir := filepath.Join(s.uploadRoot(), filepath.FromSlash(assetID))
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		s.writeQueryError(w, r, err)
+		return false
+	}
+	for _, rendition := range renditions {
+		path := filepath.Join(dir, rendition.Name+".webp")
+		if err := os.WriteFile(path, rendition.Data, 0o644); err != nil {
+			s.writeQueryError(w, r, err)
+			return false
+		}
 	}
 	return true
 }
@@ -304,6 +485,11 @@ func (s *Server) uploadAssetPart(w http.ResponseWriter, r *http.Request) {
 		s.writeQueryError(w, r, err)
 		return
 	}
+	// 所有分片加起来也不能超过单文件上限，避免分片把磁盘占满
+	if partsSize(base, filepath.Base(path))+int64(len(data)) > s.cfg.MaxUploadBytes {
+		writeError(w, r, http.StatusRequestEntityTooLarge, "too_large", "文件过大")
+		return
+	}
 	if err := os.WriteFile(path, data, 0o644); err != nil {
 		s.writeQueryError(w, r, err)
 		return
@@ -324,17 +510,26 @@ func (s *Server) completeAsset(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	base := filepath.Join(s.uploadRoot(), filepath.FromSlash(row.StorageKey))
-	parts, err := filepath.Glob(base + ".part*")
+	parts, err := collectParts(base)
 	if err != nil || len(parts) == 0 {
 		writeError(w, r, http.StatusUnprocessableEntity, "no_parts", "没有收到任何分片")
 		return
 	}
-	sort.Strings(parts)
+	if len(parts) > maxAssetParts {
+		writeError(w, r, http.StatusUnprocessableEntity, "too_many_parts", "分片过多")
+		return
+	}
 	var data []byte
+	total := int64(0)
 	for _, part := range parts {
 		chunk, err := os.ReadFile(part)
 		if err != nil {
 			s.writeQueryError(w, r, err)
+			return
+		}
+		total += int64(len(chunk))
+		if total > s.cfg.MaxUploadBytes {
+			writeError(w, r, http.StatusRequestEntityTooLarge, "too_large", "文件过大")
 			return
 		}
 		data = append(data, chunk...)
@@ -411,7 +606,8 @@ func (s *Server) deleteAsset(w http.ResponseWriter, r *http.Request) {
 		s.writeQueryError(w, r, err)
 		return
 	}
-	_ = os.Remove(filepath.Join(s.uploadRoot(), filepath.FromSlash(row.StorageKey)))
+	// 原图和各档派生图都放在这个素材自己的目录里，整目录删掉。
+	_ = os.RemoveAll(filepath.Dir(filepath.Join(s.uploadRoot(), filepath.FromSlash(row.StorageKey))))
 	writeJSON(w, http.StatusOK, okOut{OK: true})
 }
 
@@ -429,18 +625,42 @@ func (s *Server) readAssetFile(w http.ResponseWriter, r *http.Request) {
 		writeError(w, r, http.StatusNotFound, "not_found", "文件名下的内容不存在")
 		return
 	}
-	w.Header().Set("Content-Type", row.ContentType)
+	w.Header().Set("Content-Type", servedType(row.ContentType))
+	w.Header().Set("X-Content-Type-Options", "nosniff")
 	w.Header().Set("Content-Disposition",
 		`attachment; filename="`+strings.ReplaceAll(row.Filename, `"`, "")+`"`)
 	http.ServeFile(w, r, path)
 }
 
+// variantNamePattern 只管形状，存在与否由文件系统回答。
+// 收紧成固定形状是为了挡住 "../" 这类路径穿越。
+var variantNamePattern = regexp.MustCompile(`^w[0-9]{1,5}$`)
+
 func (s *Server) readAssetVariant(w http.ResponseWriter, r *http.Request) {
-	if _, ok := s.assetByID(w, r, r.PathValue("asset_id")); !ok {
+	row, ok := s.assetByID(w, r, r.PathValue("asset_id"))
+	if !ok {
 		return
 	}
-	writeError(w, r, http.StatusNotFound, "variant_not_available",
-		"变体 "+r.PathValue("variant")+" 尚未生成（图片处理管线待接入）")
+	if row.Status != "ready" {
+		writeError(w, r, http.StatusNotFound, "not_found", "素材尚未完成上传")
+		return
+	}
+	name := r.PathValue("variant")
+	if !variantNamePattern.MatchString(name) {
+		writeError(w, r, http.StatusNotFound, "variant_not_available",
+			"变体 "+name+" 不存在")
+		return
+	}
+	path := filepath.Join(s.uploadRoot(), filepath.FromSlash(row.ID), name+".webp")
+	if _, err := os.Stat(path); err != nil {
+		writeError(w, r, http.StatusNotFound, "variant_not_available",
+			"变体 "+name+" 尚未生成")
+		return
+	}
+	w.Header().Set("Content-Type", "image/webp")
+	w.Header().Set("X-Content-Type-Options", "nosniff")
+	w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
+	http.ServeFile(w, r, path)
 }
 
 func strconvAtoi(value string) (int, error) {

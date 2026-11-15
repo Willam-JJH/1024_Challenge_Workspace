@@ -9,11 +9,19 @@ from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import StaticPool
 
 import app.models  # noqa: F401 - 注册全部模型
+from app.core.config import settings
 from app.core.db import Base, get_db
 from app.core.security import hash_password
 from app.main import app as fastapi_app
 from app.models.event import Event
 from app.models.identity import User
+
+
+@pytest.fixture(autouse=True)
+def _background_off(monkeypatch: pytest.MonkeyPatch) -> None:
+    """单元测试默认关掉限流与定时 worker，免得用例之间互相影响。"""
+    monkeypatch.setattr(settings, "rate_limit_enabled", False)
+    monkeypatch.setattr(settings, "broadcast_poll_seconds", 0)
 
 
 @pytest.fixture()

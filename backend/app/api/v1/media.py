@@ -23,6 +23,33 @@ router = APIRouter(tags=["media"])
 
 SAFE_NAME = re.compile(r"[^A-Za-z0-9._-]+")
 
+# 一个素材最多允许的分片数，避免用海量小文件占满磁盘 inode
+MAX_PARTS = 1000
+
+# 允许原样下发的类型：其余一律按 application/octet-stream 处理，
+# 避免把客户端声明的 text/html、image/svg+xml 之类的主动内容当网页给浏览器
+SAFE_TYPES = {
+    "image/png",
+    "image/jpeg",
+    "image/gif",
+    "image/webp",
+    "application/pdf",
+    "application/zip",
+    "application/octet-stream",
+    "text/plain",
+    "video/mp4",
+    "video/webm",
+    "video/quicktime",
+    "audio/mpeg",
+    "audio/ogg",
+    "audio/wav",
+}
+
+
+def _served_type(content_type: str) -> str:
+    base = (content_type or "").split(";")[0].strip().lower()
+    return base if base in SAFE_TYPES else "application/octet-stream"
+
 
 def _upload_root() -> Path:
     root = Path(settings.upload_dir)
@@ -35,6 +62,32 @@ def _upload_root() -> Path:
 def _safe(filename: str) -> str:
     name = SAFE_NAME.sub("_", Path(filename).name).strip("._") or "file"
     return name[:120]
+
+
+def _part_files(base: Path) -> list[Path]:
+    """按分片序号排序；字典序会把 part10 排到 part2 前面。"""
+    prefix = f"{base.name}.part"
+    found: list[tuple[int, Path]] = []
+    for path in base.parent.glob("*"):
+        if not path.name.startswith(prefix):
+            continue
+        suffix = path.name[len(prefix):]
+        if suffix.isdigit():
+            found.append((int(suffix), path))
+    found.sort(key=lambda item: item[0])
+    return [path for _index, path in found]
+
+
+def _parts_size(base: Path, exclude: Path | None = None) -> int:
+    total = 0
+    for path in base.parent.glob(f"{base.name}.part*"):
+        if exclude is not None and path == exclude:
+            continue
+        try:
+            total += path.stat().st_size
+        except OSError:
+            continue
+    return total
 
 
 def _asset(db: DbSession, asset_id: str) -> MediaAsset:
@@ -132,8 +185,11 @@ async def upload_part(
     data = await request.body()
     if len(data) > settings.max_upload_bytes:
         raise ApiError("分片过大", code="too_large", status_code=413)
-    path = _upload_root() / f"{row.storage_key}.part{part}"
+    base = _upload_root() / row.storage_key
+    path = base.parent / f"{base.name}.part{part}"
     path.parent.mkdir(parents=True, exist_ok=True)
+    if _parts_size(base, exclude=path) + len(data) > settings.max_upload_bytes:
+        raise ApiError("文件过大", code="too_large", status_code=413)
     path.write_bytes(data)
     return OkOut()
 
@@ -148,13 +204,21 @@ def complete_upload(
 ) -> AssetOut:
     row = _asset(db, asset_id)
     _own(row, principal)
-    root = _upload_root()
-    base = root / row.storage_key
-    parts = sorted(base.parent.glob(f"{base.name}.part*"))
+    base = _upload_root() / row.storage_key
+    parts = _part_files(base)
     if not parts:
         raise ApiError("没有收到任何分片", code="no_parts", status_code=422)
-    data = b"".join(part.read_bytes() for part in parts)
-    _write(db, row, data)
+    if len(parts) > MAX_PARTS:
+        raise ApiError("分片过多", code="too_many_parts", status_code=422)
+    chunks: list[bytes] = []
+    total = 0
+    for part in parts:
+        chunk = part.read_bytes()
+        total += len(chunk)
+        if total > settings.max_upload_bytes:
+            raise ApiError("文件过大", code="too_large", status_code=413)
+        chunks.append(chunk)
+    _write(db, row, b"".join(chunks))
     for part in parts:
         part.unlink(missing_ok=True)
     return AssetOut.model_validate(row)
@@ -200,7 +264,12 @@ def read_file(asset_id: str, db: DbSession = Depends(get_db)) -> FileResponse:
     path = _upload_root() / row.storage_key
     if not path.exists():
         raise NotFound("文件名下的内容不存在")
-    return FileResponse(path, media_type=row.content_type, filename=row.filename)
+    return FileResponse(
+        path,
+        media_type=_served_type(row.content_type),
+        filename=row.filename,
+        headers={"X-Content-Type-Options": "nosniff"},
+    )
 
 
 @router.get("/files/{asset_id}/{variant}", summary="读取素材变体")

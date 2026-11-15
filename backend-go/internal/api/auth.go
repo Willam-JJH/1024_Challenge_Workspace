@@ -78,6 +78,10 @@ func (s *Server) login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if user == nil || !auth.VerifyPassword(in.Password, user.PasswordHash) {
+		// 只有失败才计数：正常登录不受影响
+		if !s.recordLoginFailure(w, r, email) {
+			return
+		}
 		writeError(w, r, http.StatusUnauthorized, "unauthorized", "邮箱或口令不正确")
 		return
 	}

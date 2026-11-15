@@ -468,4 +468,3 @@ func (s *Server) cspReport(w http.ResponseWriter, r *http.Request) {
 	// 只接收，不记录内容：请求体里可能带页面 URL 与脚本片段。
 	w.WriteHeader(http.StatusNoContent)
 }
-

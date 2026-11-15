@@ -291,4 +291,3 @@ func (s *Server) listCollaborations(w http.ResponseWriter, r *http.Request) {
 	}
 	writeJSON(w, http.StatusOK, out)
 }
-

@@ -6,7 +6,8 @@
 3. 同一用户并发投票 —— 不超过钱包上限，不能出现 5xx
 4. 同名公司并发创建 —— slug 不冲突，不能出现 5xx
 
-用法：
+用法（两个实例都要关掉限流，否则并发注册会被发码冷却挡成 429）：
+    APP_RATE_LIMIT_ENABLED=false
     GO_BASE=http://127.0.0.1:18080 PY_BASE=http://127.0.0.1:18000 \
     DB_DSN=postgresql://app:app@127.0.0.1:15432/challenge \
     python tests/parity/concurrency.py
@@ -16,7 +17,6 @@ import http.cookiejar
 import json
 import os
 import threading
-import time
 import urllib.error
 import urllib.request
 import uuid

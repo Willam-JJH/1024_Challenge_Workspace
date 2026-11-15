@@ -48,14 +48,17 @@ def get_big_screen(
 
 @router.get("/stream", summary="投票榜 SSE 推送")
 async def stream_board() -> StreamingResponse:
+    def snapshot() -> str:
+        """DB 是同步的，放到线程里跑，避免 200 条连接时阻塞事件循环。"""
+        with SessionLocal() as db:
+            event = company_service.current_event(db)
+            return json.dumps(vote_service.board_payload(db, event), ensure_ascii=False)
+
     async def events():  # noqa: ANN202
         last: str | None = None
         idle = 0
         while True:
-            with SessionLocal() as db:
-                event = company_service.current_event(db)
-                payload = vote_service.board_payload(db, event)
-            body = json.dumps(payload, ensure_ascii=False)
+            body = await asyncio.to_thread(snapshot)
             if body != last:
                 last = body
                 yield f"event: board\ndata: {body}\n\n"

@@ -3,9 +3,12 @@
 所有环境变量以 ``APP_`` 为前缀，例如 ``APP_DATABASE_URL``。
 """
 
+import json
 from functools import lru_cache
+from typing import Annotated
 
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import field_validator
+from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 
 class Settings(BaseSettings):
@@ -28,7 +31,7 @@ class Settings(BaseSettings):
     cookie_domain: str | None = None
 
     # CORS（前端重设计后填写）
-    cors_origins: list[str] = ["http://localhost:5173"]
+    cors_origins: Annotated[list[str], NoDecode] = ["http://localhost:5173"]
 
     # 赛事开关
     registration_open: bool = True
@@ -36,7 +39,7 @@ class Settings(BaseSettings):
 
     # 部署在 Cloudflare 之后：采信 CF-Connecting-IP（仅限受信代理）
     behind_cloudflare: bool = False
-    trusted_proxies: list[str] = []
+    trusted_proxies: Annotated[list[str], NoDecode] = []
     public_domain: str = "example.com"
 
     # 投票：每人最多投给几家公司
@@ -45,6 +48,23 @@ class Settings(BaseSettings):
     # 人机校验（自托管工作量证明）
     require_bot_check: bool = False
     bot_check_secret: str = "dev-only-change-me"
+
+    # 限流（进程内滑动窗口；多副本部署时每个副本各算一份）
+    rate_limit_enabled: bool = True
+    # 全域每 IP 每秒请求上限；0 表示关闭（本机压测需要）
+    rate_limit_rps: int = 0
+    # 登录失败：同一 IP+邮箱每 15 分钟的次数
+    rate_limit_login_pair: int = 10
+    # 登录失败：同一 IP 每 15 分钟的次数
+    rate_limit_login_ip: int = 60
+    # 发验证码：同一邮箱每小时次数（注册与口令重置共用）
+    rate_limit_code_email: int = 5
+    # 发验证码：同一 IP 每小时次数（注册与口令重置共用）
+    rate_limit_code_ip: int = 30
+    # 发验证码：同一邮箱两次之间的最小间隔（秒）
+    rate_limit_code_cooldown: int = 60
+    # 校验验证码：同一邮箱每小时次数
+    rate_limit_verify_email: int = 20
 
     # 上传
     upload_dir: str = "uploads"
@@ -62,9 +82,23 @@ class Settings(BaseSettings):
     smtp_tls: str = "ssl"
     smtp_timeout: float = 10.0
 
+    # 定时广播 worker 的轮询间隔（秒）；0 = 关闭
+    broadcast_poll_seconds: int = 30
+
     # 分页
     default_page_size: int = 20
     max_page_size: int = 100
+
+    @field_validator("cors_origins", "trusted_proxies", mode="before")
+    @classmethod
+    def _split_list(cls, value: object) -> object:
+        """JSON 数组与逗号分隔都接受，与 Go 侧 envList 一致。"""
+        if isinstance(value, str):
+            text = value.strip()
+            if text.startswith("["):
+                return json.loads(text)
+            return [item.strip() for item in text.split(",") if item.strip()]
+        return value
 
 
 @lru_cache(maxsize=1)

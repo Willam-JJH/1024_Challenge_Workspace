@@ -155,6 +155,10 @@ func (s *Server) requestPasswordReset(w http.ResponseWriter, r *http.Request) {
 		writeError(w, r, http.StatusUnprocessableEntity, "unprocessable", "请求不合法")
 		return
 	}
+	// 先按邮箱限流：不论邮箱是否存在都计数，避免用 429 的有无判断账号状态
+	if !s.allowCodeSend(w, r, email) {
+		return
+	}
 	user, err := s.store.UserByEmail(r.Context(), email)
 	if err != nil {
 		s.writeQueryError(w, r, err)
@@ -191,6 +195,9 @@ func (s *Server) grantPasswordReset(w http.ResponseWriter, r *http.Request) {
 	email := strings.ToLower(strings.TrimSpace(in.Email))
 	if !validEmail(email) || len(in.Code) < 4 || len(in.Code) > 12 {
 		writeError(w, r, http.StatusUnprocessableEntity, "unprocessable", "请求不合法")
+		return
+	}
+	if !s.allowVerify(w, r, email) {
 		return
 	}
 	now := time.Now().UTC()
@@ -307,6 +314,10 @@ func (s *Server) register(w http.ResponseWriter, r *http.Request) {
 		writeError(w, r, http.StatusConflict, "conflict", "该邮箱已注册，请直接登录")
 		return
 	}
+	// 已注册的邮箱在上一行就返回了，这里限流只针对真要发码的请求
+	if !s.allowCodeSend(w, r, email) {
+		return
+	}
 	hash, err := auth.HashPassword(in.Password)
 	if err != nil {
 		WriteError(w, r, errInternal)
@@ -355,6 +366,10 @@ func (s *Server) resendRegistration(w http.ResponseWriter, r *http.Request) {
 		writeError(w, r, http.StatusUnprocessableEntity, "unprocessable", "请求不合法")
 		return
 	}
+	// 先按邮箱限流：不论邮箱是否存在都计数，避免用 429 的有无判断账号状态
+	if !s.allowCodeSend(w, r, email) {
+		return
+	}
 	user, err := s.store.UserByEmail(r.Context(), email)
 	if err != nil {
 		s.writeQueryError(w, r, err)
@@ -390,6 +405,9 @@ func (s *Server) verifyRegistration(w http.ResponseWriter, r *http.Request) {
 	email := strings.ToLower(strings.TrimSpace(in.Email))
 	if !validEmail(email) || len(in.Code) < 4 || len(in.Code) > 12 {
 		writeError(w, r, http.StatusUnprocessableEntity, "unprocessable", "请求不合法")
+		return
+	}
+	if !s.allowVerify(w, r, email) {
 		return
 	}
 	now := time.Now().UTC()

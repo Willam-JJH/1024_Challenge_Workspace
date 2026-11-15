@@ -23,6 +23,7 @@ class ApiError(Exception):
         code: str | None = None,
         status_code: int | None = None,
         details: dict[str, Any] | None = None,
+        headers: dict[str, str] | None = None,
     ) -> None:
         super().__init__(message)
         self.message = message
@@ -31,6 +32,7 @@ class ApiError(Exception):
         if status_code is not None:
             self.status_code = status_code
         self.details = details or {}
+        self.headers = headers or {}
 
 
 class NotFound(ApiError):
@@ -51,6 +53,20 @@ class Conflict(ApiError):
 
 class Unprocessable(ApiError):
     status_code, code = 422, "unprocessable"
+
+
+class RateLimited(ApiError):
+    """请求过于频繁。带上 Retry-After，客户端可以据此退避。"""
+
+    status_code, code = 429, "rate_limited"
+
+    def __init__(self, retry_after: int = 60, message: str = "请求过于频繁，请稍后再试") -> None:
+        super().__init__(
+            message,
+            details={"retry_after": retry_after},
+            headers={"Retry-After": str(max(retry_after, 1))},
+        )
+        self.retry_after = retry_after
 
 
 class NotImplementedYet(ApiError):
@@ -82,6 +98,15 @@ _STATUS_CODES = {
 }
 
 
+def error_response(request: Request, exc: ApiError) -> JSONResponse:
+    """把 ApiError 渲染成统一信封；中间件里也能直接用。"""
+    return JSONResponse(
+        _payload(request, exc.code, exc.message, exc.details),
+        status_code=exc.status_code,
+        headers=exc.headers or None,
+    )
+
+
 def install_error_handlers(app: FastAPI) -> None:
     @app.exception_handler(StarletteHTTPException)
     async def _http_error(request: Request, exc: StarletteHTTPException) -> JSONResponse:
@@ -92,9 +117,7 @@ def install_error_handlers(app: FastAPI) -> None:
 
     @app.exception_handler(ApiError)
     async def _api_error(request: Request, exc: ApiError) -> JSONResponse:
-        return JSONResponse(
-            _payload(request, exc.code, exc.message, exc.details), status_code=exc.status_code
-        )
+        return error_response(request, exc)
 
     @app.exception_handler(Exception)
     async def _unhandled(request: Request, exc: Exception) -> JSONResponse:

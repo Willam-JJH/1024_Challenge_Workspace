@@ -103,7 +103,7 @@ var draftSchema = map[string]any{
 	"type":     "object",
 	"required": []string{"title"},
 	"properties": map[string]any{
-		"title": map[string]any{"type": "string", "maxLength": 160},
+		"title":   map[string]any{"type": "string", "maxLength": 160},
 		"summary": map[string]any{"type": "string", "maxLength": 2000},
 		"content": map[string]any{"type": "string", "maxLength": 200000, "description": "Markdown"},
 	},

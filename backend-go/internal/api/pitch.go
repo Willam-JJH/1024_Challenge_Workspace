@@ -2,8 +2,6 @@ package api
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
 	"net/http"
 	"time"
 
@@ -335,46 +333,43 @@ func (s *Server) deletePitchMessage(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, okOut{OK: true})
 }
 
-// pitchStream 复刻 Python 的 SSE：每 3 秒推一次，连续 5 次无变化发心跳。
+// pitchStream 通过广播器下发直播状态：所有连接共用一次查询。
 func (s *Server) pitchStream(w http.ResponseWriter, r *http.Request) {
+	// 没有数据库就没有实时数据可推。明确拒绝，而不是挂一条永远收不到内容的连接。
+	if s.writePool() == nil || s.pitchBroker == nil {
+		writeError(w, r, http.StatusServiceUnavailable, "unavailable", "实时数据暂不可用")
+		return
+	}
+
 	w.Header().Set("Content-Type", "text/event-stream")
 	w.Header().Set("Cache-Control", "no-cache")
 	w.Header().Set("X-Accel-Buffering", "no")
 	w.WriteHeader(http.StatusOK)
 
 	controller := http.NewResponseController(w)
-	ticker := time.NewTicker(3 * time.Second)
-	defer ticker.Stop()
+	updates, cancel := s.pitchBroker.Subscribe()
+	defer cancel()
 
-	last := ""
-	idle := 0
+	if frame, ok := s.pitchBroker.Snapshot(); ok {
+		if !writeSSEFrame(w, controller, "pitch", frame) {
+			return
+		}
+	}
+
+	ping := time.NewTicker(3 * time.Second)
+	defer ping.Stop()
 	for {
-		state, err := s.buildPitchState(r.Context(), true)
-		if err != nil {
-			return
-		}
-		body, err := json.Marshal(state)
-		if err != nil {
-			return
-		}
-		if string(body) != last {
-			last = string(body)
-			fmt.Fprintf(w, "event: pitch\ndata: %s\n\n", body)
-			idle = 0
-		} else {
-			idle++
-			if idle >= 5 {
-				idle = 0
-				fmt.Fprint(w, ": ping\n\n")
-			}
-		}
-		if err := controller.Flush(); err != nil {
-			return
-		}
 		select {
 		case <-r.Context().Done():
 			return
-		case <-ticker.C:
+		case frame := <-updates:
+			if !writeSSEFrame(w, controller, "pitch", frame) {
+				return
+			}
+		case <-ping.C:
+			if !writeSSEPing(w, controller) {
+				return
+			}
 		}
 	}
 }

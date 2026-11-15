@@ -108,27 +108,52 @@ func withBodyBuffer(limit int64, next http.Handler) http.Handler {
 	})
 }
 
+// CORS 响应与 Python 的 Starlette CORSMiddleware 对齐：方法与 Vary 列表固定，
+// 预检 200 + "OK"，不允许的来源预检 400。
+const (
+	corsMethods = "DELETE, GET, HEAD, OPTIONS, PATCH, POST, PUT"
+	corsMaxAge  = "600"
+)
+
 func withCORS(origins []string, next http.Handler) http.Handler {
 	allowed := make(map[string]struct{}, len(origins))
 	for _, origin := range origins {
 		allowed[origin] = struct{}{}
 	}
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if origin := r.Header.Get("Origin"); origin != "" {
-			if _, ok := allowed[origin]; ok {
-				w.Header().Set("Access-Control-Allow-Origin", origin)
-				w.Header().Set("Access-Control-Allow-Credentials", "true")
-				w.Header().Add("Vary", "Origin")
-			}
-		}
-		if r.Method == http.MethodOptions {
-			if requested := r.Header.Get("Access-Control-Request-Headers"); requested != "" {
-				w.Header().Set("Access-Control-Allow-Headers", requested)
-			}
-			w.Header().Set("Access-Control-Allow-Methods",
-				"GET, POST, PUT, PATCH, DELETE, OPTIONS")
-			w.WriteHeader(http.StatusNoContent)
+		origin := r.Header.Get("Origin")
+		if origin == "" {
+			next.ServeHTTP(w, r)
 			return
+		}
+		header := w.Header()
+		if r.Method == http.MethodOptions &&
+			r.Header.Get("Access-Control-Request-Method") != "" {
+			header.Add("Vary", "Origin")
+			header.Add("Vary", "Access-Control-Request-Method")
+			header.Add("Vary", "Access-Control-Request-Headers")
+			header.Add("Vary", "Access-Control-Request-Private-Network")
+			header.Set("Access-Control-Allow-Methods", corsMethods)
+			header.Set("Access-Control-Max-Age", corsMaxAge)
+			header.Set("Access-Control-Allow-Credentials", "true")
+			if requested := r.Header.Get("Access-Control-Request-Headers"); requested != "" {
+				header.Set("Access-Control-Allow-Headers", requested)
+			}
+			header.Set("Content-Type", "text/plain; charset=utf-8")
+			if _, ok := allowed[origin]; !ok {
+				w.WriteHeader(http.StatusBadRequest)
+				_, _ = w.Write([]byte("Disallowed CORS origin"))
+				return
+			}
+			header.Set("Access-Control-Allow-Origin", origin)
+			w.WriteHeader(http.StatusOK)
+			_, _ = w.Write([]byte("OK"))
+			return
+		}
+		header.Add("Vary", "Origin")
+		header.Set("Access-Control-Allow-Credentials", "true")
+		if _, ok := allowed[origin]; ok {
+			header.Set("Access-Control-Allow-Origin", origin)
 		}
 		next.ServeHTTP(w, r)
 	})

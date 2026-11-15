@@ -27,7 +27,7 @@ func testHandler(t *testing.T) http.Handler {
 		CORSOrigins:   []string{"http://localhost:5173"},
 		SessionCookie: "sid",
 	}
-	handler, err := New(cfg, nil, slog.New(slog.NewTextHandler(io.Discard, nil)))
+	handler, _, err := New(cfg, nil, slog.New(slog.NewTextHandler(io.Discard, nil)))
 	if err != nil {
 		t.Fatalf("build handler: %v", err)
 	}

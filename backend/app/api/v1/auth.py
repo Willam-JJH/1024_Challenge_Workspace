@@ -21,6 +21,7 @@ from app.core.db import get_db
 from app.core.deps import Principal, require_auth
 from app.core.errors import Conflict, Forbidden, NotFound, Unauthorized, Unprocessable
 from app.core.net import client_ip
+from app.core.ratelimit import limit_code_send, limit_verify, record_login_failure
 from app.core.security import hash_password, hash_token, new_token, verify_password
 from app.models.event import Company, Event, Invitation
 from app.models.identity import Session, User
@@ -93,6 +94,8 @@ def login(
 ) -> SessionResponse:
     user = db.scalar(select(User).where(User.email == payload.email.lower()))
     if user is None or not verify_password(payload.password, user.password_hash):
+        # 只有失败才计数：正常登录不受影响
+        record_login_failure(client_ip(request) or "", payload.email.lower())
         raise Unauthorized("邮箱或口令不正确")
     if user.status != "active":
         raise Unauthorized("账号尚未激活或已被停用")
@@ -184,8 +187,10 @@ def change_password(
     summary="申请口令重置（发送验证码；不透露邮箱是否存在）",
 )
 def request_password_reset(
-    payload: PasswordResetRequestIn, db: DbSession = Depends(get_db)
+    payload: PasswordResetRequestIn, request: Request, db: DbSession = Depends(get_db)
 ) -> CodeSentOut:
+    # 先按邮箱限流再查库：邮箱存不存在都得到同样的 429，不泄露账号是否存在
+    limit_code_send(client_ip(request) or "", payload.email.lower())
     user = db.scalar(select(User).where(User.email == payload.email.lower()))
     if user is not None:
         codes.issue_code(
@@ -202,6 +207,7 @@ def request_password_reset(
 def grant_password_reset(
     payload: PasswordResetGrantIn, db: DbSession = Depends(get_db)
 ) -> ResetGrantOut:
+    limit_verify(payload.email.lower())
     codes.consume_code(
         db, email=payload.email, purpose="password_reset", code=payload.code
     )
@@ -236,7 +242,7 @@ def reset_password(payload: PasswordResetIn, db: DbSession = Depends(get_db)) ->
     summary="注册（发送邮箱验证码）",
 )
 def register(
-    payload: RegisterIn, db: DbSession = Depends(get_db)
+    payload: RegisterIn, request: Request, db: DbSession = Depends(get_db)
 ) -> CodeSentOut:
     if settings.require_bot_check:
         if not payload.bot_challenge or not payload.bot_nonce:
@@ -247,6 +253,8 @@ def register(
     user = db.scalar(select(User).where(User.email == email))
     if user is not None and user.status == "active":
         raise Conflict("该邮箱已注册，请直接登录")
+    # 已注册的邮箱在上一行就返回了，这里限流只针对真要发码的请求
+    limit_code_send(client_ip(request) or "", email)
     if user is None:
         user = User(
             email=email,
@@ -282,8 +290,10 @@ def register(
     "/registrations/resend", response_model=CodeSentOut, summary="重发注册验证码"
 )
 def resend_registration(
-    payload: PasswordResetRequestIn, db: DbSession = Depends(get_db)
+    payload: PasswordResetRequestIn, request: Request, db: DbSession = Depends(get_db)
 ) -> CodeSentOut:
+    # 同样先限流：不发送时也计数，避免用 429 的有无判断邮箱是否在等待激活
+    limit_code_send(client_ip(request) or "", payload.email.lower())
     user = db.scalar(select(User).where(User.email == payload.email.lower()))
     if user is not None and user.status == "pending":
         codes.issue_code(db, email=user.email, purpose="register", locale=user.locale)
@@ -301,6 +311,7 @@ def verify_registration(
     response: Response,
     db: DbSession = Depends(get_db),
 ) -> SessionResponse:
+    limit_verify(payload.email.lower())
     user = db.scalar(select(User).where(User.email == payload.email.lower()))
     if user is None:
         raise NotFound("账号不存在")

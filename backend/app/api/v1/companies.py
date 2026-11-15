@@ -122,9 +122,10 @@ def list_companies(db: DbSession = Depends(get_db)) -> list[CompanySummaryOut]:
     companies = db.scalars(
         select(Company).where(Company.event_id == event.id).order_by(Company.created_at)
     ).all()
+    taken = svc.seats_taken_many(db, [company.id for company in companies])
     out = []
     for company in companies:
-        left = svc.seats_left(db, company, event)
+        left = max(event.company_seats - taken.get(company.id, 0), 0)
         if left <= 0 or company.roster_locked:
             continue
         out.append(

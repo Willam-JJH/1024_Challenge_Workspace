@@ -10,8 +10,6 @@ from app.core.db import get_db
 from app.core.deps import Principal, require_staff
 from app.core.errors import Conflict, NotFound, Unprocessable
 from app.models.email import Broadcast, EmailMessage
-from app.models.event import Membership
-from app.models.identity import User
 from app.schemas.admin_email import (
     BroadcastIn,
     BroadcastOut,
@@ -30,6 +28,8 @@ from app.schemas.admin_email import (
 from app.schemas.common import OkOut
 from app.services import audit
 from app.services import companies as company_service
+from app.services.broadcasts import recipients as _recipients
+from app.services.broadcasts import send as _send
 from app.services.mailer import ConsoleMailer, get_mailer
 
 router = APIRouter(prefix="/admin/email", tags=["admin"])
@@ -43,50 +43,6 @@ TEMPLATES = [
 
 def _driver() -> str:
     return "console" if isinstance(get_mailer(), ConsoleMailer) else "remote"
-
-
-def _recipients(db: DbSession, audience: str, locale: str) -> list[User]:
-    stmt = select(User).where(User.status == "active")
-    if audience == "participants":
-        stmt = stmt.where(User.role.in_(["participant", "member", "captain"]))
-    elif audience == "members":
-        stmt = stmt.where(User.id.in_(select(Membership.user_id)))
-    elif audience == "staff":
-        stmt = stmt.where(User.role.in_(["staff", "admin"]))
-    if locale != "all":
-        stmt = stmt.where(User.locale == locale)
-    return list(db.scalars(stmt).all())
-
-
-def _render(text: str, user: User) -> str:
-    return text.replace("{name}", user.display_name).replace("{email}", user.email)
-
-
-def _send(db: DbSession, *, users: list[User], subject: str, body: str, broadcast_id: str | None):
-    mailer = get_mailer()
-    sent = failed = 0
-    for user in users:
-        rendered = _render(body, user)
-        message = EmailMessage(
-            broadcast_id=broadcast_id,
-            to_email=user.email,
-            subject=subject,
-            body=rendered,
-            status="queued",
-        )
-        db.add(message)
-        try:
-            mailer.send_notice(to=user.email, subject=subject, body=rendered)
-        except Exception as exc:  # noqa: BLE001
-            message.status = "failed"
-            message.error = str(exc)[:500]
-            failed += 1
-        else:
-            message.status = "sent"
-            message.sent_at = datetime.now(UTC)
-            sent += 1
-    db.flush()
-    return sent, failed
 
 
 # --- 广播 -------------------------------------------------------------------

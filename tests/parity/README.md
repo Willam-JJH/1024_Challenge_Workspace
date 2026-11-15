@@ -28,19 +28,35 @@ APP_ENVIRONMENT=dev PYTHONPATH=. \
 
 | 脚本 | 内容 | 额外要求 |
 | --- | --- | --- |
-| `concurrency.py` | 并发注册 / 抢编辑锁 / 并发投票 / 并发建队 | 用到夹具账号与作品，默认值见文件头 |
+| `concurrency.py` | 并发注册 / 抢编辑锁 / 并发投票 / 并发建队 | 用到夹具账号与作品，默认值见文件头；两个实例要关限流 |
 | `permissions.py` | 匿名与五种角色访问后台接口 | 会临时把 `cw-1793711395-2` 改成 member，跑完恢复 |
+| `ratelimit.py` | 登录失败锁定 / 发码冷却 / 校验次数上限 | 计数在进程内，重跑前先重启实例 |
+| `broadcast_schedule.py` | 定时广播到点发送 / 取消 / 两个实例抢单 | 两个实例要设 `APP_BROADCAST_POLL_SECONDS=2` |
+| `upload_security.py` | 文件名穿越 / 分片顺序 / 超限 / 下发类型 | 两个实例要设 `APP_MAX_UPLOAD_BYTES=1048576` |
+| `security_headers.py` | cookie 属性 / CORS 白名单 / 密钥不入库 | 两个实例要设 `APP_COOKIE_SECURE=true` 与 `APP_CORS_ORIGINS` |
 | `mail_resend.py` | 广播失败落库 → SMTP 恢复 → 重发 | 两个实例的 SMTP 要指向 `127.0.0.1:2526`（脚本会自己起假服务） |
+| `mail_flows.py` | 注册 / 重置 / 邀请 / 广播四条业务邮件全链路 | 两个实例指向 `127.0.0.1:2527` 的假 SMTP，并设 `APP_RATE_LIMIT_CODE_COOLDOWN=0` |
 | `backup_restore.py` | `pg_dump` → 临时库 → `pg_restore` → 行数比对 | 需要本地 `ubench-pg` 容器 |
+| `uploads_backup.py` | uploads 卷 tar 备份 → 新卷恢复 → 内容与属主比对 | 用 `alpine` 容器，只动临时卷 |
 
 ```sh
 GO_BASE=http://127.0.0.1:18080 PY_BASE=http://127.0.0.1:18000 \
 python tests/parity/concurrency.py
 
 GO_BASE=... PY_BASE=... python tests/parity/permissions.py
+GO_BASE=... PY_BASE=... python tests/parity/ratelimit.py
+GO_BASE=... PY_BASE=... python tests/parity/broadcast_schedule.py
+GO_BASE=... PY_BASE=... python tests/parity/upload_security.py
+GO_BASE=... PY_BASE=... python tests/parity/security_headers.py
 GO_FAIL=http://127.0.0.1:18085 PY_FAIL=http://127.0.0.1:18003 python tests/parity/mail_resend.py
+GO_BASE=... PY_BASE=... python tests/parity/mail_flows.py
 python tests/parity/backup_restore.py
+python tests/parity/uploads_backup.py
 ```
+
+`permissions.py` 用限流默认值就能跑；`concurrency.py` 里的并发注册会被
+「同一邮箱 60 秒内只能发一次码」挡成 429，所以跑并发套件时两个实例都要加
+`APP_RATE_LIMIT_ENABLED=false`；`ratelimit.py` 反过来要**开着**限流（默认即开）。
 
 `mail_resend.py` 需要另起两个把 SMTP 指向空端口的实例：
 

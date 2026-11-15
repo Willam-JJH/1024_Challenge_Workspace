@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	eventsPattern      = "GET /api/v1/events"
+	eventsPattern       = "GET /api/v1/events"
 	eventCurrentPattern = "GET /api/v1/events/current"
 	eventGetPattern     = "GET /api/v1/events/{event_id}"
 	eventStatsPattern   = "GET /api/v1/events/{event_id}/stats"

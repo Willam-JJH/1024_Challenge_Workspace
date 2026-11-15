@@ -8,11 +8,11 @@ import (
 )
 
 const (
-	adminVotingPattern      = "GET /api/v1/admin/voting"
-	adminBallotsPattern     = "GET /api/v1/admin/voting/ballots"
-	adminVoteEventsPattern  = "GET /api/v1/admin/voting/events"
-	adminVisibilityPattern  = "PUT /api/v1/admin/voting/visibility"
-	adminVoidsPattern       = "POST /api/v1/admin/voting/voids"
+	adminVotingPattern     = "GET /api/v1/admin/voting"
+	adminBallotsPattern    = "GET /api/v1/admin/voting/ballots"
+	adminVoteEventsPattern = "GET /api/v1/admin/voting/events"
+	adminVisibilityPattern = "PUT /api/v1/admin/voting/visibility"
+	adminVoidsPattern      = "POST /api/v1/admin/voting/voids"
 )
 
 type votingAdminOut struct {

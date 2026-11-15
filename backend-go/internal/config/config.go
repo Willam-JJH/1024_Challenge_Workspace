@@ -28,8 +28,27 @@ type Config struct {
 	RequireBotCheck  bool
 	BotCheckSecret   string
 	WalletMaxVotes   int
-	UploadDir        string
-	MaxUploadBytes   int64
+
+	// 限流（进程内滑动窗口；多副本部署时每个副本各算一份）
+	RateLimitEnabled      bool
+	RateLimitRPS          int
+	RateLimitLoginPair    int
+	RateLimitLoginIP      int
+	RateLimitCodeEmail    int
+	RateLimitCodeIP       int
+	RateLimitCodeCooldown int
+	RateLimitVerifyEmail  int
+
+	// 定时广播 worker 的轮询间隔（秒）；0 = 关闭
+	BroadcastPollSeconds int
+	UploadDir            string
+	MaxUploadBytes       int64
+	// UploadQuotaBytes 是素材总占用上限；0 = 不限制。
+	UploadQuotaBytes int64
+	// JanitorIntervalSeconds 是清理任务间隔；0 = 关闭。
+	JanitorIntervalSeconds int
+	// UploadGraceHours 是中断上传与未完成素材的保留时长。
+	UploadGraceHours int
 	MailDriver       string
 	MailFrom         string
 	MailFromName     string
@@ -61,17 +80,33 @@ func Load() Config {
 		RequireBotCheck:  envBool("APP_REQUIRE_BOT_CHECK", false),
 		BotCheckSecret:   env("APP_BOT_CHECK_SECRET", "dev-only-change-me"),
 		WalletMaxVotes:   envInt("APP_WALLET_MAX_VOTES", 3),
-		UploadDir:        env("APP_UPLOAD_DIR", "uploads"),
-		MaxUploadBytes:   envInt64("APP_MAX_UPLOAD_BYTES", 100*1024*1024),
-		MailDriver:       env("APP_MAIL_DRIVER", "console"),
-		MailFrom:         env("APP_MAIL_FROM", ""),
-		MailFromName:     env("APP_MAIL_FROM_NAME", "1024 Challenge"),
-		SMTPHost:         env("APP_SMTP_HOST", ""),
-		SMTPPort:         envInt("APP_SMTP_PORT", 465),
-		SMTPUser:         env("APP_SMTP_USER", ""),
-		SMTPPassword:     env("APP_SMTP_PASSWORD", ""),
-		SMTPTLS:          env("APP_SMTP_TLS", "ssl"),
-		SMTPTimeout:      time.Duration(envInt("APP_SMTP_TIMEOUT", 10)) * time.Second,
+
+		RateLimitEnabled:      envBool("APP_RATE_LIMIT_ENABLED", true),
+		RateLimitRPS:          envInt("APP_RATE_LIMIT_RPS", 0),
+		RateLimitLoginPair:    envInt("APP_RATE_LIMIT_LOGIN_PAIR", 10),
+		RateLimitLoginIP:      envInt("APP_RATE_LIMIT_LOGIN_IP", 60),
+		RateLimitCodeEmail:    envInt("APP_RATE_LIMIT_CODE_EMAIL", 5),
+		RateLimitCodeIP:       envInt("APP_RATE_LIMIT_CODE_IP", 30),
+		RateLimitCodeCooldown: envInt("APP_RATE_LIMIT_CODE_COOLDOWN", 60),
+		RateLimitVerifyEmail:  envInt("APP_RATE_LIMIT_VERIFY_EMAIL", 20),
+
+		BroadcastPollSeconds: envInt("APP_BROADCAST_POLL_SECONDS", 30),
+
+		UploadDir:      env("APP_UPLOAD_DIR", "uploads"),
+		MaxUploadBytes: envInt64("APP_MAX_UPLOAD_BYTES", 100*1024*1024),
+
+		UploadQuotaBytes:       envInt64("APP_UPLOAD_QUOTA_BYTES", 0),
+		JanitorIntervalSeconds: envInt("APP_JANITOR_INTERVAL_SECONDS", 1800),
+		UploadGraceHours:       envInt("APP_UPLOAD_GRACE_HOURS", 24),
+		MailDriver:             env("APP_MAIL_DRIVER", "console"),
+		MailFrom:               env("APP_MAIL_FROM", ""),
+		MailFromName:           env("APP_MAIL_FROM_NAME", "1024 Challenge"),
+		SMTPHost:               env("APP_SMTP_HOST", ""),
+		SMTPPort:               envInt("APP_SMTP_PORT", 465),
+		SMTPUser:               env("APP_SMTP_USER", ""),
+		SMTPPassword:           env("APP_SMTP_PASSWORD", ""),
+		SMTPTLS:                env("APP_SMTP_TLS", "ssl"),
+		SMTPTimeout:            time.Duration(envInt("APP_SMTP_TIMEOUT", 10)) * time.Second,
 	}
 }
 
