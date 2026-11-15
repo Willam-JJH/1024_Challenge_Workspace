@@ -1,0 +1,4 @@
+# Cloudflare 橙云 + Origin CA（默认）。
+# 证书由 scripts/cf_provision.py 生成，挂在 /etc/caddy/secrets/ 下；
+# 这里显式指定证书路径，Caddy 就不会再去向 Let's Encrypt 申请。
+tls /etc/caddy/secrets/origin.pem /etc/caddy/secrets/origin.key

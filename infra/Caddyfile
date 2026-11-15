@@ -1,37 +1,43 @@
-# 生产：Caddy 自动申请并续期 Let's Encrypt 证书（域名已备案、80/443 可访问）
+# 生产入口。
+#
+# TLS 由挂载进来的片段决定（compose 按 TLS_MODE 选择，挂到 /etc/caddy/tls/active.caddy）：
+#   TLS_MODE=origin  → caddy/tls-origin.caddy（Cloudflare 橙云 + Origin CA，默认）
+#   TLS_MODE=auto    → caddy/tls-auto.caddy（灰云 / 直连，Caddy 自动签 Let's Encrypt）
 {$DOMAIN} {
-		encode zstd gzip
+	import /etc/caddy/tls/active.caddy
 
-		# OAuth 元数据必须挂在站点根
-		handle /.well-known/* {
-			reverse_proxy api:8000
-		}
+	encode zstd gzip
 
-		# 灰度：这两个前缀已由 Go 实现（含 /votes/stream 的 SSE）。
-		# 回滚：删掉 @goapi 与下面的 handle @goapi，流量会落回 /api/* 交给 Python。
-		@goapi path /api/v1/events /api/v1/events/* /api/v1/votes /api/v1/votes/*
-		handle @goapi {
-			reverse_proxy go-api:8000
-		}
-
-		handle /api/* {
-			reverse_proxy api:8000
-		}
-
-		handle /v1/* {
-			reverse_proxy api:8000
-		}
-
-		handle {
-			# 前端重设计完成后，换成静态目录或前端容器
-			respond "frontend not deployed yet" 404
-		}
-
-		header {
-			Strict-Transport-Security "max-age=31536000; includeSubDomains"
-			X-Content-Type-Options "nosniff"
-			X-Frame-Options "DENY"
-			Referrer-Policy "strict-origin-when-cross-origin"
-			-Server
-		}
+	# OAuth 元数据必须挂在站点根
+	handle /.well-known/* {
+		reverse_proxy api:8000
 	}
+
+	# 灰度：这两个前缀已由 Go 实现（含 /votes/stream 的 SSE）。
+	# 回滚：删掉 @goapi 与下面的 handle @goapi，流量会落回 /api/* 交给 Python。
+	@goapi path /api/v1/events /api/v1/events/* /api/v1/votes /api/v1/votes/*
+	handle @goapi {
+		reverse_proxy go-api:8000
+	}
+
+	handle /api/* {
+		reverse_proxy api:8000
+	}
+
+	handle /v1/* {
+		reverse_proxy api:8000
+	}
+
+	handle {
+		# 前端重设计完成后，换成静态目录或前端容器
+		respond "frontend not deployed yet" 404
+	}
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+}

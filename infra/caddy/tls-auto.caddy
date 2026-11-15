@@ -1,0 +1,3 @@
+# 灰云 / 直连：Caddy 自行申请并续期 Let's Encrypt 证书。
+# ACME_EMAIL 为空时退回默认账户，证书照常签发。
+tls {$ACME_EMAIL}
