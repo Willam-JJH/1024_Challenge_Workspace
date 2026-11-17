@@ -87,7 +87,27 @@ APP_PORT=18080 ./bin/api.exe
 
 # 邮件自检：用当前 APP_* 配置真实发一封（部署后验证 SMTP 用）
 go run ./tools/mailprobe -to you@example.com
+
+# 建表与升级（PostgreSQL）：SQL 内嵌在二进制里，不需要 Python 或 alembic
+APP_DATABASE_URL='postgres://app:app@127.0.0.1:5432/challenge' ./bin/api.exe migrate
+
+# 建管理员：口令只从标准输入读，不留在命令行与进程列表里
+printf '强口令\n' | APP_DATABASE_URL='...' ./bin/api.exe create-admin \
+    --email you@example.com --name 你的名字 --password-stdin
 ```
+
+## schema 变更
+
+迁移 SQL 在 `internal/migrate/sql/`，按文件名顺序执行，每个文件一个事务，
+执行记录在 `schema_migrations`（同时维护 `alembic_version`，旧工具也能对上）。
+
+当前这批文件由 `scripts/export_schema_sql.py` 从 `backend/migrations`（Alembic）编译而来。
+Python 实现退场之后，新增迁移直接在 `sql/` 里加文件，规则：
+
+1. 文件名 `NNNN_<说明>.sql`，序号递增，不改已提交的文件（已应用的版本不会再跑）
+2. **不要写 `BEGIN;` / `COMMIT;`**：Runner 自己包事务，嵌套会让「DDL 与记账同生共死」失效
+3. 只向前：新增列/表要向后兼容，回滚代码不等于回滚表结构
+4. 只支持 PostgreSQL：依赖事务性 DDL、advisory lock 与 `timestamptz`
 
 ## 迁移约定
 

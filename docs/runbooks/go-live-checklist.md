@@ -369,22 +369,25 @@ timedatectl status
 - [ ] 前端部署：`infra/Caddyfile` 目前仍是 `respond "frontend not deployed yet" 404`
 - [ ] 监控与告警：只有日志轮转（10m×3），没有指标、告警与定时健康巡检
 - [ ] 备份自动化：恢复演练已有，但没有定时备份任务与保留策略（数据库 + uploads 卷）
-- [ ] 迁移到自有服务器 + 自有 Cloudflare 账号：DNS、证书、防火墙、WAF 规则整套搬
-      （迁移前，本机与 47.236.14.84 上的 Cloudflare 相关验证结论都要重做）
+- [ ] 迁移到自有主机 + 自有 Cloudflare 账号
       **2026-11-05 决定**：走「自建迷你主机 + Cloudflare Tunnel」，
       见 `docs/runbooks/deploy-selfhost.md`（纯 Go 端、16G/512G、restic 备份）；
       云服务器 + ICP 备案路线保留在 `docs/runbooks/deploy-cn.md`，正式对外时再评估。
-      - [x] 仓库侧工具链已就绪（2026-11-04）：`scripts/cf_provision.py`
-            （A 记录 + 15 年 Origin CA 证书，默认只读）、`scripts/cf_firewall.sh`
-            （DOCKER-USER 只放行 Cloudflare 网段）、`infra/caddy/tls-origin.caddy`
-            （compose 用 `TLS_MODE` 切换），步骤见
-            `docs/runbooks/cloudflare-migration.md`
-      - [ ] 买域名 → 加入本人 Cloudflare 账号 → 建 API Token → 填 `infra/.env.infra`
-      - [ ] 阿里云大陆 ECS（包年包月 ≥ 3 个月）+ 学校主体 ICP 备案，
-            域名持有者与备案主体一致、TLD 可备案（见 `deploy-cn.md` 第 0、4 节）
-      - [ ] 在自有服务器上 `cf_provision.py apply` + `cf_firewall.sh --apply`
-      - [ ] 橙云 + Origin CA 下复测真实客户端 IP、SSE、上传、邮件
+      **2026-11-17 仓库侧已备好，硬件到货即可部署**：
+      - [x] `infra/docker-compose.prod.yml` 改成纯 Go + Tunnel：无 Python `api`、
+            Caddy 只 `:80`、新增 `cloudflared` 与一次性 `migrate`
+      - [x] `infra/Caddyfile`、`infra/.env.prod.example` 同步改造
+      - [x] Go 内置迁移 `./api migrate` 与建号 `./api create-admin`，机器上不需要 Python
+      - [x] `scripts/backup.sh`（restic，含数据库 / 素材 / 配置 / RustDesk）
+      - [ ] 买域名 → 加入本人 Cloudflare 账号
+      - [ ] 建 Tunnel → 填 `CLOUDFLARE_TUNNEL_TOKEN`
+      - [ ] 首次部署：`up -d --build` → 建管理员 → 容器内健康检查
+      - [ ] 隧道打通后从外网复测：健康检查、SSE、上传、邮件、真实客户端 IP
+      - [ ] 恢复演练：`restic restore` 后起一套临时栈，跑一条业务链路
       - [ ] 决定 WAF 是否继续拦非浏览器 UA（Bot Fight Mode 建议关闭）
+
+> 云服务器路线仍然用「Origin CA + `cf_provision.py` + `cf_firewall.sh`」那套，
+> 见 `cloudflare-migration.md`；自建 + Tunnel 路线不需要它们（源站没有入站端口）。
 
 ## P4：可以更晚
 

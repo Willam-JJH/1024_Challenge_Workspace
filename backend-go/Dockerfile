@@ -1,6 +1,10 @@
 # 多阶段构建：静态二进制 + 最小运行镜像。
 FROM golang:1.27-alpine AS build
 
+# 国内网络可传 --build-arg GOPROXY=https://goproxy.cn,direct
+ARG GOPROXY=https://proxy.golang.org,direct
+ENV GOPROXY=${GOPROXY}
+
 WORKDIR /src
 COPY go.mod go.sum ./
 RUN go mod download

@@ -4,6 +4,7 @@ package main
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"os"
@@ -20,12 +21,33 @@ func main() {
 	logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}))
 	cfg := config.Load()
 
+	command := "serve"
+	if len(os.Args) > 1 {
+		command = os.Args[1]
+	}
+	switch command {
+	case "serve", "migrate", "create-admin":
+	default:
+		fmt.Fprintf(os.Stderr, "未知命令 %q，可用：serve / migrate / create-admin\n", command)
+		os.Exit(2)
+	}
+
 	pools, err := db.Open(context.Background(), cfg.DatabaseURL, cfg.ReadDatabaseURL, cfg.DBMaxConns)
 	if err != nil {
 		logger.Error("database setup failed", "error", err)
 		os.Exit(1)
 	}
 	defer pools.Close()
+
+	// 一次性的运维命令：跑完就退出，不起 HTTP 服务。
+	switch command {
+	case "migrate":
+		runMigrate(pools, logger)
+		return
+	case "create-admin":
+		runCreateAdmin(pools, logger)
+		return
+	}
 
 	handler, appServer, err := api.New(cfg, pools, logger)
 	if err != nil {

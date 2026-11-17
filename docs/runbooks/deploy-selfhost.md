@@ -1,7 +1,7 @@
 # 自建迷你主机部署（家里 + Cloudflare Tunnel）
 
-> 状态：2026-11-05 方案已定，硬件待购。本文描述**目标配置**，
-> 仓库代码尚未按此改造——第 6 节的改动等硬件到货后一次性完成。
+> 状态：方案 2026-11-05 定稿；**仓库侧文件 2026-11-17 已备好**（第 6 节），
+> 硬件到货后按第 7 节直接部署，不需要再改代码。
 >
 > 云服务器路线（含 ICP 备案）仍保留在 `deploy-cn.md`，作为备选或正式对外
 > 开放时的方案。
@@ -348,123 +348,91 @@ docker info | grep -A2 "Registry Mirrors"
 
 ---
 
-## 6. 仓库改造（待实施）
+## 6. 仓库改造（2026-11-17 已完成）
 
-> 以下改动在硬件到货后一次性完成，改完用 `docker compose config` 校验。
+以下改动已经在仓库里落地，到货后直接部署。
 
 ### 6.1 `infra/docker-compose.prod.yml`
 
-去掉 Python 的 `api` 服务，新增 `tunnel`：
-
-```yaml
-  tunnel:
-    image: cloudflare/cloudflared:latest
-    restart: always
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
-    command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN}
-    depends_on:
-      - caddy
-```
-
-同时：
-
-- `go-api` 的 `APP_BEHIND_CLOUDFLARE` 固定为 `true`
-- `APP_CORS_ORIGINS` 仍为 `["https://${DOMAIN}"]`
-- 删除 `api` 服务及其依赖它的 Caddy 健康检查
+- **没有 Python 的 `api` 服务**：对外接口全部由 `go-api` 提供
+- **`migrate` 服务**：与 `go-api` 共用同一个镜像，`command: ["migrate"]` 跑完即退出；
+  `go-api` 用 `depends_on: service_completed_successfully` 等它成功——忘跑迁移时
+  服务根本不会起来，而不是带着旧 schema 报 500
+- **`caddy` 不暴露端口、不申请证书**：只监听 `:80`，在 compose 网络内被 cloudflared 访问
+- **`tunnel` 服务**：`cloudflare/cloudflared`，Token 走环境变量 `TUNNEL_TOKEN`
+  而不是命令行参数——argv 会出现在 `docker inspect` 与进程列表里
+- `APP_BEHIND_CLOUDFLARE` 固定为 `"true"`。这个前提成立是因为源站没有任何入站端口，
+  只能经隧道到达
 
 ### 6.2 `infra/Caddyfile`
 
-站点地址改 `:80`，删掉证书与分流：
-
-```
-:80 {
-	encode zstd gzip
-
-	handle /.well-known/* {
-		reverse_proxy go-api:8000
-	}
-
-	handle /api/* {
-		reverse_proxy go-api:8000
-	}
-
-	handle /v1/* {
-		reverse_proxy go-api:8000
-	}
-
-	handle {
-		respond "frontend not deployed yet" 404
-	}
-
-	header {
-		Strict-Transport-Security "max-age=31536000; includeSubDomains"
-		X-Content-Type-Options "nosniff"
-		X-Frame-Options "DENY"
-		Referrer-Policy "strict-origin-when-cross-origin"
-		-Server
-	}
-}
-```
-
-删除：
-
-- `import /etc/caddy/tls/active.caddy`
-- `@goapi` 分流块（纯 Go 后所有路径都指 `go-api`）
-- compose 里 caddy 的 `ports`、`DOMAIN` / `ACME_EMAIL` 环境变量、TLS 证书挂载
-
-> 页面要嵌入 B 站/YouTube 的 iframe，将来部署前端时需要放开 CSP 的
-> `frame-src`（当前没有 CSP 头，不阻塞）。
+站点地址 `:80`，删掉证书片段、TLS 证书挂载与 `@goapi` 灰度分流（纯 Go 之后所有路径
+都指向 `go-api`）。
 
 ### 6.3 `infra/.env.prod.example`
 
-删除 `TLS_MODE`、`ACME_EMAIL`、`CADDY_HTTP_PORT`、`CADDY_HTTPS_PORT`；
-新增：
+删掉 `TLS_MODE`、`ACME_EMAIL`、`CADDY_HTTP_PORT`、`CADDY_HTTPS_PORT`；新增
+`CLOUDFLARE_TUNNEL_TOKEN`、`GO_API_IMAGE`、`GOPROXY`，以及赛季收口与素材配额的可选项。
 
-```ini
-# Cloudflare Tunnel 的 Token（Zero Trust → Networks → Tunnels 里复制）
-CLOUDFLARE_TUNNEL_TOKEN=
-```
+### 6.4 迁移与建号（纯 Go）
 
-### 6.4 其它文档
+Python 退场后，建表不再依赖 Alembic 运行时：
 
-- `deploy-cn.md` 顶部加一行指向本文，标明"云服务器路线，自建时看本文"
-- `go-live-checklist.md` 的 P3「迁移到自有服务器」改写为自建方案
+| 目标 | 命令 |
+| --- | --- |
+| 建表 / 升级 | `docker compose ... up -d`（自动先跑 `migrate`） |
+| 手动补跑 | `docker compose ... run --rm migrate`（幂等） |
+| 建管理员 | `docker compose ... run --rm migrate create-admin --email ... --password-stdin` |
+
+迁移 SQL 内嵌在 Go 二进制里（`backend-go/internal/migrate/sql/`），按文件名顺序执行，
+每个文件一个事务，`schema_migrations` 记账，多实例并发时用 advisory lock 串行。
+建表规则见 `backend-go/README.md`「schema 变更」。
+
+### 6.5 备份
+
+`scripts/backup.sh`：`pg_dump -Fc` 流式进 restic、素材卷（按容器挂载点定位，不依赖
+compose 项目名）、`.env.prod` 与 compose 文件、RustDesk 密钥；保留 7 天 / 4 周 / 6 个月；
+设置 `OSSUTIL_BUCKET` 后把 restic 仓库整体同步到对象存储。
 
 ---
 
 ## 7. 首次部署
 
-```bash
-sudo mkdir -p /srv && sudo chown deploy:deploy /srv
-git clone <仓库地址> /srv/app && cd /srv/app
-cp infra/.env.prod.example infra/.env.prod
-# 填 DOMAIN / POSTGRES_PASSWORD / APP_BOT_CHECK_SECRET / CLOUDFLARE_TUNNEL_TOKEN
-```
+前提：系统装好、Docker 与 Compose v2 就绪（第 4、5 节），Cloudflare Tunnel 可以稍后建
+（没有 Token 时 `tunnel` 容器会重启，不影响建库）。
 
 ```bash
-cd /srv/app
+sudo mkdir -p /srv && sudo chown "$USER":"$USER" /srv
+git clone <仓库地址> /srv/app && cd /srv/app
+
+cp infra/.env.prod.example infra/.env.prod
+chmod 600 infra/.env.prod
+$EDITOR infra/.env.prod    # 填 DOMAIN / POSTGRES_PASSWORD / APP_BOT_CHECK_SECRET / CLOUDFLARE_TUNNEL_TOKEN
+
 COMPOSE="docker compose -f infra/docker-compose.prod.yml --env-file infra/.env.prod"
 
-# 1) 只起数据库
-$COMPOSE up -d db
-# 2) 建表
-$COMPOSE run --rm go-api ./migrate up     # 或使用仓库现有迁移入口
-# 3) 建管理员
-$COMPOSE run --rm go-api python-less --help   # ← 按仓库实际命令替换
-# 4) 起全部
-$COMPOSE up -d
+# 构建并启动。migrate 先建表，go-api 等它成功后才起
+$COMPOSE up -d --build
+
+# 期望：db(healthy) / migrate(Exited 0) / go-api(healthy) / caddy / tunnel
+$COMPOSE ps -a
+
+# 建第一个管理员。口令走标准输入，不留在 shell 历史与进程列表里
+printf '强口令
+' | $COMPOSE run --rm -T migrate create-admin     --email you@example.com --name 你的名字 --password-stdin
+
+# 容器内自检（8000 端口没有对外暴露）
+$COMPOSE exec -T go-api wget -qO- http://127.0.0.1:8000/api/v1/health
 ```
 
-> 具体的迁移与建管理员命令以 `backend-go/README.md` 和
-> `scripts/create_admin.py` 在纯 Go 端下的等价入口为准，部署时核对。
-> **不要在服务器上 `docker build`**（16 GB 内存会被编译吃满）；
-> 镜像在本机构建后推到镜像仓库，或改用多阶段小镜像直接从仓库拉。
+隧道建好、DNS 指过来之后：
 
----
+```bash
+curl -s https://<DOMAIN>/api/v1/health
+```
+
+> **构建在哪跑**：16 GB 的迷你主机直接 `--build` 没问题（Go 编译约 2 GB 内存）。
+> 那句「不要在服务器上 docker build」是针对 2C3.5G 的旧 VPS，不适用于这台机器。
 
 ## 8. Cloudflare Tunnel
 
@@ -547,42 +515,24 @@ sudo -E restic init
 
 ### 9.3 每日备份脚本
 
-`scripts/backup.sh`（待创建）：
-
-```bash
-#!/usr/bin/env bash
-set -euo pipefail
-
-cd /srv/app
-export RESTIC_REPOSITORY=/backup/restic
-export RESTIC_PASSWORD_FILE=/etc/restic/password
-
-COMPOSE="docker compose -f infra/docker-compose.prod.yml --env-file infra/.env.prod"
-
-# 素材（命名卷在宿主机上的真实路径；卷名前缀以 docker volume ls 为准）
-UPLOADS="$(docker volume inspect -f '{{ .Mountpoint }}' challenge_uploads)"
-restic backup "$UPLOADS" --tag uploads --host challenge
-
-# RustDesk 密钥（丢了等于重建整个网络）
-restic backup /srv/rustdesk/data --tag rustdesk --host challenge
-
-# 数据库（流式，不落临时文件）
-$COMPOSE exec -T db pg_dump -U app challenge \
-  | restic backup --stdin --stdin-filename challenge.sql --tag db --host challenge
-
-# 保留策略
-restic forget --host challenge \
-  --keep-daily 7 --keep-weekly 4 --keep-monthly 6 --prune
-
-# 异地
-ossutil sync /backup/restic oss://<bucket>/restic/ --delete --update
-```
-
-crontab：
+仓库里已经写好 `scripts/backup.sh`，直接装进 cron 即可：
 
 ```cron
 30 3 * * * /srv/app/scripts/backup.sh >> /var/log/backup.log 2>&1
 ```
+
+它做四件事，每件都是流式写进 restic，宿主机上不落临时文件：
+
+| 内容 | 说明 |
+| --- | --- |
+| 数据库 | `pg_dump -Fc` 通过管道进 `restic backup --stdin` |
+| 素材 | 按 go-api 容器的 `/data/uploads` 挂载点定位卷的真实路径，不猜 compose 项目名 |
+| 配置 | `.env.prod`、compose 文件、Caddyfile；没有 `.env.prod` 就等于丢了数据库口令 |
+| RustDesk | `/srv/rustdesk/data` 存在时才备份（丢了要重建整个远程访问网络） |
+
+保留策略 `--keep-daily 7 --keep-weekly 4 --keep-monthly 6 --prune`；
+设置 `OSSUTIL_BUCKET=oss://<bucket>/restic/` 后额外把 restic 仓库同步一份到对象存储。
+脚本用 `flock` 防止重叠运行，路径都可以用环境变量覆盖（见脚本头部）。
 
 ### 9.4 恢复
 
@@ -592,8 +542,9 @@ export RESTIC_PASSWORD_FILE=/etc/restic/password
 
 restic snapshots                        # 看有哪些快照
 restic restore <id> --target /tmp/restore
-# 数据库：
-restic dump <id> challenge.sql | docker compose exec -T db psql -U app challenge
+
+# 数据库（custom 格式，用 pg_restore）
+restic dump <id> challenge.dump | docker compose   -f /srv/app/infra/docker-compose.prod.yml --env-file /srv/app/infra/.env.prod   exec -T db sh -c 'pg_restore -U "$POSTGRES_USER" -d "$POSTGRES_DB" --clean --if-exists'
 ```
 
 ### 9.5 每月验证
@@ -677,10 +628,14 @@ BIOS 里打开 **AC Power Loss → Power On**（断电恢复后自动开机）�
 ```bash
 cd /srv/app && git pull
 COMPOSE="docker compose -f infra/docker-compose.prod.yml --env-file infra/.env.prod"
-# 镜像在本机构建并推送后，服务器只拉取：
-$COMPOSE pull
-$COMPOSE up -d
+# 有 schema 变更时 migrate 会先跑；失败了 go-api 不会启动，看 logs migrate
+$COMPOSE up -d --build
+$COMPOSE ps -a
 ```
+
+回滚：`git checkout <上一个版本> && $COMPOSE up -d --build`。
+数据库迁移只向前，回滚代码不会回滚表结构——新增列/表都向后兼容，删改类变更要单独写
+反向迁移并确认。
 
 ---
 

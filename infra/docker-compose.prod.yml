@@ -1,12 +1,54 @@
+# 自建迷你主机 + Cloudflare Tunnel 的生产编排。
+#
+# 与旧的 VPS 方案的区别：
+#   - 没有 Python 的 api 服务，对外接口全部由 go-api 提供；建表由同一个镜像的
+#     migrate 子命令完成，机器上不需要 Python
+#   - Caddy 只监听 :80，不申请证书也不暴露端口：外网入口是 cloudflared 的出站隧道
+#   - 因此 APP_BEHIND_CLOUDFLARE 固定为 true。这个前提成立的前提是源站不可直连，
+#     而 Caddy 没有 ports 段，容器只在 compose 网络内可达
+#
+# 用法见 docs/runbooks/deploy-selfhost.md。日常：
+#   docker compose -f infra/docker-compose.prod.yml --env-file infra/.env.prod up -d
+
+x-api-env: &api-env
+  APP_ENVIRONMENT: prod
+  APP_DATABASE_URL: postgresql+psycopg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+  APP_SESSION_COOKIE: sid
+  APP_COOKIE_SECURE: "true"
+  APP_CORS_ORIGINS: '["https://${DOMAIN}"]'
+  APP_PUBLIC_DOMAIN: ${DOMAIN}
+  APP_CURRENT_EVENT_SLUG: ${APP_CURRENT_EVENT_SLUG:-1024-challenge}
+  APP_DB_MAX_CONNS: "20"
+  # 只有 compose 网络里的 Caddy 会带转发头
+  APP_TRUSTED_PROXIES: "172.16.0.0/12,10.0.0.0/8,192.168.0.0/16"
+  APP_BEHIND_CLOUDFLARE: "true"
+  APP_RATE_LIMIT_RPS: ${APP_RATE_LIMIT_RPS:-50}
+  APP_UPLOAD_DIR: /data/uploads
+  # 素材总占用上限，0 表示不限制
+  APP_UPLOAD_QUOTA_BYTES: ${APP_UPLOAD_QUOTA_BYTES:-0}
+  # 比赛结束多少天后收口：作品进前序作品、报名投票关闭、身份回落
+  APP_SEASON_CLOSE_AFTER_DAYS: ${APP_SEASON_CLOSE_AFTER_DAYS:-30}
+  # 邮件：console（默认，只写日志）或 smtp；密码来自 .env.prod，不写进仓库
+  APP_MAIL_DRIVER: ${APP_MAIL_DRIVER:-console}
+  APP_MAIL_FROM: ${APP_MAIL_FROM:-}
+  APP_MAIL_FROM_NAME: "${APP_MAIL_FROM_NAME:-1024 Challenge}"
+  APP_SMTP_HOST: ${APP_SMTP_HOST:-}
+  APP_SMTP_PORT: ${APP_SMTP_PORT:-465}
+  APP_SMTP_USER: ${APP_SMTP_USER:-}
+  APP_SMTP_PASSWORD: ${APP_SMTP_PASSWORD:-}
+  APP_SMTP_TLS: ${APP_SMTP_TLS:-ssl}
+
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
 services:
   db:
     image: postgres:17-alpine
     restart: always
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
+    logging: *default-logging
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -19,89 +61,35 @@ services:
       timeout: 5s
       retries: 10
 
-  api:
-    build:
-      context: ../backend
-    restart: always
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
-    environment:
-      APP_ENVIRONMENT: prod
-      APP_DATABASE_URL: postgresql+psycopg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
-      APP_SESSION_COOKIE: sid
-      APP_COOKIE_SECURE: "true"
-      APP_CORS_ORIGINS: '["https://${DOMAIN}"]'
-      APP_PUBLIC_DOMAIN: ${DOMAIN}
-      APP_BOT_CHECK_SECRET: ${APP_BOT_CHECK_SECRET}
-      # 只有同一 compose 网络里的 Caddy 会用转发头；直连（127.0.0.1）不受影响
-      APP_TRUSTED_PROXIES: "172.16.0.0/12,10.0.0.0/8,192.168.0.0/16"
-      # 橙云后面设为 true：采信 Caddy 透传的 CF-Connecting-IP。
-      # 必须配合 scripts/cf_firewall.sh 限制 80/443 只收 Cloudflare 网段，
-      # 否则绕过 CF 直连源站可以伪造这个头。
-      APP_BEHIND_CLOUDFLARE: ${APP_BEHIND_CLOUDFLARE:-false}
-      # 全域每 IP 每秒请求上限（0 = 关闭）；认证接口的阈值用代码默认值
-      APP_RATE_LIMIT_RPS: ${APP_RATE_LIMIT_RPS:-50}
-      APP_UPLOAD_DIR: /data/uploads
-      # 邮件：console（默认）或 smtp；密码来自 .env.prod，不写进仓库
-      APP_MAIL_DRIVER: ${APP_MAIL_DRIVER:-console}
-      APP_MAIL_FROM: ${APP_MAIL_FROM:-}
-      APP_MAIL_FROM_NAME: "${APP_MAIL_FROM_NAME:-1024 Challenge}"
-      APP_SMTP_HOST: ${APP_SMTP_HOST:-}
-      APP_SMTP_PORT: ${APP_SMTP_PORT:-465}
-      APP_SMTP_USER: ${APP_SMTP_USER:-}
-      APP_SMTP_PASSWORD: ${APP_SMTP_PASSWORD:-}
-      APP_SMTP_TLS: ${APP_SMTP_TLS:-ssl}
-    volumes:
-      - uploads:/data/uploads
+  # 一次性建表/升级：跑完就退出，go-api 等它成功后才启动。
+  # 与 go-api 共用同一个镜像，镜像由 go-api 的 build 段构建并打上 GO_API_IMAGE。
+  migrate:
+    image: ${GO_API_IMAGE:-challenge-go-api:local}
+    restart: "no"
+    logging: *default-logging
+    environment: *api-env
     depends_on:
       db:
         condition: service_healthy
-    healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/v1/health', timeout=3)"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 20s
+    command: ["migrate"]
 
   go-api:
+    image: ${GO_API_IMAGE:-challenge-go-api:local}
     build:
       context: ../backend-go
+      args:
+        # 国内网络可设 GOPROXY=https://goproxy.cn,direct
+        GOPROXY: ${GOPROXY:-https://proxy.golang.org,direct}
     restart: always
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
-    environment:
-      APP_ENVIRONMENT: prod
-      # 与 api 共用同一个地址；Go 侧会把 postgresql+psycopg:// 归一化成 postgres://
-      APP_DATABASE_URL: postgresql+psycopg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
-      APP_SESSION_COOKIE: sid
-      APP_COOKIE_SECURE: "true"
-      APP_CORS_ORIGINS: '["https://${DOMAIN}"]'
-      APP_PUBLIC_DOMAIN: ${DOMAIN}
-      APP_CURRENT_EVENT_SLUG: ${APP_CURRENT_EVENT_SLUG:-1024-challenge}
-      APP_DB_MAX_CONNS: "20"
-      APP_TRUSTED_PROXIES: "172.16.0.0/12,10.0.0.0/8,192.168.0.0/16"
-      APP_BEHIND_CLOUDFLARE: ${APP_BEHIND_CLOUDFLARE:-false}
-      APP_RATE_LIMIT_RPS: ${APP_RATE_LIMIT_RPS:-50}
-      APP_UPLOAD_DIR: /data/uploads
-      APP_MAIL_DRIVER: ${APP_MAIL_DRIVER:-console}
-      APP_MAIL_FROM: ${APP_MAIL_FROM:-}
-      APP_MAIL_FROM_NAME: "${APP_MAIL_FROM_NAME:-1024 Challenge}"
-      APP_SMTP_HOST: ${APP_SMTP_HOST:-}
-      APP_SMTP_PORT: ${APP_SMTP_PORT:-465}
-      APP_SMTP_USER: ${APP_SMTP_USER:-}
-      APP_SMTP_PASSWORD: ${APP_SMTP_PASSWORD:-}
-      APP_SMTP_TLS: ${APP_SMTP_TLS:-ssl}
+    logging: *default-logging
+    environment: *api-env
     volumes:
       - uploads:/data/uploads
     depends_on:
       db:
         condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     healthcheck:
       test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8000/api/v1/health"]
       interval: 10s
@@ -112,32 +100,28 @@ services:
   caddy:
     image: caddy:2-alpine
     restart: always
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
-    ports:
-      # 端口可用环境变量挪开：与别的站点共用一台机器时，演练可以只占 8443，
-      # 由 Cloudflare 的 Origin Rules 把回源端口改过来。
-      - "${CADDY_HTTP_PORT:-80}:80"
-      - "${CADDY_HTTPS_PORT:-443}:443"
-    environment:
-      DOMAIN: ${DOMAIN}
-      ACME_EMAIL: ${ACME_EMAIL:-}
+    logging: *default-logging
+    # 不写 ports：入口是隧道，Caddy 只在 compose 网络内被 cloudflared 访问
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      # TLS_MODE=origin（默认）用 Origin CA 证书；auto 用 Let's Encrypt
-      - ./caddy/tls-${TLS_MODE:-origin}.caddy:/etc/caddy/tls/active.caddy:ro
-      # 由 scripts/cf_provision.py 生成，权限 600；目录已在 .gitignore 里
-      - ./secrets/tls:/etc/caddy/secrets:ro
       - caddy_data:/data
       - caddy_config:/config
     depends_on:
-      api:
-        condition: service_healthy
       go-api:
         condition: service_healthy
+
+  tunnel:
+    # 建议固定到具体版本号；latest 方便体验，但升级不受控
+    image: cloudflare/cloudflared:latest
+    restart: always
+    logging: *default-logging
+    environment:
+      # 用环境变量而不是命令行参数：argv 会出现在 docker inspect 与进程列表里
+      TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN}
+    command: tunnel --no-autoupdate run
+    depends_on:
+      caddy:
+        condition: service_started
 
 volumes:
   pgdata:

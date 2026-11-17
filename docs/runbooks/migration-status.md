@@ -98,6 +98,8 @@ git diff --stat：44 files changed, 1389 insertions(+), 410 deletions(-)
 ## 3. 部署目标
 
 2026-11-05 决定：**自建迷你主机 + Cloudflare Tunnel**，纯 Go 端上线。
+仓库侧的 compose / Caddy / 变量模板 / 内置迁移 / 备份脚本**已于 2026-11-17 备好**，
+硬件到货后按 `deploy-selfhost.md` 第 7 节直接部署。
 
 ```
 访客 → Cloudflare（TLS 终结、WAF、缓存）
@@ -127,11 +129,14 @@ git diff --stat：44 files changed, 1389 insertions(+), 410 deletions(-)
 - [ ] 把备份复制一份到异地（本机不是唯一副本）
 - [ ] 硬件采购：迷你主机 16/512 + 1 TB 移动 SSD + UPS
 - [ ] 装系统、分区、挂 `/backup`
-- [ ] 按 `deploy-selfhost.md` 第 6 节改造仓库
-      （compose 删 `api` 加 `tunnel`；Caddyfile 改 `:80`；env 模板换变量）
+- [x] 按 `deploy-selfhost.md` 第 6 节改造仓库（2026-11-17）
+      ：compose 删 `api` 加 `tunnel` 与一次性 `migrate`；Caddyfile 改 `:80`；env 模板换变量
+- [x] 纯 Go 运维入口（2026-11-17）：`./api migrate` 建表、`./api create-admin` 建号，
+      机器上不需要 Python
+- [x] `scripts/backup.sh`（restic + 可选 ossutil）（2026-11-17）
 - [ ] 建 Cloudflare Tunnel、填 Token、配 Cache Rules
-- [ ] 首次部署与全链路验证（健康检查 / Go 分流 / SSE / 上传 / 邮件）
-- [ ] 创建 `scripts/backup.sh`（restic + ossutil）并入 cron
+- [ ] 首次部署与全链路验证（健康检查 / SSE / 上传 / 邮件 / 真实客户端 IP）
+- [ ] 备份脚本装进 cron 并做一次恢复演练
 - [ ] OSS bucket 与 `ossutil`
 - [ ] 提交工作区（49 个文件）——**用户未要求，等指令**
 - [ ] 直播页 / 回放页的前后端功能（独立排期）

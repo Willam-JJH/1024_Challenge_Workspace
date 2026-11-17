@@ -1,31 +1,22 @@
-# 生产入口。
+# 生产入口：Cloudflare Tunnel → cloudflared → Caddy(:80，仅在 compose 网络内)
 #
-# TLS 由挂载进来的片段决定（compose 按 TLS_MODE 选择，挂到 /etc/caddy/tls/active.caddy）：
-#   TLS_MODE=origin  → caddy/tls-origin.caddy（Cloudflare 橙云 + Origin CA，默认）
-#   TLS_MODE=auto    → caddy/tls-auto.caddy（灰云 / 直连，Caddy 自动签 Let's Encrypt）
-{$DOMAIN} {
-	import /etc/caddy/tls/active.caddy
-
+# 这里不做 TLS：证书由 Cloudflare 边缘终止，cloudflared 到 Caddy 走 compose 内网。
+# Caddy 不再暴露任何端口，所以「绕过 Cloudflare 直连源站」在拓扑上就不成立，
+# go-api 也因此可以固定 APP_BEHIND_CLOUDFLARE=true。
+:80 {
 	encode zstd gzip
 
 	# OAuth 元数据必须挂在站点根
 	handle /.well-known/* {
-		reverse_proxy api:8000
-	}
-
-	# 灰度：这两个前缀已由 Go 实现（含 /votes/stream 的 SSE）。
-	# 回滚：删掉 @goapi 与下面的 handle @goapi，流量会落回 /api/* 交给 Python。
-	@goapi path /api/v1/events /api/v1/events/* /api/v1/votes /api/v1/votes/*
-	handle @goapi {
 		reverse_proxy go-api:8000
 	}
 
 	handle /api/* {
-		reverse_proxy api:8000
+		reverse_proxy go-api:8000
 	}
 
 	handle /v1/* {
-		reverse_proxy api:8000
+		reverse_proxy go-api:8000
 	}
 
 	handle {
