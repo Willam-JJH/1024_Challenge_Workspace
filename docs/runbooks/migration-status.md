@@ -141,6 +141,9 @@ git diff --stat：44 files changed, 1389 insertions(+), 410 deletions(-)
 - [ ] 提交工作区（49 个文件）——**用户未要求，等指令**
 - [ ] 直播页 / 回放页的前后端功能（独立排期）
 - [ ] 决定是否正式对外（决定要不要回到学校机房 / 云服务器 + ICP 备案）
+- [ ] **首次部署验证通过后删除 Python 实现**（2026-11-17 决定）。删掉 `backend/`、
+      `tests/parity/` 与 `scripts/export_schema_sql.py`；此后 `docs/api/openapi.json`
+      与 `backend-go/internal/migrate/sql/` 手工维护。删除前它们仍是行为参照
 
 ---
 

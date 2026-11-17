@@ -384,6 +384,7 @@ timedatectl status
       - [ ] 首次部署：`up -d --build` → 建管理员 → 容器内健康检查
       - [ ] 隧道打通后从外网复测：健康检查、SSE、上传、邮件、真实客户端 IP
       - [ ] 恢复演练：`restic restore` 后起一套临时栈，跑一条业务链路
+      - [ ] 以上都通过后，按 `migration-status.md` 第 4 节删除 Python 实现与 parity 脚本
       - [ ] 决定 WAF 是否继续拦非浏览器 UA（Bot Fight Mode 建议关闭）
 
 > 云服务器路线仍然用「Origin CA + `cf_provision.py` + `cf_firewall.sh`」那套，
