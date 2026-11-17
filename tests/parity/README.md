@@ -3,6 +3,10 @@
 这些脚本需要**同一份数据库**上同时起着 Python（`backend/`）与 Go（`backend-go/`）两个实例，
 然后对两边发同样的请求，比对状态码、响应体与最终落库结果。
 
+> 2026-11-17 起新增的赛季与报名接口**只在 Go 侧实现**（见 `docs/design/season-lifecycle.md`），
+> 没有对照脚本。它们的验证步骤写在 `docs/runbooks/go-live-checklist.md` 的
+> 「2026-11-17 赛季能力」一节。
+
 ## 准备
 
 ```sh

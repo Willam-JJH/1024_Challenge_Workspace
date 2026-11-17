@@ -187,7 +187,50 @@ func (s *Server) requireEditor(w http.ResponseWriter, r *http.Request,
 		writeError(w, r, http.StatusForbidden, "forbidden", "只有队长或提交人可以编辑作品")
 		return false
 	}
+	// 比赛结束后默认仍可继续提交新版本，只有赛事关掉 post_event_edits 才转只读。
+	// 空档期把身份降回普通用户并不影响这里的成员关系判定，所以只读必须单独挡一道。
+	locked, err := s.companyEditLocked(r.Context(), project.CompanyID)
+	if err != nil {
+		s.writeQueryError(w, r, err)
+		return false
+	}
+	if locked {
+		writeError(w, r, http.StatusConflict, "conflict", "这一届已结束，作品为只读")
+		return false
+	}
 	return true
+}
+
+// editLocked 判断作品是否已经被赛事锁成只读。
+//
+// 开通 post_event_edits（默认）时永远可编辑：比赛结束、甚至收口之后，团队都能继续
+// 提交新版本，只是不再参与评比。关掉之后 ends_at 一过就冻结。
+func editLocked(now time.Time, endsAt, archivedAt *time.Time, postEventEdits bool) bool {
+	if postEventEdits {
+		return false
+	}
+	if archivedAt != nil {
+		return true
+	}
+	return endsAt != nil && !now.Before(*endsAt)
+}
+
+// companyEditLocked 按公司所属赛事判断作品是否只读。
+func (s *Server) companyEditLocked(ctx context.Context, companyID string) (bool, error) {
+	var endsAt, archivedAt pgtype.Timestamp
+	var postEventEdits bool
+	err := s.writePool().QueryRow(ctx, `
+		SELECT e.ends_at, e.archived_at, e.post_event_edits
+		FROM companies c JOIN events e ON e.id = c.event_id
+		WHERE c.id = $1`, companyID).Scan(&endsAt, &archivedAt, &postEventEdits)
+	if err != nil {
+		if isNoRows(err) {
+			return false, nil
+		}
+		return false, err
+	}
+	return editLocked(time.Now().UTC(), timestampPtr(endsAt), timestampPtr(archivedAt),
+		postEventEdits), nil
 }
 
 func (s *Server) myProject(w http.ResponseWriter, r *http.Request) {
@@ -197,9 +240,12 @@ func (s *Server) myProject(w http.ResponseWriter, r *http.Request) {
 	}
 	ctx := r.Context()
 	var companyID string
-	err := s.writePool().QueryRow(ctx,
-		`SELECT company_id FROM memberships WHERE user_id = $1 LIMIT 1`,
-		principal.User.ID).Scan(&companyID)
+	err := s.writePool().QueryRow(ctx, `
+		SELECT m.company_id FROM memberships m
+		JOIN companies c ON c.id = m.company_id
+		JOIN events e ON e.id = c.event_id
+		WHERE m.user_id = $1 AND e.slug = $2 LIMIT 1`,
+		principal.User.ID, s.cfg.CurrentEventSlug).Scan(&companyID)
 	if errors.Is(err, pgx.ErrNoRows) {
 		writeError(w, r, http.StatusNotFound, "not_found", "你还没有公司，先组建或加入一家")
 		return

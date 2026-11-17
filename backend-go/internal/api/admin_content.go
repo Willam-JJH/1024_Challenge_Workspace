@@ -144,6 +144,8 @@ type switchesIn struct {
 	RegistrationOpen *bool `json:"registration_open"`
 	VotingOpen       *bool `json:"voting_open"`
 	PitchOnAir       *bool `json:"pitch_on_air"`
+	// PostEventEdits 控制比赛结束后是否仍允许提交作品新版本。
+	PostEventEdits *bool `json:"post_event_edits"`
 }
 
 func (s *Server) adminSetSwitches(w http.ResponseWriter, r *http.Request) {
@@ -159,12 +161,27 @@ func (s *Server) adminSetSwitches(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
+	// 收口是终态。允许把开关重新打开只会造出「往届还能报名投票」的矛盾状态，
+	// 因此这里直接拒绝；真要重开，先人工清空 archived_at。
+	if (in.RegistrationOpen != nil && *in.RegistrationOpen) ||
+		(in.VotingOpen != nil && *in.VotingOpen) {
+		var archivedAt pgtype.Timestamp
+		if err := s.writePool().QueryRow(r.Context(),
+			`SELECT archived_at FROM events WHERE id = $1`, eventID).Scan(&archivedAt); err != nil {
+			s.writeQueryError(w, r, err)
+			return
+		}
+		if archivedAt.Valid {
+			writeError(w, r, http.StatusConflict, "conflict", "赛事已收口，不能重新开放报名或投票")
+			return
+		}
+	}
 	if _, err := s.writePool().Exec(r.Context(), `
 		UPDATE events SET registration_open = COALESCE($2, registration_open),
 			voting_open = COALESCE($3, voting_open), pitch_on_air = COALESCE($4, pitch_on_air),
-			updated_at = $5
+			post_event_edits = COALESCE($5, post_event_edits), updated_at = $6
 		WHERE id = $1`, eventID, in.RegistrationOpen, in.VotingOpen, in.PitchOnAir,
-		time.Now().UTC()); err != nil {
+		in.PostEventEdits, time.Now().UTC()); err != nil {
 		s.writeQueryError(w, r, err)
 		return
 	}

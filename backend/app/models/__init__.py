@@ -4,7 +4,15 @@ from app.models.admin import Announcement, FeatureFlag, Sponsor
 from app.models.audit import AuditLog
 from app.models.base import BaseModel
 from app.models.email import Broadcast, EmailMessage
-from app.models.event import Company, Event, Invitation, InviteLink, JoinRequest, Membership
+from app.models.event import (
+    Company,
+    Event,
+    EventEnrollment,
+    Invitation,
+    InviteLink,
+    JoinRequest,
+    Membership,
+)
 from app.models.exhibition import (
     Collaboration,
     Comment,
@@ -40,6 +48,7 @@ __all__ = [
     "InviteLink",
     "JoinRequest",
     "Event",
+    "EventEnrollment",
     "Membership",
     "Promotion",
     "Award",

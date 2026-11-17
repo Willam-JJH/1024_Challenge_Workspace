@@ -34,13 +34,24 @@ func (s *Server) feed(w http.ResponseWriter, r *http.Request) {
 	}
 	ctx := r.Context()
 
+	// 实时动态只覆盖正在进行的这一届；收口之后这一届的动态进入往届，不再出现在首页。
+	eventID, live, err := s.currentLiveEventID(ctx, pool)
+	if err != nil {
+		s.writeQueryError(w, r, err)
+		return
+	}
+	if !live {
+		writeJSON(w, http.StatusOK, []feedItem{})
+		return
+	}
+
 	projects, err := pool.Query(ctx, `
 		SELECT p.title, p.updated_at, c.name
 		FROM projects p
 		JOIN companies c ON c.id = p.company_id
-		WHERE p.status = 'published'
+		WHERE p.status = 'published' AND c.event_id = $1
 		ORDER BY p.updated_at DESC
-		LIMIT 20`)
+		LIMIT 20`, eventID)
 	if err != nil {
 		s.writeQueryError(w, r, err)
 		return
@@ -69,9 +80,9 @@ func (s *Server) feed(w http.ResponseWriter, r *http.Request) {
 		SELECT p.body, p.created_at, c.name
 		FROM promotions p
 		JOIN companies c ON c.id = p.company_id
-		WHERE p.status = 'live'
+		WHERE p.status = 'live' AND c.event_id = $1
 		ORDER BY p.created_at DESC
-		LIMIT 20`)
+		LIMIT 20`, eventID)
 	if err != nil {
 		s.writeQueryError(w, r, err)
 		return

@@ -62,7 +62,21 @@ GET /api/v1/companies?limit=20&cursor=...
 - 时间一律 ISO 8601 UTC（`2026-10-30T08:00:00Z`）。
 - 主键为 32 位十六进制 UUID4，不暴露自增序号。
 
+## 赛季
+
+平台按届运行，一届是一个 `event`。完整的生命周期见
+[`../design/season-lifecycle.md`](../design/season-lifecycle.md)，接口层面只需要记住三条：
+
+- **当期赛事由 `APP_CURRENT_EVENT_SLUG` 决定**，不是由时间推算。画廊、实时动态、报名、
+  投票只作用于当期赛事。
+- **报名按届记录**（`event_enrollments`）：`POST /events/{id}/enrollments` 报参赛者或观众，
+  受 `registration_open` 约束，比赛结束后不再接受。
+- **往届作品走 `/exhibition/archive`**：赛事结束满保留期（默认 30 天）后写入
+  `events.archived_at`，那一届的作品从进行中的页面移出，只出现在归档接口里。
+
 ## 版本演进
 
 - 破坏性变更才升 `/api/v2`；新增字段、可选参数不算破坏性变更。
 - 每个版本在 OpenAPI 中完整可见；`scripts/export_openapi.py` 生成 `docs/api/openapi.json` 并做回归比对。
+- 只在 Go 侧实现的接口写在 [`openapi-additions.json`](openapi-additions.json)，导出脚本会把
+  这份覆盖层并进规范。Python 实现已进入退场流程，新能力不再两边都写。

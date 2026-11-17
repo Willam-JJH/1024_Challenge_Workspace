@@ -1,0 +1,704 @@
+{
+  "_comment": "只在 Go 侧实现的接口。导出脚本会把这份覆盖层并进 openapi.json，保证重新从 Python 导出时新接口不会丢。Python 实现已进入退场流程，这些能力不再在 Python 侧实现。",
+  "paths": {
+    "/api/v1/exhibition/archive": {
+      "get": {
+        "tags": [
+          "exhibition"
+        ],
+        "summary": "往届列表（已收口的赛事）",
+        "operationId": "list_archived_events_api_v1_exhibition_archive_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ArchivedEventOut"
+                  },
+                  "type": "array",
+                  "title": "Response List Archived Events"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/exhibition/archive/{event_id}": {
+      "get": {
+        "tags": [
+          "exhibition"
+        ],
+        "summary": "某一届的往届作品与获奖",
+        "operationId": "get_archived_event_api_v1_exhibition_archive__event_id__get",
+        "parameters": [
+          {
+            "name": "event_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Event Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArchiveDetailOut"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "该届尚未收口，作品仍在进行中的页面上"
+          }
+        }
+      }
+    },
+    "/api/v1/events/{event_id}/enrollments": {
+      "post": {
+        "tags": [
+          "events"
+        ],
+        "summary": "报名参加某一届（参赛者 / 观众）",
+        "operationId": "create_enrollment_api_v1_events__event_id__enrollments_post",
+        "parameters": [
+          {
+            "name": "event_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Event Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EnrollmentIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnrollmentOut"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "赛事不存在"
+          },
+          "409": {
+            "description": "报名未开放、赛事已结束或已收口、仍在公司中"
+          },
+          "422": {
+            "description": "身份取值不合法"
+          }
+        }
+      }
+    },
+    "/api/v1/events/{event_id}/enrollments/me": {
+      "delete": {
+        "tags": [
+          "events"
+        ],
+        "summary": "取消报名（开赛前）",
+        "operationId": "withdraw_enrollment_api_v1_events__event_id__enrollments_me_delete",
+        "parameters": [
+          {
+            "name": "event_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Event Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkOut"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "赛事不存在或尚未报名"
+          },
+          "409": {
+            "description": "赛事已开始或仍在公司中"
+          }
+        }
+      }
+    },
+    "/api/v1/me/enrollments": {
+      "get": {
+        "tags": [
+          "me"
+        ],
+        "summary": "我的报名记录",
+        "operationId": "my_enrollments_api_v1_me_enrollments_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyEnrollmentsOut"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/event/enrollments": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "当期赛事报名名单",
+        "operationId": "admin_enrollments_api_v1_admin_event_enrollments_get",
+        "parameters": [
+          {
+            "name": "kind",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Kind"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "title": "Offset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/AdminEnrollmentOut"
+                  },
+                  "type": "array",
+                  "title": "Response Admin Enrollments"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/events": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "新建下一届赛事",
+        "operationId": "create_event_api_v1_admin_events_post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EventCreateIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventOut"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "赛事标识已存在"
+          },
+          "422": {
+            "description": "字段不合法"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "EnrollmentIn": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "participant",
+              "audience"
+            ],
+            "title": "Kind"
+          }
+        },
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "title": "EnrollmentIn"
+      },
+      "EnrollmentOut": {
+        "properties": {
+          "event_id": {
+            "type": "string",
+            "title": "Event Id"
+          },
+          "kind": {
+            "type": "string",
+            "title": "Kind"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "event_id",
+          "kind",
+          "status",
+          "created_at"
+        ],
+        "title": "EnrollmentOut"
+      },
+      "MyEnrollmentOut": {
+        "properties": {
+          "event_id": {
+            "type": "string",
+            "title": "Event Id"
+          },
+          "event_slug": {
+            "type": "string",
+            "title": "Event Slug"
+          },
+          "event_name": {
+            "type": "string",
+            "title": "Event Name"
+          },
+          "starts_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Starts At"
+          },
+          "kind": {
+            "type": "string",
+            "title": "Kind"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "event_id",
+          "event_slug",
+          "event_name",
+          "kind",
+          "status",
+          "created_at"
+        ],
+        "title": "MyEnrollmentOut"
+      },
+      "MyEnrollmentsOut": {
+        "properties": {
+          "enrollments": {
+            "items": {
+              "$ref": "#/components/schemas/MyEnrollmentOut"
+            },
+            "type": "array",
+            "title": "Enrollments"
+          }
+        },
+        "type": "object",
+        "required": [
+          "enrollments"
+        ],
+        "title": "MyEnrollmentsOut"
+      },
+      "AdminEnrollmentOut": {
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "title": "User Id"
+          },
+          "display_name": {
+            "type": "string",
+            "title": "Display Name"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "title": "Email"
+          },
+          "kind": {
+            "type": "string",
+            "title": "Kind"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "user_id",
+          "display_name",
+          "email",
+          "kind",
+          "status",
+          "created_at"
+        ],
+        "title": "AdminEnrollmentOut"
+      },
+      "ArchivedEventOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "slug": {
+            "type": "string",
+            "title": "Slug"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "starts_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Starts At"
+          },
+          "ends_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ends At"
+          },
+          "archived_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Archived At"
+          },
+          "companies": {
+            "type": "integer",
+            "title": "Companies"
+          },
+          "projects": {
+            "type": "integer",
+            "title": "Projects"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "slug",
+          "name",
+          "companies",
+          "projects"
+        ],
+        "title": "ArchivedEventOut"
+      },
+      "ArchiveAwardOut": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "title": "Kind"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          }
+        },
+        "type": "object",
+        "required": [
+          "kind",
+          "title"
+        ],
+        "title": "ArchiveAwardOut"
+      },
+      "ArchiveProjectOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "company_id": {
+            "type": "string",
+            "title": "Company Id"
+          },
+          "company_name": {
+            "type": "string",
+            "title": "Company Name"
+          },
+          "company_slug": {
+            "type": "string",
+            "title": "Company Slug"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "summary": {
+            "type": "string",
+            "title": "Summary"
+          },
+          "awards": {
+            "items": {
+              "$ref": "#/components/schemas/ArchiveAwardOut"
+            },
+            "type": "array",
+            "title": "Awards"
+          },
+          "live_version": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Live Version"
+          },
+          "competition_version": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Competition Version"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "company_id",
+          "company_name",
+          "company_slug",
+          "title",
+          "summary",
+          "awards",
+          "live_version",
+          "competition_version"
+        ],
+        "title": "ArchiveProjectOut"
+      },
+      "ArchiveDetailOut": {
+        "properties": {
+          "event": {
+            "$ref": "#/components/schemas/ArchivedEventOut"
+          },
+          "projects": {
+            "items": {
+              "$ref": "#/components/schemas/ArchiveProjectOut"
+            },
+            "type": "array",
+            "title": "Projects"
+          }
+        },
+        "type": "object",
+        "required": [
+          "event",
+          "projects"
+        ],
+        "title": "ArchiveDetailOut"
+      },
+      "EventCreateIn": {
+        "properties": {
+          "slug": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 2,
+            "title": "Slug"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "stage": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stage"
+          },
+          "starts_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Starts At"
+          },
+          "ends_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ends At"
+          },
+          "registration_open": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Registration Open"
+          },
+          "voting_open": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Voting Open"
+          },
+          "company_seats": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Company Seats"
+          }
+        },
+        "type": "object",
+        "required": [
+          "slug",
+          "name"
+        ],
+        "title": "EventCreateIn"
+      }
+    }
+  }
+}

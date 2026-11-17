@@ -136,6 +136,8 @@ def put_switches(
         event.voting_open = payload.voting_open
     if payload.pitch_on_air is not None:
         event.pitch_on_air = payload.pitch_on_air
+    if payload.post_event_edits is not None:
+        event.post_event_edits = payload.post_event_edits
     audit.record(
         db,
         actor_id=principal.user.id,

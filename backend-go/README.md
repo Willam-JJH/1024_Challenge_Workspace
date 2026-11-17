@@ -4,8 +4,9 @@ Go 版后端，目标是在不中断服务的前提下逐模块替换 `backend/`
 
 ## 现状
 
-- 279 个 OpenAPI operation 已全部注册路由：未实现的统一返回 `501 not_implemented`，
-  错误信封与 Python 实现一致。
+- 286 个 OpenAPI operation 已全部注册路由：未实现的统一返回 `501 not_implemented`，
+  错误信封与 Python 实现一致。其中 7 个（赛季与报名）只在 Go 侧实现，契约写在
+  `docs/api/openapi-additions.json`。
 - 已完成：配置（`APP_` 前缀）、读写连接池分离、请求 ID、CORS、访问日志、panic 兜底；
   **鉴权底座**（scrypt 校验、会话/API key、`sid` cookie、`last_seen` 节流）与
   `GET /me`、登录/退出接口；**公开只读接口**（events、projects 画廊、companies、
@@ -52,6 +53,13 @@ Go 版后端，目标是在不中断服务的前提下逐模块替换 `backend/`
   Go 授权的 code → Python 兑换成令牌 → Go userinfo 可用；Python 签发的 refresh →
   Go 轮换成功，旧 refresh 在两边都失效。
 - 共完成 **279 / 279** 个 operation，契约全覆盖。
+- **赛季能力**（2026-11-17）：一届一收口。`events.archived_at` 由后台任务在比赛结束满
+  保留期（`APP_SEASON_CLOSE_AFTER_DAYS`，默认 30 天）时写入，同时关闭报名与投票、
+  把 `member/captain` 回落为 `participant`；往届作品走 `/exhibition/archive`，
+  画廊与实时动态只覆盖当期赛事；按届报名记在 `event_enrollments`。
+  **赛后仍可继续提交作品新版本**（赛事级 `post_event_edits`，默认开），
+  归档接口同时返回 `live_version` 与 `competition_version`。设计见
+  `docs/design/season-lifecycle.md`。
 - 顺手修掉一个线上隐患：handler 不读请求体时，连接关闭阶段在 Windows 上会间歇触发
   RST，客户端拿不到响应。已加 `withBodyBuffer`（≤1 MB 的 body 先读完再分发）。
 - 顺手对齐一处行为：激活或接受邀请入队后，`participant` 会提升为 `member`

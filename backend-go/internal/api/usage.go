@@ -147,9 +147,12 @@ func (s *Server) usageTeam(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var companyID string
-	err := s.writePool().QueryRow(r.Context(),
-		`SELECT company_id FROM memberships WHERE user_id = $1 LIMIT 1`,
-		principal.User.ID).Scan(&companyID)
+	err := s.writePool().QueryRow(r.Context(), `
+		SELECT m.company_id FROM memberships m
+		JOIN companies c ON c.id = m.company_id
+		JOIN events e ON e.id = c.event_id
+		WHERE m.user_id = $1 AND e.slug = $2 LIMIT 1`,
+		principal.User.ID, s.cfg.CurrentEventSlug).Scan(&companyID)
 	if err != nil {
 		if isNoRows(err) {
 			writeJSON(w, http.StatusOK, struct {

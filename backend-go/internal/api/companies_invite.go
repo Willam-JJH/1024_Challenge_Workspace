@@ -173,7 +173,7 @@ func (s *Server) inviteMember(w http.ResponseWriter, r *http.Request) {
 			writeError(w, r, http.StatusConflict, "conflict", "该账号已在公司中")
 			return
 		}
-		other, err := s.myCompanyID(ctx, userID)
+		other, err := s.companyInSameEvent(ctx, userID, company.ID)
 		if err != nil {
 			s.writeQueryError(w, r, err)
 			return
@@ -479,7 +479,7 @@ func (s *Server) createJoinRequest(w http.ResponseWriter, r *http.Request) {
 		writeError(w, r, http.StatusConflict, "conflict", "该公司名单已锁定")
 		return
 	}
-	if existing, err := s.myCompanyID(ctx, principal.User.ID); err != nil {
+	if existing, err := s.companyInSameEvent(ctx, principal.User.ID, company.ID); err != nil {
 		s.writeQueryError(w, r, err)
 		return
 	} else if existing != "" {

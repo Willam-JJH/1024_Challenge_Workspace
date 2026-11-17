@@ -33,6 +33,9 @@ func (s *Server) StartWorkers(ctx context.Context) {
 	if s.cfg.JanitorIntervalSeconds > 0 {
 		go s.janitorLoop(ctx)
 	}
+	if s.cfg.SeasonPollSeconds > 0 {
+		go s.seasonLoop(ctx)
+	}
 	if s.writePool() == nil || s.cfg.BroadcastPollSeconds <= 0 {
 		return
 	}

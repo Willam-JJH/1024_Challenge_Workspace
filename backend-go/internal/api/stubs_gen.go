@@ -2,7 +2,8 @@
 
 package api
 
-// stubOps 是规范里还没有 Go 实现的 operation。
+// stubOps 是规范里的全部 operation；已经实现的在 New() 组装路由时被跳过，
+// 其余一律挂到 501 not_implemented，保证契约先行的约定在 Go 侧成立。
 var stubOps = []string{
 	"DELETE /api/v1/admin/announcements/{announcement_id}",
 	"DELETE /api/v1/admin/email/broadcasts/{broadcast_id}",
@@ -25,6 +26,7 @@ var stubOps = []string{
 	"DELETE /api/v1/companies/{company_id}/invitations/{invitation_id}",
 	"DELETE /api/v1/companies/{company_id}/invite-links",
 	"DELETE /api/v1/companies/{company_id}/members/{user_id}",
+	"DELETE /api/v1/events/{event_id}/enrollments/me",
 	"DELETE /api/v1/exhibition/comments/{comment_id}",
 	"DELETE /api/v1/exhibition/introductions/{introduction_id}/reply",
 	"DELETE /api/v1/exhibition/promotions/{promotion_id}",
@@ -52,6 +54,7 @@ var stubOps = []string{
 	"GET /api/v1/admin/email/setup",
 	"GET /api/v1/admin/email/templates",
 	"GET /api/v1/admin/event",
+	"GET /api/v1/admin/event/enrollments",
 	"GET /api/v1/admin/exhibition",
 	"GET /api/v1/admin/exhibition/assignments",
 	"GET /api/v1/admin/exhibition/collaborations",
@@ -94,6 +97,8 @@ var stubOps = []string{
 	"GET /api/v1/events/current",
 	"GET /api/v1/events/{event_id}",
 	"GET /api/v1/events/{event_id}/stats",
+	"GET /api/v1/exhibition/archive",
+	"GET /api/v1/exhibition/archive/{event_id}",
 	"GET /api/v1/exhibition/collaborations",
 	"GET /api/v1/exhibition/companies/{company_id}/visits",
 	"GET /api/v1/exhibition/feed",
@@ -112,6 +117,7 @@ var stubOps = []string{
 	"GET /api/v1/me/api-keys",
 	"GET /api/v1/me/connected-apps",
 	"GET /api/v1/me/digest-preferences",
+	"GET /api/v1/me/enrollments",
 	"GET /api/v1/me/exhibition-assignment",
 	"GET /api/v1/me/invitations",
 	"GET /api/v1/me/join-requests",
@@ -177,6 +183,7 @@ var stubOps = []string{
 	"POST /api/v1/admin/email/broadcasts/{broadcast_id}/tests",
 	"POST /api/v1/admin/email/messages/{message_id}/resends",
 	"POST /api/v1/admin/email/template-previews",
+	"POST /api/v1/admin/events",
 	"POST /api/v1/admin/exhibition/assignments/generation",
 	"POST /api/v1/admin/exhibition/assignments/publications",
 	"POST /api/v1/admin/exhibition/assignments/remaining",
@@ -225,6 +232,7 @@ var stubOps = []string{
 	"POST /api/v1/companies/{company_id}/leavings",
 	"POST /api/v1/companies/{company_id}/submitter-appointments",
 	"POST /api/v1/csp-reports",
+	"POST /api/v1/events/{event_id}/enrollments",
 	"POST /api/v1/exhibition/comments/{comment_id}/reports",
 	"POST /api/v1/exhibition/projects/{project_id}/comments",
 	"POST /api/v1/exhibition/promotions",

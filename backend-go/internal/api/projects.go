@@ -26,14 +26,24 @@ func (s *Server) gallery(w http.ResponseWriter, r *http.Request) {
 		WriteError(w, r, errInternal)
 		return
 	}
+	// 画廊只展示正在进行的这一届。赛季收口后作品只出现在往届归档里，不在这里残留。
+	eventID, live, err := s.currentLiveEventID(r.Context(), pool)
+	if err != nil {
+		s.writeQueryError(w, r, err)
+		return
+	}
+	if !live {
+		writeJSON(w, http.StatusOK, []projectCard{})
+		return
+	}
 	rows, err := pool.Query(r.Context(), `
 		SELECT p.id, p.company_id, p.status, p.title, p.summary, p.revision,
 			p.live_version, c.name, c.slug
 		FROM projects p
 		JOIN companies c ON c.id = p.company_id
-		WHERE p.status = 'published'
+		WHERE p.status = 'published' AND c.event_id = $1
 		ORDER BY p.updated_at DESC
-		LIMIT 100`)
+		LIMIT 100`, eventID)
 	if err != nil {
 		s.writeQueryError(w, r, err)
 		return

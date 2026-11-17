@@ -301,18 +301,23 @@ type emailRecipient struct {
 // emailRecipients 复刻 _recipients：活跃用户 + 受众/语言过滤。
 func (s *Server) emailRecipients(ctx context.Context, audience, locale string) ([]emailRecipient, error) {
 	query := `SELECT id, email, display_name, locale FROM users WHERE status = 'active'`
+	args := []any{}
 	switch audience {
 	case "participants":
 		query += ` AND role IN ('participant', 'member', 'captain')`
 	case "members":
-		query += ` AND id IN (SELECT user_id FROM memberships)`
+		// 只发给本届的参赛队成员：往届的成员关系还留在库里，
+		// 不按赛事限定会把前几届的人都算进来。
+		args = append(args, s.cfg.CurrentEventSlug)
+		query += ` AND id IN (SELECT m.user_id FROM memberships m` +
+			` JOIN companies c ON c.id = m.company_id` +
+			` JOIN events e ON e.id = c.event_id WHERE e.slug = $1)`
 	case "staff":
 		query += ` AND role IN ('staff', 'admin')`
 	}
-	args := []any{}
 	if locale != "all" {
-		query += ` AND locale = $1`
 		args = append(args, locale)
+		query += ` AND locale = $` + strconvItoa(len(args))
 	}
 	rows, err := s.writePool().Query(ctx, query, args...)
 	if err != nil {

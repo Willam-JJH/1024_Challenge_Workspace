@@ -18,8 +18,13 @@ class Event(BaseModel):
     stage: Mapped[str] = mapped_column(String(32), default="registration")
     starts_at: Mapped[datetime | None] = mapped_column(UTCDateTime(), nullable=True)
     ends_at: Mapped[datetime | None] = mapped_column(UTCDateTime(), nullable=True)
+    # 赛季正式收口的时刻：比赛结束满一个月由后台任务写入，之后作品进入前序作品、
+    # 报名与投票关闭、并拒绝一切写入。手工的 stage 只做展示，不参与系统判断。
+    archived_at: Mapped[datetime | None] = mapped_column(UTCDateTime(), nullable=True)
     registration_open: Mapped[bool] = mapped_column(default=True)
     voting_open: Mapped[bool] = mapped_column(default=True)
+    # 比赛结束后是否仍允许团队提交作品新版本。关掉之后 ends_at 一过作品即只读。
+    post_event_edits: Mapped[bool] = mapped_column(Boolean, default=True)
     votes_visible: Mapped[bool] = mapped_column(default=True)
     # LLM 网关
     llm_budget_micro: Mapped[int] = mapped_column(Integer, default=0)
@@ -63,6 +68,24 @@ class Membership(BaseModel):
     role: Mapped[str] = mapped_column(String(32), default="member")
 
     company: Mapped[Company] = relationship(back_populates="memberships")
+
+
+class EventEnrollment(BaseModel):
+    """按届的报名记录：这一届谁报名成了参赛者、谁报名成了观众。
+
+    唯一约束保证一人一届只有一条记录；取消报名是把 status 改成 withdrawn，
+    不删行，报名历史要留下来。
+    """
+
+    __tablename__ = "event_enrollments"
+    __table_args__ = (UniqueConstraint("event_id", "user_id", name="uq_event_enrollment"),)
+
+    event_id: Mapped[str] = mapped_column(ForeignKey("events.id", ondelete="CASCADE"), index=True)
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    # participant | audience
+    kind: Mapped[str] = mapped_column(String(16), default="audience")
+    # active | withdrawn
+    status: Mapped[str] = mapped_column(String(16), default="active")
 
 
 class Invitation(BaseModel):

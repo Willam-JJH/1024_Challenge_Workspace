@@ -15,30 +15,36 @@ const (
 )
 
 type eventOut struct {
-	ID               string  `json:"id"`
-	Slug             string  `json:"slug"`
-	Name             string  `json:"name"`
-	Stage            string  `json:"stage"`
-	StartsAt         *string `json:"starts_at"`
-	EndsAt           *string `json:"ends_at"`
+	ID       string  `json:"id"`
+	Slug     string  `json:"slug"`
+	Name     string  `json:"name"`
+	Stage    string  `json:"stage"`
+	StartsAt *string `json:"starts_at"`
+	EndsAt   *string `json:"ends_at"`
+	// ArchivedAt 非空表示这一届已经正式收口：作品进前序作品、报名与投票关闭、写入只读。
+	ArchivedAt       *string `json:"archived_at"`
 	RegistrationOpen bool    `json:"registration_open"`
 	VotingOpen       bool    `json:"voting_open"`
-	CompanySeats     int     `json:"company_seats"`
+	// PostEventEdits 为 false 时，ends_at 一过作品即只读；默认 true，赛后仍可提交新版本。
+	PostEventEdits bool `json:"post_event_edits"`
+	CompanySeats   int  `json:"company_seats"`
 }
 
-const eventColumns = `id, slug, name, stage, starts_at, ends_at,
-	registration_open, voting_open, company_seats`
+const eventColumns = `id, slug, name, stage, starts_at, ends_at, archived_at,
+	registration_open, voting_open, post_event_edits, company_seats`
 
 func scanEvent(row pgx.Row) (*eventOut, error) {
 	var event eventOut
-	var startsAt, endsAt pgtype.Timestamp
+	var startsAt, endsAt, archivedAt pgtype.Timestamp
 	err := row.Scan(&event.ID, &event.Slug, &event.Name, &event.Stage, &startsAt, &endsAt,
-		&event.RegistrationOpen, &event.VotingOpen, &event.CompanySeats)
+		&archivedAt, &event.RegistrationOpen, &event.VotingOpen, &event.PostEventEdits,
+		&event.CompanySeats)
 	if err != nil {
 		return nil, err
 	}
 	event.StartsAt = formatTimePtr(timestampPtr(startsAt))
 	event.EndsAt = formatTimePtr(timestampPtr(endsAt))
+	event.ArchivedAt = formatTimePtr(timestampPtr(archivedAt))
 	return &event, nil
 }
 

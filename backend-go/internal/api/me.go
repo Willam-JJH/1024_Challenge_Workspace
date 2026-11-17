@@ -345,14 +345,19 @@ type votingEvent struct {
 
 func (s *Server) votingEvent(r *http.Request) (*votingEvent, error) {
 	var event votingEvent
+	var archivedAt pgtype.Timestamp
 	err := s.writePool().QueryRow(r.Context(),
-		`SELECT id, voting_open FROM events WHERE slug = $1`, s.cfg.CurrentEventSlug).
-		Scan(&event.ID, &event.Open)
+		`SELECT id, voting_open, archived_at FROM events WHERE slug = $1`, s.cfg.CurrentEventSlug).
+		Scan(&event.ID, &event.Open, &archivedAt)
 	if err != nil {
 		if isNoRows(err) {
 			return nil, errNoCurrentEvent
 		}
 		return nil, err
+	}
+	// 收口是终态：即使开关还在库里开着，往届也不能再投票。
+	if archivedAt.Valid {
+		event.Open = false
 	}
 	return &event, nil
 }
@@ -723,6 +728,11 @@ type participationIn struct {
 	Mode *string `json:"mode"`
 }
 
+// setParticipation 是旧的「旁观 / 参赛」切换接口，保留契约兼容。
+//
+// 实际写入走与 /events/{id}/enrollments 相同的路径：按当期赛事记一条报名，
+// 并同步用户角色。因此它同样受报名开关约束——赛季没开放报名时不能靠这个接口
+// 把自己变回参赛者，否则空档期的身份回落会被绕过。
 func (s *Server) setParticipation(w http.ResponseWriter, r *http.Request) {
 	principal, ok := s.requireAuth(w, r)
 	if !ok {
@@ -736,35 +746,27 @@ func (s *Server) setParticipation(w http.ResponseWriter, r *http.Request) {
 		writeError(w, r, http.StatusUnprocessableEntity, "unprocessable", "请求不合法")
 		return
 	}
-	now := time.Now().UTC()
-	if *in.Mode == "participant" {
-		if _, err := s.writePool().Exec(r.Context(), `
-			UPDATE users SET role = 'member', updated_at = $2
-			WHERE id = $1 AND role = 'participant'`,
-			principal.User.ID, now); err != nil {
-			s.writeQueryError(w, r, err)
+	ctx := r.Context()
+	event, err := s.currentEnrollmentEvent(ctx)
+	if err != nil {
+		if isNoRows(err) {
+			writeError(w, r, http.StatusNotFound, "not_found", "当前赛事尚未配置")
 			return
 		}
-	} else {
-		row, err := s.myMembership(r.Context(), principal.User.ID)
-		if err != nil {
-			if errors.Is(err, errNoCurrentEvent) {
-				writeError(w, r, http.StatusNotFound, "not_found", "当前赛事尚未配置")
-				return
-			}
-			s.writeQueryError(w, r, err)
-			return
-		}
-		if row != nil {
+		s.writeQueryError(w, r, err)
+		return
+	}
+	if reason := enrollmentClosedReason(event, time.Now().UTC()); reason != "" {
+		writeError(w, r, http.StatusConflict, "conflict", reason)
+		return
+	}
+	if _, err := s.applyEnrollment(ctx, event, principal.User.ID, *in.Mode); err != nil {
+		if errors.Is(err, errEnrollmentInCompany) {
 			writeError(w, r, http.StatusConflict, "conflict", "还在公司里，先退出再切换")
 			return
 		}
-		if _, err := s.writePool().Exec(r.Context(), `
-			UPDATE users SET role = 'participant', updated_at = $2 WHERE id = $1`,
-			principal.User.ID, now); err != nil {
-			s.writeQueryError(w, r, err)
-			return
-		}
+		s.writeQueryError(w, r, err)
+		return
 	}
 	writeJSON(w, http.StatusOK, okOut{OK: true})
 }

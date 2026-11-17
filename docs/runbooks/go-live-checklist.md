@@ -418,6 +418,38 @@ timedatectl status
 
 ---
 
+## 2026-11-17 赛季能力（需要真库复验）
+
+**部署顺序**：先 `alembic upgrade head`，再换 `go-api` 二进制。新二进制所有事件查询都读
+`events.archived_at`，先换二进制会在迁移前把事件相关接口全部打成 500。
+
+- [ ] 迁移 `alembic upgrade head` 后确认 `events.archived_at` 与 `event_enrollments` 存在
+- [ ] **导入旧数据后先确认当期赛事的 `ends_at` 已填**。收口只认 `ends_at`，
+      为空就永远不会自动归档、也不会重置身份（`stage` 不参与判断）。
+      旧站 2026 那一届的结束时间按实际闭幕时间补上
+- [ ] 把当期赛事的 `ends_at` 临时改到 31 天前，等一轮 `seasonLoop`（间隔默认 3600 秒，
+      联调时设 `APP_SEASON_POLL_SECONDS=60`），确认：
+      - `events.archived_at` 被写入、`stage='archived'`、报名与投票开关关闭
+      - `GET /api/v1/exhibition/archive` 出现这一届，画廊变为空数组
+      - 原本是 `member` / `captain` 的账号变成 `participant`，`staff` / `admin` 不变
+      - `audit_log` 多出 `event.archive` 与 `event.offseason_reset` 两条，`actor_id` 为空
+- [ ] 恢复 `ends_at` 后确认收口**不会回滚**（`archived_at` 是终态，需要人工清空才重来）
+- [ ] 报名链路：`registration_open=false` 时报名返回 409；打开后分别报 `participant`
+      与 `audience`，确认 `users.role` 随之升降，且管理员报 `participant` 不被降/升
+- [ ] 多届隔离：建两届各一家同名成员的公司，确认
+      `GET /projects/mine`、`GET /usage/team`、广告发布都只认当期那一届
+
+### 赛后继续提交（2026-11-17 追加）
+
+- [ ] 把当期 `ends_at` 改到过去，用队长账号发布一版新版本，确认仍返回 200
+- [ ] 等到收口（或手工写 `archived_at`）之后再次发布，仍然 200——`post_event_edits` 默认开
+- [ ] 后台 `PUT /api/v1/admin/event/switches {"post_event_edits": false}` 之后，
+      保存草稿、发布、回滚全部返回 409；重新打开后恢复
+- [ ] `GET /api/v1/exhibition/archive/{event_id}` 返回的 `live_version` 与
+      `competition_version` 在赛后有新发布时确实不同
+
+---
+
 ## 建议顺序
 
 1. ~~空库冷启动~~（已完成）

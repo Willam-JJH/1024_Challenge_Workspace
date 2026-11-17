@@ -119,6 +119,7 @@ class SwitchesIn(BaseModel):
     registration_open: bool | None = None
     voting_open: bool | None = None
     pitch_on_air: bool | None = None
+    post_event_edits: bool | None = None
 
 
 class ScheduleIn(BaseModel):

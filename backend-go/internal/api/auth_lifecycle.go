@@ -579,10 +579,15 @@ func (s *Server) addMember(w http.ResponseWriter, r *http.Request,
 	userID, companyID string, seats int) (bool, error) {
 	pool := s.writePool()
 	var existing string
-	err := pool.QueryRow(r.Context(),
-		`SELECT company_id FROM memberships WHERE user_id = $1 LIMIT 1`, userID).Scan(&existing)
+	// 按公司所属的赛事判重：往届的公司还在库里，只按 user_id 查会把老成员挡在新一届外面。
+	err := pool.QueryRow(r.Context(), `
+		SELECT m.company_id FROM memberships m
+		JOIN companies c ON c.id = m.company_id
+		WHERE m.user_id = $1
+			AND c.event_id = (SELECT event_id FROM companies WHERE id = $2)
+		LIMIT 1`, userID, companyID).Scan(&existing)
 	if err == nil {
-		writeError(w, r, http.StatusConflict, "conflict", "该账号已在其他公司中")
+		writeError(w, r, http.StatusConflict, "conflict", "该账号本届已在其他公司中")
 		return false, nil
 	}
 	if !isNoRows(err) {

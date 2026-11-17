@@ -41,8 +41,13 @@ type Config struct {
 
 	// 定时广播 worker 的轮询间隔（秒）；0 = 关闭
 	BroadcastPollSeconds int
-	UploadDir            string
-	MaxUploadBytes       int64
+	// SeasonCloseAfterDays 是比赛结束后多少天正式收口这一届：
+	// 作品进前序作品、报名与投票关闭、参赛身份回落为普通用户。
+	SeasonCloseAfterDays int
+	// SeasonPollSeconds 是赛季任务的轮询间隔（秒）；0 = 关闭自动收口。
+	SeasonPollSeconds int
+	UploadDir         string
+	MaxUploadBytes    int64
 	// UploadQuotaBytes 是素材总占用上限；0 = 不限制。
 	UploadQuotaBytes int64
 	// JanitorIntervalSeconds 是清理任务间隔；0 = 关闭。
@@ -91,6 +96,8 @@ func Load() Config {
 		RateLimitVerifyEmail:  envInt("APP_RATE_LIMIT_VERIFY_EMAIL", 20),
 
 		BroadcastPollSeconds: envInt("APP_BROADCAST_POLL_SECONDS", 30),
+		SeasonCloseAfterDays: envInt("APP_SEASON_CLOSE_AFTER_DAYS", 30),
+		SeasonPollSeconds:    envInt("APP_SEASON_POLL_SECONDS", 3600),
 
 		UploadDir:      env("APP_UPLOAD_DIR", "uploads"),
 		MaxUploadBytes: envInt64("APP_MAX_UPLOAD_BYTES", 100*1024*1024),

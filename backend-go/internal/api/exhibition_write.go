@@ -267,14 +267,38 @@ func validPromotion(in promotionIn) bool {
 	return (in.Kind == "wall" || in.Kind == "ticker") && size >= 1 && size <= 280
 }
 
+// myCompanyID 返回用户在当前这一届所属的公司；没有返回空串。
+//
+// 必须按赛事限定：多届并行之后成员关系会累积，只按 user_id 查会拿到上一届的
+// 公司，广告、介绍任务、建队查重都会串届。
 func (s *Server) myCompanyID(ctx context.Context, userID string) (string, error) {
 	var companyID string
-	err := s.writePool().QueryRow(ctx,
-		`SELECT company_id FROM memberships WHERE user_id = $1 LIMIT 1`, userID).Scan(&companyID)
+	err := s.writePool().QueryRow(ctx, `
+		SELECT m.company_id FROM memberships m
+		JOIN companies c ON c.id = m.company_id
+		JOIN events e ON e.id = c.event_id
+		WHERE m.user_id = $1 AND e.slug = $2 LIMIT 1`,
+		userID, s.cfg.CurrentEventSlug).Scan(&companyID)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return "", nil
 	}
 	return companyID, err
+}
+
+// companyInSameEvent 返回用户与目标公司同属一届的成员关系对应的公司；没有返回空串。
+// 邀请、入队申请与入队的判重都用它——目标公司不一定属于当期赛事，不能只按 user_id 查。
+func (s *Server) companyInSameEvent(ctx context.Context, userID, companyID string) (string, error) {
+	var existing string
+	err := s.writePool().QueryRow(ctx, `
+		SELECT m.company_id FROM memberships m
+		JOIN companies c ON c.id = m.company_id
+		WHERE m.user_id = $1
+			AND c.event_id = (SELECT event_id FROM companies WHERE id = $2)
+		LIMIT 1`, userID, companyID).Scan(&existing)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return "", nil
+	}
+	return existing, err
 }
 
 func (s *Server) createPromotion(w http.ResponseWriter, r *http.Request) {

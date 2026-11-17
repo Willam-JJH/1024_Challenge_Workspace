@@ -34,8 +34,12 @@ class EventOut(ORMModel):
     stage: str
     starts_at: datetime | None = None
     ends_at: datetime | None = None
+    # 非空表示这一届已经收口（作品进前序、报名投票关闭、写入只读）
+    archived_at: datetime | None = None
     registration_open: bool
     voting_open: bool
+    # 比赛结束后是否仍允许提交作品新版本
+    post_event_edits: bool
     company_seats: int
 
 
