@@ -1,6 +1,6 @@
 # 1024 Challenge Workspace
 
-1024 挑战赛平台的**新后端**：接口契约先行，前端后续按同一套契约重新设计。
+1024 挑战赛平台：接口契约先行，后端用 **Go** 重写，前端后续按同一套契约重新设计。
 
 ## 这个仓库从哪来
 
@@ -8,49 +8,50 @@
 约 1.7 万行手写代码）。原仓库根目录没有 LICENSE，代码默认「保留所有权利」，因此这里
 **不复制实现**：接口按新的规范重新设计，代码、数据模型、迁移全部重写。
 
-原仓库的 `apps/intern` 是 opencode（MIT）的 fork，未纳入本仓库。
+原仓库的 `apps/intern` 是 opencode（MIT）的 fork，未纳入本仓库；新版客户端是独立仓库。
 
 ## 现在的状态
 
 | 部分 | 状态 |
 |---|---|
-| 接口契约 | **279 个端点全部注册**，见 [`docs/api/openapi.json`](docs/api/openapi.json) |
-| 已实现 | 账号全流程（注册/邮箱验证/激活/口令重置/人机校验）、会话、我的资料与 API key、公司（组建/成员/邀请/入队申请/邀请链接）、队友集市、作品（草稿/编辑锁/发布/版本/出席）、投票（投票记录/票/实时榜/大屏/SSE）、展览（评论/举报/广告/参观记录印章/介绍任务/动态流）、直播（流源/开关/留言/SSE + 管理端）、线下场次（报名/候补/签到/日历）、评审打分/入围名单/奖项公布、管理台（账号/公司/投票/看板/审计/赛事开关/公告/赞助商/功能开关）、LLM 管理（预算/模型/上游/路由/熔断/用量）、邮件中心（广播/受众估算/日志/模板）、/v1 网关转发（计费+熔断）、展览管理（介绍抽签/发布/审核/签到）、个人中心（公司/邀请/通知/参观记录/注销）、系统小接口（CSP/链接预览/GitHub）、OAuth 授权服务器（授权码+PKCE/令牌轮换/已连接应用）、赛事读取 |
-| 其余端点 | 返回 `501 not_implemented`，在 OpenAPI 中可见路径、方法与摘要，按模块逐个补齐 |
-| 数据模型 | users / sessions / api_keys / events / companies / memberships / projects / project_versions / votes / audit_log |
-| 前端 | 目录占位，等接口稳定后重新设计 |
-| 基础设施 | Docker Compose + Postgres 17 + Caddy；国内服务器部署见 [`docs/runbooks/deploy-cn.md`](docs/runbooks/deploy-cn.md) |
+| 接口契约 | **286 个端点**，见 [`docs/api/openapi.json`](docs/api/openapi.json)；新增部分在 [`docs/api/openapi-additions.json`](docs/api/openapi-additions.json) |
+| 已实现 | **286 / 286，全部由 Go 实现**（[`backend-go/`](backend-go/)）：账号、公司、作品、投票、展览、直播、线下场次、评审、管理台、LLM 网关、邮件中心、OAuth、赛季与报名 |
+| 数据模型 | 44 张表；Python 侧见 `backend/migrations`，Go 部署用 [`backend-go/internal/migrate/sql`](backend-go/internal/migrate/sql) |
+| 前端 | 目录占位，等新设计稿 |
+| 部署 | 自建迷你主机 + Cloudflare Tunnel（纯 Go、内置迁移、restic 备份），见 [`docs/runbooks/deploy-selfhost.md`](docs/runbooks/deploy-selfhost.md) |
+| Python 实现 | `backend/` 已退出运行，仅作行为参照；首次部署验证通过后删除 |
 
 旧接口清单（267 个，仅作功能对照）见 [`docs/api/legacy-endpoints.md`](docs/api/legacy-endpoints.md)。
+接手这个仓库请先读 [`CLAUDE.md`](CLAUDE.md) 和
+[`docs/runbooks/migration-status.md`](docs/runbooks/migration-status.md)。
 
 ## 目录
 
 ```
-backend/     FastAPI + SQLAlchemy 2.0 + Alembic
-  app/core/    配置、数据库、鉴权、错误信封、分页
-  app/models/  ORM 模型
-  app/api/v1/  业务接口（按领域分模块）
-  app/api/admin/ 管理台接口
-  app/api/llm.py OpenAI 兼容网关面（挂在 /v1）
-  migrations/  Alembic 迁移
-  tests/       pytest
-frontend/    占位（重设计后填充）
-infra/       docker-compose、Caddyfile、Cloudflare 说明
-docs/        api/（规范、OpenAPI、旧清单）、adr/、design/（Intern 重设计）
-scripts/     导出 OpenAPI、生成旧接口清单
+backend-go/   Go 后端（唯一在用的实现）
+  cmd/api/      serve / migrate / create-admin 三个入口
+  internal/     api 路由与 handler、auth、db、media、broker、migrate
+  tools/        genstubs（501 路由表）、loadgen、mailprobe
+backend/      FastAPI + SQLAlchemy + Alembic（退场中，仅作参照与迁移来源）
+frontend/     占位（新设计稿完成后填充）
+infra/        docker-compose、Caddyfile、Cloudflare 说明
+docs/         api/（规范、OpenAPI）、design/（Intern、赛季）、runbooks/（迁移、部署、上线清单）
+scripts/      导出 OpenAPI 与迁移 SQL、备份、Cloudflare 工具
+tests/parity/ 跨实现对照测试（需要同时起 Python 与 Go，Python 删除后退役）
 ```
 
 ## 快速开始
 
 ```bash
-cd backend
-uv sync
-uv run alembic upgrade head          # 或用 docker-compose 起 Postgres
-uv run uvicorn app.main:app --reload # http://127.0.0.1:8000/docs
-uv run pytest
-```
+# Go 后端（本机工具链在 C:\Users\willi\tools\go，不在 PATH）
+cd backend-go
+go build -o bin/api.exe ./cmd/api
+APP_DATABASE_URL='postgres://app:app@127.0.0.1:5432/challenge' \
+APP_PORT=18080 ./bin/api.exe          # migrate 子命令建表，见 README
 
-默认使用本地 SQLite（`backend/dev.db`）；把 `APP_DATABASE_URL` 指到 Postgres 即可切换。
+# 本地数据库：docker compose -f infra/docker-compose.yml up -d db
+# 建表：./bin/api migrate
+```
 
 ## 接口规范
 
